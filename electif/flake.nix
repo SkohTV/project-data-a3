@@ -12,9 +12,16 @@ in {
     default = pkgs.mkShell {
       packages = with pkgs; [
         pandoc
-        texliveTeTeX
-        texlivePackages.tcolorbox
 
+        (texliveSmall.withPackages (ps: with ps; [
+          tcolorbox
+          pdfcol
+          adjustbox
+          titling
+          enumitem
+          soul
+          rsfs
+        ]))
 
         (python312.withPackages (ps: with ps; [
           virtualenv
@@ -24,9 +31,10 @@ in {
           numpy
           scipy
           matplotlib
-          xlrd
-          scikit-learn
+          # xlrd
+          # scikit-learn
           notebook
+          openpyxl
         ]))
       ];
     };
