@@ -31,8 +31,9 @@ in {
           numpy
           scipy
           matplotlib
+          seaborn
           # xlrd
-          # scikit-learn
+          scikit-learn
           notebook
           openpyxl
         ]))
