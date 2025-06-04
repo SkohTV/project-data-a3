@@ -1,45 +1,41 @@
-{ outputs = { nixpkgs, ... }:
+{
+
+outputs = { pkgs, system }:
 
 let
-  allSystems = [ "x86_64-linux" "aarch64-linux" "x86_64-darwin" "aarch64-darwin" ];
-
-  forAllSystems = f: nixpkgs.lib.genAttrs allSystems (system: f {
-    pkgs = import nixpkgs { inherit system; };
-  });
+  python = pkgs.python312;
+  latex = pkgs.texliveSmall;
 
 in {
-  devShells = forAllSystems ({ pkgs }: {
-    default = pkgs.mkShell {
-      packages = with pkgs; [
-        pandoc
+  devShells.${system}.default = pkgs.mkShell {
+    packages = with pkgs; [
+      pandoc
 
-        (texliveSmall.withPackages (ps: with ps; [
-          tcolorbox
-          pdfcol
-          adjustbox
-          titling
-          enumitem
-          soul
-          rsfs
-        ]))
+      (latex.withPackages (ps: with ps; [
+        tcolorbox
+        pdfcol
+        adjustbox
+        titling
+        enumitem
+        soul
+        rsfs
+      ]))
 
-        (python312.withPackages (ps: with ps; [
-          virtualenv
-          pip
+      (python.withPackages (ps: with ps; [
+        virtualenv
+        pip
 
-          pandas 
-          numpy
-          scipy
-          matplotlib
-          seaborn
-          # xlrd
-          scikit-learn
-          notebook
-          openpyxl
-        ]))
-      ];
-    };
+        pandas 
+        numpy
+        scipy
+        matplotlib
+        seaborn
+        scikit-learn
+        notebook
+        openpyxl
+      ]))
+    ];
+  };
 
-  });
 };
 }
