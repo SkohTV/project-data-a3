@@ -7,7 +7,7 @@ let
   pkgs = nixpkgs.legacyPackages.${system};
 
   electif = (import ./electif/flake.nix).outputs { inherit system pkgs; };
-  big-data = (import ./electif/flake.nix).outputs { inherit system pkgs; };
+  big-data = (import ./big-data/flake.nix).outputs { inherit system pkgs; };
 
 in {
 

@@ -11,6 +11,15 @@ outputs = { pkgs, system }:
         languageserver
 
         # r package
+        ggplot2
+        sf
+        rnaturalearth
+        rnaturalearthdata
+        glm2
+        leaflet
+        devtools
+        webshot
+        mapview
       ])
     ];
   };
