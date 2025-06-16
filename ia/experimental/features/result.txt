@@ -1,0 +1,151 @@
+-> 
+python3 feature_engineering.py --train --evaluate
+2025-06-19 11:14:30,210 - INFO - Chargement des données...
+2025-06-19 11:14:42,540 - INFO - Données chargées: 1273 échantillons
+2025-06-19 11:14:42,547 - INFO - Distribution des classes:
+VesselType
+70    487
+80    410
+60     90
+79     68
+89     56
+71     39
+82     27
+69     19
+84     18
+81     15
+74     15
+72      6
+83      6
+85      3
+75      3
+88      2
+78      2
+76      2
+65      2
+77      1
+68      1
+73      1
+Name: count, dtype: int64
+2025-06-19 11:14:42,548 - INFO - Distribution des catégories:
+VesselCategory
+Cargo        624
+Tanker       537
+Passenger    112
+Name: count, dtype: int64
+2025-06-19 11:14:42,549 - INFO - Nettoyage des données...
+2025-06-19 11:14:42,550 - INFO - Avant nettoyage - Valeurs infinies: 3, NaN: 0
+2025-06-19 11:14:42,557 - INFO - Colonne length_width_ratio: 0 NaN remplacés par médiane (6.00)
+2025-06-19 11:14:42,560 - INFO - Colonne mean_draft: 2 valeurs aberrantes clippées
+2025-06-19 11:14:42,561 - INFO - Colonne std_draft: 2 valeurs aberrantes clippées
+2025-06-19 11:14:42,563 - INFO - Colonne mean_distance_travel: 68 valeurs aberrantes clippées
+2025-06-19 11:14:42,564 - INFO - Colonne std_distance_travel: 53 valeurs aberrantes clippées
+2025-06-19 11:14:42,565 - INFO - Colonne mean_cruise_speed: 16 valeurs aberrantes clippées
+2025-06-19 11:14:42,567 - INFO - Colonne std_cruise_speed: 34 valeurs aberrantes clippées
+2025-06-19 11:14:42,568 - INFO - Colonne mean_dist_coast_travel: 2 valeurs aberrantes clippées
+2025-06-19 11:14:42,570 - INFO - Colonne mean_duration_stop: 39 valeurs aberrantes clippées
+2025-06-19 11:14:42,572 - INFO - Colonne std_duration_stop: 38 valeurs aberrantes clippées
+2025-06-19 11:14:42,574 - INFO - Colonne number_occurence_travel: 108 valeurs aberrantes clippées
+2025-06-19 11:14:42,575 - INFO - Colonne length_width_ratio: 48 valeurs aberrantes clippées
+2025-06-19 11:14:42,577 - INFO - Colonne COG_std: 2 valeurs aberrantes clippées
+2025-06-19 11:14:42,579 - INFO - Colonne HDG_COG_diff_std: 3 valeurs aberrantes clippées
+2025-06-19 11:14:42,582 - INFO - Colonne number_occurence_docked: 120 valeurs aberrantes clippées
+2025-06-19 11:14:42,583 - INFO - Colonne number_occurence_off_shore_docked: 184 valeurs aberrantes clippées
+2025-06-19 11:14:42,584 - INFO - Après nettoyage - Valeurs infinies: 0, NaN: 0
+2025-06-19 11:14:42,750 - INFO - Vérification de la multicolinéarité (VIF)...
+2025-06-19 11:14:42,804 - INFO - VIF scores:
+                              Feature        VIF
+2                mean_distance_travel  11.186482
+3                 std_distance_travel   9.734270
+8                  mean_duration_stop   6.344494
+9                   std_duration_stop   6.001886
+19             onshore_duration_ratio   4.257816
+4                   mean_cruise_speed   3.289392
+13                  HDG_COG_diff_mean   3.237428
+6              mean_dist_coast_travel   2.729431
+7               std_dist_coast_travel   2.561506
+10            number_occurence_travel   2.394928
+17            number_occurence_docked   2.088156
+0                          mean_draft   2.077095
+14                   HDG_COG_diff_std   2.003857
+5                    std_cruise_speed   1.927320
+16                    COG_consistency   1.615280
+1                           std_draft   1.612915
+11                 length_width_ratio   1.572119
+18  number_occurence_off_shore_docked   1.542952
+15                Heading_consistency   1.497222
+12                            COG_std   1.272057
+2025-06-19 11:14:42,807 - WARNING - Features avec VIF élevé (>10):
+                Feature        VIF
+2  mean_distance_travel  11.186482
+2025-06-19 11:14:42,807 - INFO - Prétraitement des données...
+2025-06-19 11:14:42,814 - INFO - Classes encodées: {'Cargo': 0, 'Passenger': 1, 'Tanker': 2}
+2025-06-19 11:14:42,814 - INFO - Entraînement et évaluation des modèles...
+2025-06-19 11:14:42,814 - INFO - Nombre minimum d'échantillons par classe: 112
+2025-06-19 11:14:42,814 - INFO - Utilisation de 5 folds pour la validation croisée
+2025-06-19 11:14:42,893 - INFO - Après SMOTE - Distribution: [561 561 561]
+2025-06-19 11:14:42,893 - INFO - Création des modèles...
+2025-06-19 11:14:42,898 - INFO - Entraînement du modèle: RandomForest
+2025-06-19 11:15:45,153 - INFO - RandomForest - F1 Score: 0.8516, Accuracy: 0.8516
+2025-06-19 11:15:45,210 - INFO - Entraînement du modèle: LightGBM
+2025-06-19 11:19:05,145 - INFO - LightGBM - F1 Score: 0.8742, Accuracy: 0.8750
+2025-06-19 11:19:05,146 - INFO - Entraînement du modèle: XGBoost
+2025-06-19 11:22:28,291 - INFO - XGBoost - F1 Score: 0.8596, Accuracy: 0.8594
+2025-06-19 11:22:28,293 - INFO - Entraînement du modèle: CatBoost
+2025-06-19 11:33:43,514 - INFO - CatBoost - F1 Score: 0.8281, Accuracy: 0.8281
+2025-06-19 11:33:43,514 - INFO - Meilleur modèle: LightGBM (F1: 0.8742)
+2025-06-19 11:33:43,523 - INFO - Modèle sauvegardé: /home/mkkuu/Documents/project-data-a3/ia/data/vessel_model.pkl
+
+======================================================================
+RÉSUMÉ DE L'ÉVALUATION DES MODÈLES
+======================================================================
+
+RandomForest:
+  Meilleurs paramètres: {'max_depth': 20, 'min_samples_leaf': 1, 'min_samples_split': 2, 'n_estimators': 200}
+  Score CV: 0.8714
+  Accuracy: 0.8516
+  Precision: 0.8518
+  Recall: 0.8516
+  F1 Score: 0.8516
+  ROC AUC: 0.9369
+
+LightGBM:
+  Meilleurs paramètres: {'learning_rate': 0.2, 'max_depth': 10, 'n_estimators': 100, 'num_leaves': 31}
+  Score CV: 0.8917
+  Accuracy: 0.8750
+  Precision: 0.8745
+  Recall: 0.8750
+  F1 Score: 0.8742
+  ROC AUC: 0.9555
+
+XGBoost:
+  Meilleurs paramètres: {'learning_rate': 0.1, 'max_depth': 6, 'n_estimators': 300, 'subsample': 0.8}
+  Score CV: 0.8905
+  Accuracy: 0.8594
+  Precision: 0.8614
+  Recall: 0.8594
+  F1 Score: 0.8596
+  ROC AUC: 0.9499
+
+CatBoost:
+  Meilleurs paramètres: {'depth': 8, 'iterations': 300, 'l2_leaf_reg': 5, 'learning_rate': 0.1}
+  Score CV: 0.8845
+  Accuracy: 0.8281
+  Precision: 0.8281
+  Recall: 0.8281
+  F1 Score: 0.8281
+  ROC AUC: 0.9402
+
+🏆 MEILLEUR MODÈLE: LightGBM
+======================================================================
+
+Rapport de classification détaillé - LightGBM:
+              precision    recall  f1-score   support
+
+           0       0.89      0.86      0.87        63
+           1       0.80      0.73      0.76        11
+           2       0.88      0.93      0.90        54
+
+    accuracy                           0.88       128
+   macro avg       0.85      0.84      0.84       128
+weighted avg       0.87      0.88      0.87       128
