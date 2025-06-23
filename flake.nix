@@ -8,6 +8,7 @@ let
 
   electif = (import ./electif/flake.nix).outputs { inherit system pkgs; };
   ia = (import ./ia/flake.nix).outputs { inherit system pkgs; };
+  web = (import ./web/flake.nix).outputs { inherit system pkgs; };
 
 in {
 
@@ -15,7 +16,7 @@ in {
     "electif" = electif.devShells.${system}.default; 
     "big-data" = throw "No devshell for this part of the project, didn't bother packaging it with Nix";
     "ia" = ia.devShells.${system}.default; 
-    "web" = throw "No devshell for this part of the project, didn't bother packaging it with Nix";
+    "web" = web.devShells.${system}.default; 
   };
 
 };
