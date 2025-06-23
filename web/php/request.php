@@ -1,6 +1,5 @@
 <?php
 
-
   require_once('database.php');
 
   // Database connection.
@@ -20,18 +19,28 @@
   // var_dump($request);
   // var_dump($requestRessource);
   // var_dump($request);
+
+  // Now, request has the form:
+  //   [0] = 'vessels'
+  //   [1] = 'mmsi' (optional)
   
 
-  if($requestRessource == 'tweets'){
-    if($requestMethod == 'GET'){
-      
-      $login = $_GET['login'];
-      if($login == NULL){
-      }else{
+  if($requestRessource == 'vessels'){
+    // Request the list of vessels.
+    if ($requestMethod == 'GET')
+    {
+      $result = dbRequestVessels($db);
+      if (!$result)
+      {
+        header('HTTP/1.1 500 Internal Server Error');
+        exit;
       }
+      echo json_encode($result);
     }
-
-    if($requestMethod == 'POST'){
+    else
+    {
+      header('HTTP/1.1 405 Method Not Allowed');
+      exit;
     }
   }
 
