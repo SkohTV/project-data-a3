@@ -15,6 +15,7 @@ in {
     "electif" = electif.devShells.${system}.default; 
     "big-data" = throw "No devshell for this part of the project, didn't bother packaging it with Nix";
     "ia" = ia.devShells.${system}.default; 
+    "web" = throw "No devshell for this part of the project, didn't bother packaging it with Nix";
   };
 
 };
