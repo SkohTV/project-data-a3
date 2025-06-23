@@ -1,0 +1,41 @@
+name: Pipeline
+
+
+on:
+  push:
+    branches:
+      - main
+
+
+
+jobs:
+
+  deploy:
+    name: sync to gitlab
+    runs-on: ubuntu-latest
+
+    steps:
+
+    steps:
+
+      - name: checkout
+        uses: actions/checkout@v4 
+
+      - name: add ssh keys
+        run: |
+          install -m 600 -D /dev/null ~/.ssh/id_rsa
+          echo "${{ secrets.GITLAB_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          # ssh-keyscan -H ${{ secrets.SSH_HOST }} > ~/.ssh/known_hosts
+
+      - name: connect and redeploy
+        run: |
+          git remote add fake-origin git@web.isen-ouest.fr:nlorre27/Groupe2.git
+          git push fake-origin
+          # ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "\
+          # cd ${{ secrets.WORKDIR }} &&\
+          # git pull origin && git reset --hard origin/master &&\
+          # docker compose build && docker compose down && docker compose up -d"
+
+      - name: cleanup
+        run: rm -rf ~/.ssh
+
