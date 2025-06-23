@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bato sur lô</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="header">
+      <div class="nav-container">
+        <div class="logo">Bato sur lô</div>
+        <nav>
+          <ul class="nav-menu">
+            <li>
+              <a href="#" class="nav-link active" data-page="home">Accueil</a>
+            </li>
+            <li>
+              <a href="#" class="nav-link" data-page="add">Ajouter Navire</a>
+            </li>
+            <li>
+              <a href="#" class="nav-link" data-page="visualize">Visualiser</a>
+            </li>
+            <li>
+              <a href="#" class="nav-link" data-page="clusters">Clusters</a>
+            </li>
+            <li>
+              <a href="#" class="nav-link" data-page="predict">Prédictions</a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <section id="home-page" class="content-page active">
+      <div class="parallax-container">
+        <div class="parallax-scene">
+          <div class="stars-layer"></div>
+          <div class="earth-container">
+            <canvas id="globe-canvas"></canvas>
+            <div class="earth-glow"></div>
+          </div>
+          <div class="welcome-content">
+            <h1 class="main-title">
+              <span class="title-line">BATO</span>
+              <span class="title-line">SUR LÔ</span>
+            </h1>
+            <p class="subtitle">groupe 2</p>
+            <div class="scroll-indicator">
+              <span>Scrollez pour explorer</span>
+              <div class="arrow-down"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="intro-content">
+          <div class="intro-section">
+            <h2>Projet de fin d'année</h2>
+            <p>
+              Analyse des comportements de navigation des navires à partir des
+              données AIS du Golfe du Mexique.
+            </p>
+
+            <div class="features-grid">
+              <div class="feature-card" data-page="add">
+                <h3>Ajouter Navire</h3>
+                <p>
+                  Enregistrez de nouveaux points de données AIS dans la base
+                </p>
+              </div>
+              <div class="feature-card" data-page="visualize">
+                <h3>Visualiser</h3>
+                <p>Consultez les navires en tableau et sur carte interactive</p>
+              </div>
+              <div class="feature-card" data-page="clusters">
+                <h3>Clusters</h3>
+                <p>Analyse des comportements de navigation similaires</p>
+              </div>
+              <div class="feature-card" data-page="predict">
+                <h3>Prédictions IA</h3>
+                <p>Prédiction du type et de la trajectoire des navires</p>
+              </div>
+            </div>
+
+            <div class="cta-section">
+              <a href="#" class="cta-button" data-page="visualize"
+                >Commencer l'exploration</a
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="add-page" class="content-page">
+      <div class="simple-page">
+        <h1>Ajouter un Navire</h1>
+      </div>
+    </section>
+
+    <section id="visualize-page" class="content-page">
+      <div class="simple-page">
+        <h1>Visualisation des Navires</h1>
+      </div>
+    </section>
+
+    <section id="clusters-page" class="content-page">
+      <div class="simple-page">
+        <h1>Analyse des Clusters</h1>
+      </div>
+    </section>
+
+    <section id="predict-page" class="content-page">
+      <div class="simple-page">
+        <h1>Prédictions IA</h1>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <p>&copy; 2024 Projet A3 - groupe 2 - Bato sur lô</p>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>
+
+
+
+
