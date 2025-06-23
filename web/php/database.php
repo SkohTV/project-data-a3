@@ -25,20 +25,14 @@
   //----------------------------------------------------------------------------
   //--- dbRequestVessel --------------------------------------------------------
   //----------------------------------------------------------------------------
-  // Function to get all tweets (if $login='') or the tweets of a user
-  // (otherwise).
+  // Request the list of vessels from the database.
   // \param db The connected database.
-  // \param login The login of the user (for specific request).
-  // \return The list of tweets.
-  function dbRequestVessel($db)
+  function dbRequestVessels($db)
   {
     try
     {
-      $request = 'SELECT * FROM ';
-      if ($login != '')
-        $request .= ' WHERE';
+      $request = 'SELECT * FROM vessel';
       $statement = $db->prepare($request);
-      if ($login != '')
       $statement->execute();
       $result = $statement->fetchAll(PDO::FETCH_ASSOC);
     }
@@ -53,24 +47,26 @@
   //----------------------------------------------------------------------------
   //--- dbAddVessel ------------------------------------------------------------
   //----------------------------------------------------------------------------
-  // Add a tweet.
+  // Add a vessel to the database.
   // \param db The connected database.
-  // \param login The login of the user.
-  // \param text The tweet to add.
-  // \return True on success, false otherwise.
-  function dbAddVessel($db)
-  {
+
+  function dbAddVessel($db, $mmsi, $vesselname, $imo, $callsign, $transceiverclass, $length, $width) {
     try
     {
-      $request = 'INSERT INTO';
+      $request = 'INSERT INTO vessel (mmsi, vesselname, imo, callsign, transceiverclass, length, width) VALUES (:mmsi, :vesselname, :imo, :callsign, :transceiverclass, :length, :width)';
       $statement = $db->prepare($request);
-      $statement->bindParam(':login', $login, PDO::PARAM_STR, 20);
-      $statement->bindParam(':text', $text, PDO::PARAM_STR, 80);
+      $statement->bindParam(':mmsi', $mmsi);
+      $statement->bindParam(':vesselname', $vesselname);
+      $statement->bindParam(':imo', $imo);
+      $statement->bindParam(':callsign', $callsign);
+      $statement->bindParam(':transceiverclass', $transceiverclass);
+      $statement->bindParam(':length', $length);
+      $statement->bindParam(':width', $width);
       $statement->execute();
     }
     catch (PDOException $exception)
     {
-      error_log('Request error: '.$exception->getMessage());
+      error_log('Insert error: '.$exception->getMessage());
       return false;
     }
     return true;
