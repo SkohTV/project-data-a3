@@ -16,6 +16,7 @@ in {
         pip
 
         requests
+        beautifulsoup4
       ]))
     ];
   };
