@@ -3,7 +3,6 @@
 Noé LORRET-DESPRET - Corentin MARIE - Robin DELAUNAY
 
 
-___
 
 ## FRONT-END
 -> Représentant : Corentin
@@ -50,3 +49,8 @@ ___
 -> Demi-journée 5 :
 
 -> Demi-journée 6 :
+
+
+[Figma](https://www.figma.com/design/97ErxytRyoEPj02xYVWRql/Untitled?node-id=0-1&t=kxfiXjo05nDyOnBw-1)
+[Gantt]()
+[Website](http://etu0623.projets.isen-ouest.info)
