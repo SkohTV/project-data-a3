@@ -205,7 +205,6 @@
       $status_code = $_GET['status_code'] ?? null;
       $mmsi = $_GET['mmsi'] ?? null;
 
-      limits=25&page=1&mmsi=null&longueur_min=0&longueur_max=500&largeur_min=0&largeur_max=100&temps_min=2024-01-01+00%3A00%3A00&temps_max=2024-12-31+23%3A59%3A59
 
       // Validate parameters.
       if (!is_numeric($limits) || !is_numeric($page) || !is_numeric($longueur_max) || !is_numeric($longueur_min) || !is_numeric($largeur_max) || !is_numeric($largeur_min)) {
