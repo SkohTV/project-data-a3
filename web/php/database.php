@@ -296,48 +296,55 @@
     {
       $offset = ($page - 1) * $limits;
 
-
-
-
       $request = 'SELECT * FROM point_donnee WHERE longueur BETWEEN :longueur_min AND :longueur_max AND largeur BETWEEN :largeur_min AND :largeur_max';
 
+      $params = array(
+        ':longueur_min' => $longueur_min,
+        ':longueur_max' => $longueur_max,
+        ':largeur_min' => $largeur_min,
+        ':largeur_max' => $largeur_max
+      );
 
       if ($mmsi !== null) {
         $request .= ' AND mmsi = :mmsi';
+        $params[':mmsi'] = $mmsi;
       }
 
       if ($temps_min !== null && $temps_max !== null) {
         $request .= ' AND base_date_time BETWEEN :temps_min AND :temps_max';
+        $params[':temps_min'] = $temps_min;
+        $params[':temps_max'] = $temps_max;
       } elseif ($temps_min !== null) {
         $request .= ' AND base_date_time >= :temps_min';
+        $params[':temps_min'] = $temps_min;
       } elseif ($temps_max !== null) {
         $request .= ' AND base_date_time <= :temps_max';
+        $params[':temps_max'] = $temps_max;
       }
-
 
       if ($transceiver_class !== null) {
         $request .= ' AND transceiver_class = :transceiver_class';
+        $params[':transceiver_class'] = $transceiver_class;
       }
       if ($status_code !== null) {
         $request .= ' AND status_code = :status_code';
+        $params[':status_code'] = $status_code;
       }
       $request .= ' LIMIT :limits OFFSET :offset';
+      $params[':limits'] = (int)$limits;
+      $params[':offset'] = (int)$offset;
+
       $statement = $db->prepare($request);
-      $statement->bindParam(':mmsi', $mmsi);
-      $statement->bindParam(':longueur_min', $longueur_min);
-      $statement->bindParam(':longueur_max', $longueur_max);
-      $statement->bindParam(':largeur_min', $largeur_min);
-      $statement->bindParam(':largeur_max', $largeur_max);
-      $statement->bindParam(':temps_min', $temps_min);
-      $statement->bindParam(':temps_max', $temps_max);
-      if ($transceiver_class !== null) {
-        $statement->bindParam(':transceiver_class', $transceiver_class);
+
+
+      foreach ($params as $key => $value) {
+        if ($key === ':limits' || $key === ':offset') {
+          $statement->bindValue($key, $value, PDO::PARAM_INT);
+        } else {
+          $statement->bindValue($key, $value);
+        }
       }
-      if ($status_code !== null) {
-        $statement->bindParam(':status_code', $status_code);
-      }
-      $statement->bindParam(':limits', $limits, PDO::PARAM_INT);
-      $statement->bindParam(':offset', $offset, PDO::PARAM_INT);
+
       $statement->execute();
       $result = $statement->fetchAll(PDO::FETCH_ASSOC);
     }
