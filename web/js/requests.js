@@ -1,7 +1,7 @@
 let filterData = {};
 let dateRange = [];
 
-let currentPage = 1;
+let currentPagination = 1;
 let itemsPerPage = 25;
 let totalItems = 0;
 let currentFilters = {};
@@ -263,13 +263,13 @@ function resetFilters() {
 }
 
 function loadtab(filters = null, page = 1, limits = null) {
-  currentPage = page;
+  currentPagination = page;
   if (limits) itemsPerPage = limits;
   if (filters) currentFilters = filters;
 
   const params = new URLSearchParams();
   params.append("limits", itemsPerPage);
-  params.append("page", currentPage);
+  params.append("page", currentPagination);
 
   if (currentFilters.mmsi) {
     params.append("mmsi", currentFilters.mmsi);
@@ -325,8 +325,8 @@ function loadtab(filters = null, page = 1, limits = null) {
 
       totalItems =
         response.length === itemsPerPage
-          ? currentPage * itemsPerPage + 1
-          : (currentPage - 1) * itemsPerPage + response.length;
+          ? currentPagination * itemsPerPage + 1
+          : (currentPagination - 1) * itemsPerPage + response.length;
     } else {
       const row = document.createElement("tr");
       row.innerHTML = `<td colspan="10" class="placeholder-text">Aucune donnée disponible</td>`;
@@ -343,10 +343,10 @@ function loadtab(filters = null, page = 1, limits = null) {
 
 function updatePaginationInfo() {
   const totalPages = Math.ceil(totalItems / itemsPerPage);
-  const startItem = totalItems > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0;
-  const endItem = Math.min(currentPage * itemsPerPage, totalItems);
+  const startItem = totalItems > 0 ? (currentPagination - 1) * itemsPerPage + 1 : 0;
+  const endItem = Math.min(currentPagination * itemsPerPage, totalItems);
 
-  const infoText = `Page ${currentPage} sur ${totalPages} (${totalItems} résultats)`;
+  const infoText = `Page ${currentPagination} sur ${totalPages} (${totalItems} résultats)`;
   document.getElementById("pagination-info-text").textContent = infoText;
 }
 
@@ -356,21 +356,21 @@ function updatePaginationControls() {
   const prevButton = document.getElementById("prev-page");
   const nextButton = document.getElementById("next-page");
 
-  prevButton.disabled = currentPage <= 1;
-  nextButton.disabled = currentPage >= totalPages || totalItems === 0;
+  prevButton.disabled = currentPagination <= 1;
+  nextButton.disabled = currentPagination >= totalPages || totalItems === 0;
 
   const pageNumbers = document.getElementById("page-numbers");
   pageNumbers.innerHTML = "";
 
   if (totalPages > 1) {
-    const startPage = Math.max(1, currentPage - 2);
-    const endPage = Math.min(totalPages, currentPage + 2);
+    const startPage = Math.max(1, currentPagination - 2);
+    const endPage = Math.min(totalPages, currentPagination + 2);
 
     for (let i = startPage; i <= endPage; i++) {
       const pageButton = document.createElement("button");
       pageButton.textContent = i;
       pageButton.className =
-        i === currentPage ? "btn-primary" : "btn-secondary";
+        i === currentPagination ? "btn-primary" : "btn-secondary";
       pageButton.style.margin = "0 2px";
       pageButton.onclick = () => loadtab(currentFilters, i, itemsPerPage);
       pageNumbers.appendChild(pageButton);
@@ -386,8 +386,8 @@ function initializeEventListeners() {
   ) {
     itemsPerPageSelect.addEventListener("change", function () {
       itemsPerPage = parseInt(this.value);
-      currentPage = 1;
-      loadtab(currentFilters, currentPage, itemsPerPage);
+      currentPagination = 1;
+      loadtab(currentFilters, currentPagination, itemsPerPage);
     });
     itemsPerPageSelect.setAttribute("data-listener-attached", "true");
   }
@@ -395,8 +395,8 @@ function initializeEventListeners() {
   const prevButton = document.getElementById("prev-page");
   if (prevButton && !prevButton.hasAttribute("data-listener-attached")) {
     prevButton.addEventListener("click", function () {
-      if (currentPage > 1) {
-        loadtab(currentFilters, currentPage - 1, itemsPerPage);
+      if (currentPagination > 1) {
+        loadtab(currentFilters, currentPagination - 1, itemsPerPage);
       }
     });
     prevButton.setAttribute("data-listener-attached", "true");
@@ -406,8 +406,8 @@ function initializeEventListeners() {
   if (nextButton && !nextButton.hasAttribute("data-listener-attached")) {
     nextButton.addEventListener("click", function () {
       const totalPages = Math.ceil(totalItems / itemsPerPage);
-      if (currentPage < totalPages) {
-        loadtab(currentFilters, currentPage + 1, itemsPerPage);
+      if (currentPagination < totalPages) {
+        loadtab(currentFilters, currentPagination + 1, itemsPerPage);
       }
     });
     nextButton.setAttribute("data-listener-attached", "true");
@@ -417,8 +417,8 @@ function initializeEventListeners() {
   if (filterButton && !filterButton.hasAttribute("data-listener-attached")) {
     filterButton.addEventListener("click", function () {
       const filters = getSelectedFilters();
-      currentPage = 1;
-      loadtab(filters, currentPage, itemsPerPage);
+      currentPagination = 1;
+      loadtab(filters, currentPagination, itemsPerPage);
     });
     filterButton.setAttribute("data-listener-attached", "true");
   }
@@ -428,8 +428,8 @@ function initializeEventListeners() {
     resetButton.addEventListener("click", function () {
       resetFilters();
       currentFilters = {};
-      currentPage = 1;
-      loadtab(null, currentPage, itemsPerPage);
+      currentPagination = 1;
+      loadtab(null, currentPagination, itemsPerPage);
     });
     resetButton.setAttribute("data-listener-attached", "true");
   }
@@ -446,8 +446,8 @@ function initializeEventListeners() {
         } else {
           filters.mmsi = this.value.trim();
         }
-        currentPage = 1;
-        loadtab(filters, currentPage, itemsPerPage);
+        currentPagination = 1;
+        loadtab(filters, currentPagination, itemsPerPage);
       }, 300);
     });
     mmsiInput.setAttribute("data-listener-attached", "true");
@@ -456,10 +456,10 @@ function initializeEventListeners() {
 
 function applyFilters() {
   const filters = getSelectedFilters();
-  currentPage = 1;
-  loadtab(filters, currentPage, itemsPerPage);
+  currentPagination = 1;
+  loadtab(filters, currentPagination, itemsPerPage);
 }
 
 function refreshVisualization() {
-  loadtab(currentFilters, currentPage, itemsPerPage);
+  loadtab(currentFilters, currentPagination, itemsPerPage);
 }
