@@ -6,6 +6,11 @@ import pandas as pd
 
 
 
+# il y a des warning # de sklearn qui sont casse la gestion du retour pour le php
+import warnings
+warnings.filterwarnings("ignore", category=UserWarning, module="sklearn")
+
+
 def get_cluster_indication(cluster_id):
     
     indications = {
