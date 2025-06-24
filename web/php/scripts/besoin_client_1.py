@@ -40,9 +40,8 @@ def prediction(lat, lon, sog, cog, heading):
     data_scaled = scaler.transform(data)
     cluster = model.predict(data_scaled)[0]
 
-    print(f"Ce navire est dans le cluster: {cluster}")
-
-    print(get_cluster_indication(cluster))
+    print(cluster) # numéro cluster
+    print(get_cluster_indication(cluster)) # description du cluster
 
 
 if __name__ == "__main__":
