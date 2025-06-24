@@ -737,3 +737,128 @@ body {
     outline: 2px solid #64b5f6;
     outline-offset: 2px;
 }
+
+
+
+.range-slider {
+    position: relative;
+    height: 40px;
+    margin: 10px 0;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 0 10px;
+}
+
+.range-slider input[type="range"] {
+    position: absolute;
+    width: 100%;
+    height: 40px;
+    background: none;
+    pointer-events: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    top: 0;
+    left: 0;
+}
+
+.range-slider input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 20px;
+    width: 20px;
+    border-radius: 50%;
+    background: #64b5f6;
+    border: 2px solid white;
+    pointer-events: all;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.range-slider input[type="range"]::-moz-range-thumb {
+    height: 20px;
+    width: 20px;
+    border-radius: 50%;
+    background: #64b5f6;
+    border: 2px solid white;
+    pointer-events: all;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    -moz-appearance: none;
+}
+
+.range-track {
+    position: absolute;
+    top: 50%;
+    left: 10px;
+    right: 10px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 2px;
+    transform: translateY(-50%);
+    z-index: 1;
+}
+
+.range-track::before {
+    content: '';
+    position: absolute;
+    height: 100%;
+    background: #64b5f6;
+    border-radius: 2px;
+    z-index: 2;
+}
+
+.range-values {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 0.8rem;
+    color: #64b5f6;
+    margin-top: 5px;
+    font-weight: 500;
+}
+
+.filter-group {
+    min-width: 200px;
+    flex: 1;
+}
+
+.filter-group label {
+    display: block;
+    margin-bottom: 8px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+    .filters-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+        align-items: start;
+    }
+    
+    .filters-container button {
+        grid-column: span 2;
+        justify-self: center;
+        width: auto;
+        min-width: 140px;
+    }
+}
+
+@media (max-width: 768px) {
+    .filters-container {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+    
+    .filter-group {
+        min-width: auto;
+    }
+    
+    .range-slider {
+        min-width: 250px;
+    }
+}
