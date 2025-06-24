@@ -26,19 +26,17 @@
   
   
 
-  if($requestRessource == 'vessels'){
-    // Request the list of vessels.
-    if ($requestMethod == 'GET')
-    {
+  if ($requestRessource == 'vessels') {
+    
+    if ($requestMethod == 'GET') {
       $result = dbRequestVessels($db);
-      if (!isset($result)){
+      if ($result === false) {
         header('HTTP/1.1 500 Internal Server Error');
         exit;
       }
+      
       echo json_encode($result);
-    }
-    else
-    {
+    } else {
       header('HTTP/1.1 405 Method Not Allowed');
       exit;
     }
