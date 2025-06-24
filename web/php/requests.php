@@ -207,7 +207,7 @@
 
       // Validate parameters.
       if (!is_numeric($limits) || !is_numeric($page) || !is_numeric($longueur_max) || !is_numeric($longueur_min) || !is_numeric($largeur_max) || !is_numeric($largeur_min) ||
-          !is_numeric($temps_max) || !is_numeric($temps_min) || !is_numeric($transceiver_class) || !is_numeric($status_code) || !is_numeric($mmsi)) {
+          !is_numeric($transceiver_class) || !is_numeric($status_code) || !is_numeric($mmsi)) {
         header('HTTP/1.1 400 Bad Request');
         exit;
       }
