@@ -2,3 +2,5 @@
 big-data/result
 
 .DS_Store
+
+web/scripts/*.sql
