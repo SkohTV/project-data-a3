@@ -77,6 +77,7 @@
       header('HTTP/1.1 405 Method Not Allowed');
       exit;
     }
+  }
   
 
   // -> GET php/all_vessel_names : OUTPUT -> LIST all_vessels_names
