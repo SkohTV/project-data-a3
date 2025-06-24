@@ -17,6 +17,9 @@
     <script src="js/requests.js"></script>
   </head>
   <body>
+
+    <div id="errors" style="display: none; position: fixed; top: 20px; right: 20px; background: #f44336; color: white; padding: 15px; border-radius: 5px; z-index: 1000;"></div>
+
     <header class="header">
       <div class="nav-container">
         <div class="logo">
@@ -114,7 +117,7 @@
     <section id="visualize-page" class="content-page">
       <div class="page-container">
         <h1 class="page-title">Visualisation des Navires</h1>
-        <p class="page-description">Liste des navires de la base de données</p>
+        <p class="page-description">Liste des points de données AIS de la base de données</p>
 
         <div class="filters-container">
           <div class="filter-group">
@@ -213,7 +216,6 @@
             <label for="filter-transceiver">Transceiver Class:</label>
             <select id="filter-transceiver" class="form-select">
               <option value="">Tous</option>
-              <!-- le js va charger cette partie -->
             </select>
           </div>
 
@@ -231,16 +233,33 @@
             <label for="filter-status">Status Code:</label>
             <select id="filter-status" class="form-select">
               <option value="">Tous les status</option>
-              <!-- le js va charger cette partie -->
             </select>
           </div>
 
-          <button class="btn-secondary" onclick="applyFilters()">
+          <button id="filter-button" class="btn-secondary">
             Appliquer filtres
           </button>
-          <button class="btn-secondary" onclick="resetFilters()">
+          <button id="reset-button" class="btn-secondary">
             Réinitialiser
           </button>
+        </div>
+
+        <div class="pagination-container" style="margin: 20px 0; display: flex; justify-content: space-between; align-items: center;">
+          <div class="pagination-info">
+            <span id="pagination-info-text">Page 1 sur 1 (0 résultats)</span>
+          </div>
+          <div class="pagination-controls">
+            <label for="items-per-page">Éléments par page:</label>
+            <select id="items-per-page" class="form-select" style="width: auto; margin: 0 10px;">
+              <option value="10">10</option>
+              <option value="25" selected>25</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+            </select>
+            <button id="prev-page" class="btn-secondary" disabled>Précédent</button>
+            <span id="page-numbers" style="margin: 0 10px;"></span>
+            <button id="next-page" class="btn-secondary">Suivant</button>
+          </div>
         </div>
 
         <div class="table-container">
@@ -249,14 +268,14 @@
               <tr>
                 <th>Sélection</th>
                 <th>MMSI</th>
-                <th>Nom</th>
-                <th>Horodatage</th>
+                <th>Date/Heure</th>
                 <th>Latitude</th>
                 <th>Longitude</th>
                 <th>SOG</th>
                 <th>COG</th>
-                <th>État</th>
-                <th>Longueur</th>
+                <th>Heading</th>
+                <th>Status Code</th>
+                <th>Draft</th>
               </tr>
             </thead>
             <tbody id="vessels-tbody">

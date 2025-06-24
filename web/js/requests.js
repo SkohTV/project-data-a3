@@ -1,6 +1,11 @@
 let filterData = {};
 let dateRange = [];
 
+let currentPage = 1;
+let itemsPerPage = 25;
+let totalItems = 0;
+let currentFilters = {};
+
 document.addEventListener("DOMContentLoaded", function () {
   loadFilterValues();
   loadtab();
@@ -257,74 +262,204 @@ function resetFilters() {
   console.log("Filtres réinitialisés");
 }
 
-function loadtab(filter = null) {
-  ajaxRequest(
-    "GET",
-    "php/requests.php/get_tab",
-    function (response) {
-      const tableBody = document.getElementById("vessels-tbody");
-      tableBody.innerHTML = "";
+function loadtab(filters = null, page = 1, limits = null) {
+  currentPage = page;
+  if (limits) itemsPerPage = limits;
+  if (filters) currentFilters = filters;
 
-      if (response && response.length > 0) {
-        response.forEach((vessel) => {
-          const row = document.createElement("tr");
-          row.innerHTML = `
+  const params = new URLSearchParams();
+  params.append("limits", itemsPerPage);
+  params.append("page", currentPage);
+
+  if (currentFilters.mmsi) {
+    params.append("mmsi", currentFilters.mmsi);
+  }
+  if (currentFilters.longueur) {
+    params.append("longueur_min", currentFilters.longueur.min);
+    params.append("longueur_max", currentFilters.longueur.max);
+  }
+  if (currentFilters.largeur) {
+    params.append("largeur_min", currentFilters.largeur.min);
+    params.append("largeur_max", currentFilters.largeur.max);
+  }
+  if (currentFilters.temps) {
+    params.append("temps_min", currentFilters.temps.min);
+    params.append("temps_max", currentFilters.temps.max);
+  }
+  if (currentFilters.transceiver) {
+    params.append("transceiver_class", currentFilters.transceiver);
+  }
+  if (currentFilters.status_code) {
+    params.append("status_code", currentFilters.status_code);
+  }
+
+  const url = `php/requests.php/get_tab?${params.toString()}`;
+
+  ajaxRequest("GET", url, function (response) {
+    const tableBody = document.getElementById("vessels-tbody");
+    tableBody.innerHTML = "";
+
+    if (response && response.length > 0) {
+      response.forEach((point) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
                     <td><input type="checkbox" class="vessel-checkbox" data-mmsi="${
-                      vessel.mmsi
-                    }"></td>
-                    <td>${vessel.mmsi}</td>
-                    <td>${vessel.name || "N/A"}</td>
+                      point.mmsi
+                    }" data-timestamp="${point.base_date_time}"></td>
+                    <td>${point.mmsi || "N/A"}</td>
                     <td>${
-                      vessel.horodatage
-                        ? new Date(vessel.horodatage).toLocaleString()
+                      point.base_date_time
+                        ? new Date(point.base_date_time).toLocaleString()
                         : "N/A"
                     }</td>
-                    <td>${vessel.latitude || "N/A"}</td>
-                    <td>${vessel.longitude || "N/A"}</td>
-                    <td>${vessel.sog || "N/A"}</td>
-                    <td>${vessel.cog || "N/A"}</td>
-                    <td>${vessel.status_code || "N/A"}</td>
-                    <td>${vessel.longueur || "N/A"}</td>
+                    <td>${point.latitude || "N/A"}</td>
+                    <td>${point.longitude || "N/A"}</td>
+                    <td>${point.sog || "N/A"}</td>
+                    <td>${point.cog || "N/A"}</td>
+                    <td>${point.heading || "N/A"}</td>
+                    <td>${point.status_code || "N/A"}</td>
+                    <td>${point.draft || "N/A"}</td>
                 `;
-          tableBody.appendChild(row);
-        });
-      } else {
-        const row = document.createElement("tr");
-        row.innerHTML = `<td colspan="10" class="placeholder-text">Aucune donnée disponible</td>`;
         tableBody.appendChild(row);
-      }
-    },
-    filter ? JSON.stringify(filter) : null
-  );
+      });
+
+      totalItems =
+        response.length === itemsPerPage
+          ? currentPage * itemsPerPage + 1
+          : (currentPage - 1) * itemsPerPage + response.length;
+    } else {
+      const row = document.createElement("tr");
+      row.innerHTML = `<td colspan="10" class="placeholder-text">Aucune donnée disponible</td>`;
+      tableBody.appendChild(row);
+      totalItems = 0;
+    }
+
+    updatePaginationInfo();
+    updatePaginationControls();
+  });
 
   initializeEventListeners();
 }
 
-function initializeEventListeners() {
-  const filterButton = document.getElementById("filter-button");
-  const resetButton = document.getElementById("reset-button");
-  const mmsiInput = document.getElementById("filter-mmsi");
+function updatePaginationInfo() {
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const startItem = totalItems > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0;
+  const endItem = Math.min(currentPage * itemsPerPage, totalItems);
 
+  const infoText = `Page ${currentPage} sur ${totalPages} (${totalItems} résultats)`;
+  document.getElementById("pagination-info-text").textContent = infoText;
+}
+
+function updatePaginationControls() {
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+
+  const prevButton = document.getElementById("prev-page");
+  const nextButton = document.getElementById("next-page");
+
+  prevButton.disabled = currentPage <= 1;
+  nextButton.disabled = currentPage >= totalPages || totalItems === 0;
+
+  const pageNumbers = document.getElementById("page-numbers");
+  pageNumbers.innerHTML = "";
+
+  if (totalPages > 1) {
+    const startPage = Math.max(1, currentPage - 2);
+    const endPage = Math.min(totalPages, currentPage + 2);
+
+    for (let i = startPage; i <= endPage; i++) {
+      const pageButton = document.createElement("button");
+      pageButton.textContent = i;
+      pageButton.className =
+        i === currentPage ? "btn-primary" : "btn-secondary";
+      pageButton.style.margin = "0 2px";
+      pageButton.onclick = () => loadtab(currentFilters, i, itemsPerPage);
+      pageNumbers.appendChild(pageButton);
+    }
+  }
+}
+
+function initializeEventListeners() {
+  const itemsPerPageSelect = document.getElementById("items-per-page");
+  if (
+    itemsPerPageSelect &&
+    !itemsPerPageSelect.hasAttribute("data-listener-attached")
+  ) {
+    itemsPerPageSelect.addEventListener("change", function () {
+      itemsPerPage = parseInt(this.value);
+      currentPage = 1;
+      loadtab(currentFilters, currentPage, itemsPerPage);
+    });
+    itemsPerPageSelect.setAttribute("data-listener-attached", "true");
+  }
+
+  const prevButton = document.getElementById("prev-page");
+  if (prevButton && !prevButton.hasAttribute("data-listener-attached")) {
+    prevButton.addEventListener("click", function () {
+      if (currentPage > 1) {
+        loadtab(currentFilters, currentPage - 1, itemsPerPage);
+      }
+    });
+    prevButton.setAttribute("data-listener-attached", "true");
+  }
+
+  const nextButton = document.getElementById("next-page");
+  if (nextButton && !nextButton.hasAttribute("data-listener-attached")) {
+    nextButton.addEventListener("click", function () {
+      const totalPages = Math.ceil(totalItems / itemsPerPage);
+      if (currentPage < totalPages) {
+        loadtab(currentFilters, currentPage + 1, itemsPerPage);
+      }
+    });
+    nextButton.setAttribute("data-listener-attached", "true");
+  }
+
+  const filterButton = document.getElementById("filter-button");
   if (filterButton && !filterButton.hasAttribute("data-listener-attached")) {
-    filterButton.addEventListener("click", applyFilters);
+    filterButton.addEventListener("click", function () {
+      const filters = getSelectedFilters();
+      currentPage = 1;
+      loadtab(filters, currentPage, itemsPerPage);
+    });
     filterButton.setAttribute("data-listener-attached", "true");
   }
 
+  const resetButton = document.getElementById("reset-button");
   if (resetButton && !resetButton.hasAttribute("data-listener-attached")) {
-    resetButton.addEventListener("click", resetFilters);
+    resetButton.addEventListener("click", function () {
+      resetFilters();
+      currentFilters = {};
+      currentPage = 1;
+      loadtab(null, currentPage, itemsPerPage);
+    });
     resetButton.setAttribute("data-listener-attached", "true");
   }
 
+  const mmsiInput = document.getElementById("filter-mmsi");
   if (mmsiInput && !mmsiInput.hasAttribute("data-listener-attached")) {
+    let timeout;
     mmsiInput.addEventListener("input", function () {
-      const filter = getSelectedFilters();
-      if (this.value.trim() === "") {
-        delete filter.mmsi;
-      } else {
-        filter.mmsi = this.value.trim();
-      }
-      loadtab(filter);
+      clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        const filters = getSelectedFilters();
+        if (this.value.trim() === "") {
+          delete filters.mmsi;
+        } else {
+          filters.mmsi = this.value.trim();
+        }
+        currentPage = 1;
+        loadtab(filters, currentPage, itemsPerPage);
+      }, 300);
     });
     mmsiInput.setAttribute("data-listener-attached", "true");
   }
+}
+
+function applyFilters() {
+  const filters = getSelectedFilters();
+  currentPage = 1;
+  loadtab(filters, currentPage, itemsPerPage);
+}
+
+function refreshVisualization() {
+  loadtab(currentFilters, currentPage, itemsPerPage);
 }
