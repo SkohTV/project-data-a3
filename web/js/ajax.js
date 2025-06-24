@@ -59,8 +59,10 @@ function httpErrors(errorCode)
   // Display error.
   if (errorCode in messages)
   {
-    $('#errors').html('<i class="fa fa-exclamation-circle"></i> <strong>' +
-      messages[errorCode] + '</strong>');
-    $('#errors').show();
+
+      document.getElementById("errors").innerHTML = '<i class="fa fa-exclamation-circle"></i> <strong>' +
+      messages[errorCode] + '</strong>';
+      document.getElementById("errors").style.display = "block";
+
   }
 }
