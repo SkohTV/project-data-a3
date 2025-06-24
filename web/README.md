@@ -1,8 +1,8 @@
 # BatoSurLo
 Noé LORRET-DESPRET - Corentin MARIE - Robin DELAUNAY
 
-## [Website](http://etu0623.projets.isen-ouest.info)
-## [Rendu intermédiaire](./docs/)
+### [Website](http://etu0623.projets.isen-ouest.info)
+### [Rendu intermédiaire](./docs/)
 
 ---
 
