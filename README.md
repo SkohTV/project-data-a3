@@ -1,5 +1,13 @@
-# project-data-a3
+# Projet A3 ISEN
 
-## TODO
-\- Squash / rename commits
-\- Sanitize files
+## [Électif](./electif/)
+...
+
+## [Big data](./big-data/)
+...
+
+## [IA](./ia/)
+...
+
+## [Web](./web/)
+...
