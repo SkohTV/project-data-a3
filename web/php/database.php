@@ -35,6 +35,7 @@
       $statement = $db->prepare($request);
       $statement->execute();
       $result = $statement->fetchAll(PDO::FETCH_ASSOC);
+      echo $result;
     }
     catch (PDOException $exception)
     {
