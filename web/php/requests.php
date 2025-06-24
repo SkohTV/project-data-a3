@@ -290,11 +290,41 @@
     }
   }
 
-  // Send data to the client.
-  header('Content-Type: application/json; charset=utf-8');
-  header('Cache-control: no-store, no-cache, must-revalidate');
-  header('Pragma: no-cache');
-  header('HTTP/1.1 200 OK');
-  exit;
+
+
+// -> GET php/predict1?latitude=XXX&longitude=XXX&sog=XXX&cog=XXX&heading=XXX : OUTPUT -> json{"<result_1>", "<result_2>", ...}
+
+if ($requestRessource == 'predict1') {
+  if ($requestMethod == 'GET') {
+    $latitude = $_GET['latitude'] ?? null;
+    $longitude = $_GET['longitude'] ?? null;
+    $sog = $_GET['sog'] ?? null;
+    $cog = $_GET['cog'] ?? null;
+    $heading = $_GET['heading'] ?? null;
+
+    
+    if (!is_numeric($latitude) || !is_numeric($longitude) || !is_numeric($sog) || !is_numeric($cog) || !is_numeric($heading)) {
+      header('HTTP/1.1 400 Bad Request');
+      exit;
+    }
+
+    $result = [];
+    $return_var = 0;
+    $cmd = escapeshellcmd("python3 ../scripts/besoin_client_1.py --lat $latitude --lon $longitude --sog $sog --cog $cog --heading $heading");
+    exec($cmd, $result, $return_var);
+
+    if ($return_var !== 0) {
+      header('HTTP/1.1 500 Internal Server Error');
+      exit;
+    }
+
+    
+    echo json_encode($result);
+    exit;
+  } else {
+    header('HTTP/1.1 405 Method Not Allowed');
+    exit;
+  }
+}
 
 ?>
