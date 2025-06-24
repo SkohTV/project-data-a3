@@ -252,7 +252,7 @@ function showMessage(message) {
 
 function applyFilters() { loadtab(); }
 function refreshVisualization() { loadtab(); }
-function predictClusters() { alert("FJe fais ca demain la team"); }
+function predictClusters() { alert("Je fais ca demain la team"); }
 function predictSelected(type) { alert("Je fais ca demain la team, ou ce soir si j'ai le temps "); }
 function exportData() { alert("Je fais ca demain la team"); }
 
