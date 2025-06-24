@@ -365,7 +365,7 @@
       $result['temps'] = [$times['max_time'], $times['min_time']];
 
       // Request all status codes.
-      $request = 'SELECT code FROM status_code ORDER BY code';
+      $request = 'SELECT code_status FROM status_code ORDER BY code_status';
       $statement = $db->prepare($request);
       $statement->execute();
       $status_codes = $statement->fetchAll(PDO::FETCH_COLUMN);
