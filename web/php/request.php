@@ -24,6 +24,7 @@
   //   [0] = 'vessels'
   //   [1] = 'mmsi' (optional)
   
+  echo "test";
 
   if($requestRessource == 'vessels'){
     // Request the list of vessels.
