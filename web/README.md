@@ -1,39 +1,37 @@
 # BatoSurLo
-## Bonjour les biost :)
 
 Noé LORRET-DESPRET - Corentin MARIE - Robin DELAUNAY
-
 
 
 ## FRONT-END
 -> Représentant : Corentin
 
 Tâches :
-- [ ] Maquette/Charte graphique (Lequipe)
-- [ ] Page 1 -> Accueil (Corentin)
+- [x] Maquette/Charte graphique (Lequipe)
+- [x] Structure globale (Corentin)
+- [x] Page 1 -> Accueil (Corentin)
 - [ ] Page 2 -> Formulaire (Robin)
-- [ ] Page 3 -> Visualisation sur carte -> affichage direct carte (Corentin)
+- [~] Page 3 -> Visualisation sur carte -> affichage direct carte (Corentin)
 - [ ] Page 4 -> Prédiction clustering -> Sélection d'une série de bateaux + visu carte (Robin)
 - [ ] Page 5 -> Prédiction VesselType/Trajectory -> Sélection d'un bateau + prédictions tableau/carte (Néo)
 - [ ] Complétion automatique (Robin)
 - [ ] Filtrage (Noé)
-- [ ] Structure globale (Corentin)
 
 ## BACK-END
 -> Représentant : Robin
 
 Tâches : 
-- [ ] MLD/MCD (Lequipe)
+- [x] MCD (Robin)
 - [ ] Interface client-serveur (Noé)
-- [ ] Structure globale (Robin)
+- [x] Structure globale (Robin)
 - [ ] Interaction BDD (Robin)
-- [ ] Photo de bateaux  dans la visu (Noé)
+- [~] Photo de bateaux  dans la visu (Noé)
 ## DevOps
 -> Représentant : Noé
 
 Tâches:
-- [ ] Import des données (Noé)
-- [ ] Gestion GIT (Noé)
+- [x] Import des données (Noé)
+- [x] Gestion GIT (Noé)
 
 ___ 
 
@@ -52,6 +50,6 @@ ___
 -> Demi-journée 6 :
 
 
-[Figma](https://www.figma.com/design/97ErxytRyoEPj02xYVWRql/Untitled?node-id=0-1&t=kxfiXjo05nDyOnBw-1)
-[Gantt]()
-[Website](http://etu0623.projets.isen-ouest.info)
+--- 
+
+# [Website](http://etu0623.projets.isen-ouest.info)
