@@ -96,20 +96,22 @@ function populateSelect(id, options, defaultText) {
 
 
 function loadtab() {
-  const mmsi = document.getElementById("filter-mmsi").value.trim() ? document.getElementById("filter-mmsi").value.trim() : null;
+    const mmsi = document.getElementById("filter-mmsi").value.trim();
 
-  const params = new URLSearchParams({
-    limits: itemsPerPage,
-    page: currentPagination,
-    mmsi: mmsi,
-    longueur_min: document.getElementById("filter-longueur-min").value,
-    longueur_max: document.getElementById("filter-longueur-max").value,
-    largeur_min: document.getElementById("filter-largeur-min").value,
-    largeur_max: document.getElementById("filter-largeur-max").value,
-    temps_min: filterData.temps ? filterData.temps[1] : '2024-01-01 00:00:00',
-    temps_max: filterData.temps ? filterData.temps[0] : '2024-12-31 23:59:59'
-  });
+    const params = new URLSearchParams({
+        limits: itemsPerPage,
+        page: currentPagination,
+        longueur_min: document.getElementById("filter-longueur-min").value,
+        longueur_max: document.getElementById("filter-longueur-max").value,
+        largeur_min: document.getElementById("filter-largeur-min").value,
+        largeur_max: document.getElementById("filter-largeur-max").value,
+        temps_min: filterData.temps ? filterData.temps[1] : null,
+        temps_max: filterData.temps ? filterData.temps[0] : null,
+    })
 
+    if (mmsi) {
+        params.append('mmsi', mmsi);
+    }
 
   const transceiver = document.getElementById("filter-transceiver").value;
   const status = document.getElementById("filter-status").value;
