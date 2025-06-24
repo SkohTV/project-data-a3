@@ -59,7 +59,8 @@
       $heading = $_POST['heading'] ?? null;
       $status_code = $_POST['status_code'] ?? null;
       $draft = $_POST['draft'] ?? null;
-
+      
+      if (!$mmsi || !$base_date_time || !$latitude || !$longitude || !$sog || !$cog || !$heading || !$status_code || !$draft) {
         header('HTTP/1.1 400 Bad Request');
         exit;
       }

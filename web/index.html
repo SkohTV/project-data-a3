@@ -12,9 +12,6 @@
     <link href="https://unpkg.com/maplibre-gl@^5.6.0/dist/maplibre-gl.css" rel="stylesheet" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <link rel="stylesheet" href="styles.css" />
-
-    <script src="js/ajax.js"></script>
-    <script src="js/requests.js"></script>
   </head>
   <body>
     <header class="header">
@@ -112,184 +109,8 @@
     </section>
 
     <section id="visualize-page" class="content-page">
-      <div class="page-container">
-        <h1 class="page-title">Visualisation des Navires</h1>
-        <p class="page-description">Liste des navires de la base de données</p>
-
-        <div class="filters-container">
-          <div class="filter-group">
-            <label for="filter-longueur">Longueur:</label>
-            <div class="range-slider" data-min="0" data-max="500" data-step="1">
-              <input
-                type="range"
-                id="filter-longueur-min"
-                class="range-min"
-                min="0"
-                max="500"
-                value="0"
-                step="1"
-              />
-              <input
-                type="range"
-                id="filter-longueur-max"
-                class="range-max"
-                min="0"
-                max="500"
-                value="500"
-                step="1"
-              />
-              <div class="range-track"></div>
-              <div class="range-values">
-                <span id="longueur-min-val">0</span> -
-                <span id="longueur-max-val">500</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="filter-group">
-            <label for="filter-largeur">Largeur:</label>
-            <div class="range-slider" data-min="0" data-max="100" data-step="1">
-              <input
-                type="range"
-                id="filter-largeur-min"
-                class="range-min"
-                min="0"
-                max="100"
-                value="0"
-                step="1"
-              />
-              <input
-                type="range"
-                id="filter-largeur-max"
-                class="range-max"
-                min="0"
-                max="100"
-                value="100"
-                step="1"
-              />
-              <div class="range-track"></div>
-              <div class="range-values">
-                <span id="largeur-min-val">0</span> -
-                <span id="largeur-max-val">100</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="filter-group">
-            <label for="filter-temps">Période:</label>
-            <div
-              class="range-slider date-range"
-              data-min="0"
-              data-max="100"
-              data-step="1"
-            >
-              <input
-                type="range"
-                id="filter-temps-min"
-                class="range-min"
-                min="0"
-                max="100"
-                value="0"
-                step="1"
-              />
-              <input
-                type="range"
-                id="filter-temps-max"
-                class="range-max"
-                min="0"
-                max="100"
-                value="100"
-                step="1"
-              />
-              <div class="range-track"></div>
-              <div class="range-values">
-                <span id="temps-min-val">--/--/----</span> -
-                <span id="temps-max-val">--/--/----</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="filter-group">
-            <label for="filter-transceiver">Transceiver Class:</label>
-            <select id="filter-transceiver" class="form-select">
-              <option value="">Tous</option>
-              <!-- le js va charger cette partie -->
-            </select>
-          </div>
-
-          <div class="filter-group">
-            <label for="filter-mmsi">MMSI:</label>
-            <input
-              type="text"
-              id="filter-mmsi"
-              class="form-input"
-              placeholder="Rechercher MMSI..."
-            />
-          </div>
-
-          <div class="filter-group">
-            <label for="filter-status">Status Code:</label>
-            <select id="filter-status" class="form-select">
-              <option value="">Tous les status</option>
-              <!-- le js va charger cette partie -->
-            </select>
-          </div>
-
-          <button class="btn-secondary" onclick="applyFilters()">
-            Appliquer filtres
-          </button>
-          <button class="btn-secondary" onclick="resetFilters()">
-            Réinitialiser
-          </button>
-        </div>
-
-        <div class="table-container">
-          <table class="data-table" id="vessels-table">
-            <thead>
-              <tr>
-                <th>Sélection</th>
-                <th>MMSI</th>
-                <th>Nom</th>
-                <th>Horodatage</th>
-                <th>Latitude</th>
-                <th>Longitude</th>
-                <th>SOG</th>
-                <th>COG</th>
-                <th>État</th>
-                <th>Longueur</th>
-              </tr>
-            </thead>
-            <tbody id="vessels-tbody">
-              <tr>
-                <td colspan="10" class="placeholder-text">
-                  Chargement des données...
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div class="map-container" id="vessels-map">
-          <div class="placeholder-text">Super carte<br /></div>
-        </div>
-
-        <div class="action-buttons">
-          <button class="btn-secondary" onclick="refreshVisualization()">
-            Actualiser
-          </button>
-          <button class="btn-primary" onclick="predictClusters()">
-            Prédire les clusters
-          </button>
-          <button class="btn-primary" onclick="predictSelected('type')">
-            Prédire le type
-          </button>
-          <button class="btn-primary" onclick="predictSelected('trajectory')">
-            Prédire la trajectoire
-          </button>
-          <button class="btn-secondary" onclick="exportData()">
-            Exporter données
-          </button>
-        </div>
+      <div class="simple-page">
+        <h1>Visualisation des Navires</h1>
       </div>
     </section>
 
@@ -306,10 +127,14 @@
     </section>
 
     <footer class="footer">
-      <p>&copy; 2025 Projet A3 - groupe 2 - Bato sur lô</p>
+      <p>&copy; 2024 Projet A3 - groupe 2 - Bato sur lô</p>
     </footer>
 
     <script src="script.js"></script>
     <script src="./js/map.js"></script>
   </body>
 </html>
+
+
+
+
