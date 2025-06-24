@@ -294,6 +294,9 @@
 
 // -> GET php/predict1?latitude=XXX&longitude=XXX&sog=XXX&cog=XXX&heading=XXX : OUTPUT -> json{"<result_1>", "<result_2>", ...}
 
+
+// http://etu0623.projets.isen-ouest.info/php/requests.php/predict1?latitude=48.123456&longitude=-4.123456&sog=10.5&cog=180&heading=90
+
 if ($requestRessource == 'predict1') {
   if ($requestMethod == 'GET') {
     $latitude = $_GET['latitude'] ?? null;
@@ -310,15 +313,16 @@ if ($requestRessource == 'predict1') {
 
     $result = [];
     $return_var = 0;
-    $cmd = escapeshellcmd("python3 ../scripts/besoin_client_1.py --lat $latitude --lon $longitude --sog $sog --cog $cog --heading $heading");
+    $cmd = "python3 ../scripts/besoin_client_1.py --lat " . escapeshellarg($latitude) . " --lon " . escapeshellarg($longitude) . " --sog " . escapeshellarg($sog) . " --cog " . escapeshellarg($cog) . " --heading " . escapeshellarg($heading) . " 2>&1";
     exec($cmd, $result, $return_var);
 
     if ($return_var !== 0) {
+      error_log("Python script error: " . implode("\n", $result));
       header('HTTP/1.1 500 Internal Server Error');
+      echo json_encode(['error' => 'Internal server error', 'details' => $result]);
       exit;
     }
 
-    
     echo json_encode($result);
     exit;
   } else {
