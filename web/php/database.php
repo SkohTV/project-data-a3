@@ -292,71 +292,88 @@
   // \param status_code The status code of the point_donnee to request.
 
   function dbRequestTab($db, $limits, $page, $longueur_max, $longueur_min, $largeur_max, $largeur_min, $temps_max, $temps_min, $transceiver_class, $status_code, $mmsi) {
-    try
-    {
-      $offset = ($page - 1) * $limits;
-
-      $request = 'SELECT * FROM point_donnee WHERE longueur BETWEEN :longueur_min AND :longueur_max AND largeur BETWEEN :largeur_min AND :largeur_max';
-
-      $params = array(
-        ':longueur_min' => $longueur_min,
-        ':longueur_max' => $longueur_max,
-        ':largeur_min' => $largeur_min,
-        ':largeur_max' => $largeur_max
-      );
-
-      if ($mmsi !== null) {
-        $request .= ' AND mmsi = :mmsi';
-        $params[':mmsi'] = $mmsi;
-      }
-
-      if ($temps_min !== null && $temps_max !== null) {
-        $request .= ' AND base_date_time BETWEEN :temps_min AND :temps_max';
-        $params[':temps_min'] = $temps_min;
-        $params[':temps_max'] = $temps_max;
-      } elseif ($temps_min !== null) {
-        $request .= ' AND base_date_time >= :temps_min';
-        $params[':temps_min'] = $temps_min;
-      } elseif ($temps_max !== null) {
-        $request .= ' AND base_date_time <= :temps_max';
-        $params[':temps_max'] = $temps_max;
-      }
-
-      if ($transceiver_class !== null) {
-        $request .= ' AND transceiver_class = :transceiver_class';
-        $params[':transceiver_class'] = $transceiver_class;
-      }
-      if ($status_code !== null) {
-        $request .= ' AND status_code = :status_code';
-        $params[':status_code'] = $status_code;
-      }
-      $request .= ' LIMIT :limits OFFSET :offset';
-      $params[':limits'] = (int)$limits;
-      $params[':offset'] = (int)$offset;
-
-      $statement = $db->prepare($request);
-
-
-      foreach ($params as $key => $value) {
-        if ($key === ':limits' || $key === ':offset') {
-          $statement->bindValue($key, $value, PDO::PARAM_INT);
-        } else {
-          $statement->bindValue($key, $value);
+    try {
+  
+        $offset = ($page - 1) * $limits;
+        
+  
+        $request = 'SELECT pd.* FROM point_donnee pd
+                   JOIN vessel v ON pd.mmsi = v.mmsi
+                   WHERE v.length BETWEEN :longueur_min AND :longueur_max
+                   AND v.width BETWEEN :largeur_min AND :largeur_max';
+        
+  
+        $params = [
+            ':longueur_min' => $longueur_min,
+            ':longueur_max' => $longueur_max,
+            ':largeur_min' => $largeur_min,
+            ':largeur_max' => $largeur_max
+        ];
+        
+  
+        if ($mmsi !== null) {
+            $request .= ' AND pd.mmsi = :mmsi';
+            $params[':mmsi'] = $mmsi;
         }
-      }
+        
+  
+        if ($temps_min !== null && $temps_max !== null) {
+            $request .= ' AND pd.base_date_time BETWEEN :temps_min AND :temps_max';
+            $params[':temps_min'] = $temps_min;
+            $params[':temps_max'] = $temps_max;
+        } elseif ($temps_min !== null) {
+            $request .= ' AND pd.base_date_time >= :temps_min';
+            $params[':temps_min'] = $temps_min;
+        } elseif ($temps_max !== null) {
+            $request .= ' AND pd.base_date_time <= :temps_max';
+            $params[':temps_max'] = $temps_max;
+        }
+        
+  
+        if ($transceiver_class !== null) {
+            $request .= ' AND v.code_transceiver = :transceiver_class';
+            $params[':transceiver_class'] = $transceiver_class;
+        }
+        
+  
+        if ($status_code !== null) {
+            $request .= ' AND pd.code_status = :status_code';
+            $params[':status_code'] = $status_code;
+        }
+        
+  
+        $request .= ' LIMIT :limits OFFSET :offset';
+        $params[':limits'] = (int)$limits;
+        $params[':offset'] = (int)$offset;
+        
+  
+        $statement = $db->prepare($request);
+        
+  
+        foreach ($params as $key => $value) {
+            if ($key === ':limits' || $key === ':offset') {
+                $statement->bindValue($key, $value, PDO::PARAM_INT);
+            } else {
+                $statement->bindValue($key, $value);
+            }
+        }
+        
+        $statement->execute();
+        $result = $statement->fetchAll(PDO::FETCH_ASSOC);
+        
+        return $result;
+        
+    } catch (PDOException $exception) {
+  
+        error_log('Erreur de requête : ' . $exception->getMessage());
+        echo json_encode([
+            'status' => 'error', 
+            'message' => 'Erreur lors de l exécution de la requête : ' . $exception->getMessage()
+        ]);
+        return false;
+    }
+}
 
-      $statement->execute();
-      $result = $statement->fetchAll(PDO::FETCH_ASSOC);
-    }
-    catch (PDOException $exception)
-    {
-      error_log('Request error: '.$exception->getMessage());
-      echo json_encode(['status' => 'error', 'message' => $exception->getMessage()]);
-      return false;
-    }
-    // Return the result.
-    return $result;
-  }
 
   //----------------------------------------------------------------------------
   //--- dbRequestFilterValues --------------------------------------------------------
