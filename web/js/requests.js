@@ -98,8 +98,8 @@ function populateSelect(id, options, defaultText) {
 function loadtab() {
     const mmsi = document.getElementById("filter-mmsi").value.trim();
 
-    const mintemps = document.getElementById("temps-min-val").value;
-    const maxtemps = document.getElementById("temps-max-val").value;
+    const mintemps = document.getElementById("temps-min-val").textContent;
+    const maxtemps = document.getElementById("temps-max-val").textContent;
 
     const params = new URLSearchParams({
         limits: itemsPerPage,
