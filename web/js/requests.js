@@ -3,6 +3,7 @@ let dateRange = [];
 
 document.addEventListener("DOMContentLoaded", function () {
   loadFilterValues();
+  loadtab();
 });
 
 function loadFilterValues() {
@@ -153,8 +154,6 @@ function updateRangeTrack(type) {
         rgba(255, 255, 255, 0.3) 100%)`;
 }
 
-
-
 function getSelectedFilters() {
   const filters = {};
 
@@ -256,4 +255,76 @@ function resetFilters() {
   document.getElementById("filter-mmsi").value = "";
 
   console.log("Filtres réinitialisés");
+}
+
+function loadtab(filter = null) {
+  ajaxRequest(
+    "GET",
+    "php/requests.php/get_tab",
+    function (response) {
+      const tableBody = document.getElementById("vessels-tbody");
+      tableBody.innerHTML = "";
+
+      if (response && response.length > 0) {
+        response.forEach((vessel) => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+                    <td><input type="checkbox" class="vessel-checkbox" data-mmsi="${
+                      vessel.mmsi
+                    }"></td>
+                    <td>${vessel.mmsi}</td>
+                    <td>${vessel.name || "N/A"}</td>
+                    <td>${
+                      vessel.horodatage
+                        ? new Date(vessel.horodatage).toLocaleString()
+                        : "N/A"
+                    }</td>
+                    <td>${vessel.latitude || "N/A"}</td>
+                    <td>${vessel.longitude || "N/A"}</td>
+                    <td>${vessel.sog || "N/A"}</td>
+                    <td>${vessel.cog || "N/A"}</td>
+                    <td>${vessel.status_code || "N/A"}</td>
+                    <td>${vessel.longueur || "N/A"}</td>
+                `;
+          tableBody.appendChild(row);
+        });
+      } else {
+        const row = document.createElement("tr");
+        row.innerHTML = `<td colspan="10" class="placeholder-text">Aucune donnée disponible</td>`;
+        tableBody.appendChild(row);
+      }
+    },
+    filter ? JSON.stringify(filter) : null
+  );
+
+  initializeEventListeners();
+}
+
+function initializeEventListeners() {
+  const filterButton = document.getElementById("filter-button");
+  const resetButton = document.getElementById("reset-button");
+  const mmsiInput = document.getElementById("filter-mmsi");
+
+  if (filterButton && !filterButton.hasAttribute("data-listener-attached")) {
+    filterButton.addEventListener("click", applyFilters);
+    filterButton.setAttribute("data-listener-attached", "true");
+  }
+
+  if (resetButton && !resetButton.hasAttribute("data-listener-attached")) {
+    resetButton.addEventListener("click", resetFilters);
+    resetButton.setAttribute("data-listener-attached", "true");
+  }
+
+  if (mmsiInput && !mmsiInput.hasAttribute("data-listener-attached")) {
+    mmsiInput.addEventListener("input", function () {
+      const filter = getSelectedFilters();
+      if (this.value.trim() === "") {
+        delete filter.mmsi;
+      } else {
+        filter.mmsi = this.value.trim();
+      }
+      loadtab(filter);
+    });
+    mmsiInput.setAttribute("data-listener-attached", "true");
+  }
 }

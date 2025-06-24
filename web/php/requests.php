@@ -292,12 +292,12 @@
 
 
 
-// -> GET php/predict1?latitude=XXX&longitude=XXX&sog=XXX&cog=XXX&heading=XXX : OUTPUT -> json{"<result_1>", "<result_2>", ...}
+// -> GET php/requests.php/predict_boat_cluster?latitude=XXX&longitude=XXX&sog=XXX&cog=XXX&heading=XXX : OUTPUT -> json{"<result_1>", "<result_2>", ...}
 
 
-// http://etu0623.projets.isen-ouest.info/php/requests.php/predict1?latitude=48.123456&longitude=-4.123456&sog=10.5&cog=180&heading=90
+// http://etu0623.projets.isen-ouest.info/php/requests.php/predict_boat_cluster?latitude=48.123456&longitude=-4.123456&sog=10.5&cog=180&heading=90
 
-if ($requestRessource == 'predict1') {
+if ($requestRessource == 'predict_boat_cluster') {
   if ($requestMethod == 'GET') {
     $latitude = $_GET['latitude'] ?? null;
     $longitude = $_GET['longitude'] ?? null;
