@@ -26,6 +26,6 @@ soup = BeautifulSoup(req.content, 'html.parser')
 try:
   image_link = [i.strip() for i in soup.find(id='asset-main-image').find('source')['srcset'].split(',')][-1].split(' ')[0]# type: ignore
 except AttributeError:
-  print("No picture found")
+    pass
 else:
   print(image_link)
