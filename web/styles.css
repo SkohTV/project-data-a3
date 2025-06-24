@@ -862,3 +862,11 @@ body {
         min-width: 250px;
     }
 }
+
+#vessels-map {
+    aspect-ratio: 3/2;
+}
+
+.maplibregl-popup-content {
+    color: #333;
+}
