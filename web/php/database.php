@@ -335,7 +335,7 @@
   //--- dbRequestFilterValues --------------------------------------------------------
   //----------------------------------------------------------------------------
   // Request the filter values for the table in the visualization on website.
-  // -> GET php/get_filter_values : OUTPUT -> json{"longueur": ["<max>", "<min>"], "largeur": ["<max>", "<min>"], "temps":["<max>", "<min>"], "status_code": ["<code1>", ....], "transceiver": ["A", "B"]}
+  // -> GET php/get_filter_values : OUTPUT -> json{"longueur": ["<max>", "<min>"], "largeur": ["<max>", "<min>"], "temps":["<max>", "<min>"], "status_code": ["<description_code_1>", ....], "transceiver": ["A", "B"]}
   // \param db The connected database.
   function dbRequestFilterValues($db)
   {
@@ -365,7 +365,7 @@
       $result['temps'] = [$times['max_time'], $times['min_time']];
 
       // Request all status codes.
-      $request = 'SELECT code_status FROM status_code ORDER BY code_status';
+      $request = 'SELECT description FROM status_code ORDER BY code_status';
       $statement = $db->prepare($request);
       $statement->execute();
       $status_codes = $statement->fetchAll(PDO::FETCH_COLUMN);

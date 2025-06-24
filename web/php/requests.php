@@ -226,7 +226,7 @@
     }
   }
     
-  // -> GET php/get_filter_values : OUTPUT -> json{"longueur": ["<max>", "<min>"], "largeur": ["<max>", "<min>"], "temps":["<max>", "<min>"], "status_code": ["<code1>", ....], "transceiver": ["A", "B"]}
+  // -> GET php/get_filter_values : OUTPUT -> json{"longueur": ["<max>", "<min>"], "largeur": ["<max>", "<min>"], "temps":["<max>", "<min>"], "status_code": ["<description_code_1>", ....], "transceiver": ["A", "B"]}
 
   if ($requestRessource == 'get_filter_values') {
     if ($requestMethod == 'GET') {
