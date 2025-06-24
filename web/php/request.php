@@ -31,8 +31,7 @@
     if ($requestMethod == 'GET')
     {
       $result = dbRequestVessels($db);
-      if (!$result)
-      {
+      if (!isset($result)){
         header('HTTP/1.1 500 Internal Server Error');
         exit;
       }
