@@ -1,7 +1,7 @@
 
 let filterData = {};
 let currentPagination = 1;
-let itemsPerPage = 25;
+let itemsPerPage = 10;
 
 
 document.addEventListener("DOMContentLoaded", function () {
