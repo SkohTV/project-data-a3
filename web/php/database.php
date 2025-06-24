@@ -344,6 +344,7 @@
     catch (PDOException $exception)
     {
       error_log('Request error: '.$exception->getMessage());
+      echo json_encode(['status' => 'error', 'message' => 'Database request failed.']);
       return false;
     }
     // Return the result.
