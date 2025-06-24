@@ -211,6 +211,20 @@
         header('HTTP/1.1 400 Bad Request');
         exit;
       }
+
+
+
+      if ($temps_max !== null && $temps_min !== null) {
+        if (is_numeric($temps_max) && is_numeric($temps_min)) {
+          $temps_max = date('Y-m-d H:i:s', (int)$temps_max);
+          $temps_min = date('Y-m-d H:i:s', (int)$temps_min);
+        } else {
+          header('HTTP/1.1 400 Bad Request');
+          exit;
+        }
+      }
+
+
       $result = dbRequestTab($db, $limits, $page, $longueur_max, $longueur_min, $largeur_max, $largeur_min, $temps_max, $temps_min, $transceiver_class, $status_code, $mmsi);
       if ($result === false) {
         header('HTTP/1.1 500 Internal Server Error');
