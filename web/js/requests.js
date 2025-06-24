@@ -98,9 +98,6 @@ function populateSelect(id, options, defaultText) {
 function loadtab() {
     const mmsi = document.getElementById("filter-mmsi").value.trim();
 
-    const mintemps = document.getElementById("temps-min-val").textContent;
-    const maxtemps = document.getElementById("temps-max-val").textContent;
-
     const params = new URLSearchParams({
         limits: itemsPerPage,
         page: currentPagination,
@@ -108,8 +105,8 @@ function loadtab() {
         longueur_max: document.getElementById("filter-longueur-max").value,
         largeur_min: document.getElementById("filter-largeur-min").value,
         largeur_max: document.getElementById("filter-largeur-max").value,
-        temps_min: mintemps ? new Date(mintemps).getTime() / 1000 : null,
-        temps_max: maxtemps ? new Date(maxtemps).getTime() / 1000 : null,
+        temps_min: filterData.temps ? filterData.temps[1] : null,
+        temps_max: filterData.temps ? filterData.temps[0] : null
     })
 
     if (mmsi) {
