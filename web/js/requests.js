@@ -6,7 +6,7 @@ let itemsPerPage = 25;
 
 document.addEventListener("DOMContentLoaded", function () {
   loadFilterValues();
-  loadFirstMMSI();
+  loadtab();
   setupEventListeners();
 });
 
@@ -15,16 +15,6 @@ function loadFilterValues() {
   ajaxRequest("GET", "php/requests.php/get_filter_values", function (response) {
     filterData = response;
     initializeFilters();
-  });
-}
-
-
-function loadFirstMMSI() {
-  ajaxRequest("GET", "php/requests.php/all_mmsi", function(response) {
-    if (response && response.length > 0) {
-      document.getElementById("filter-mmsi").value = response[0].mmsi;
-      loadtab();
-    }
   });
 }
 
@@ -106,11 +96,7 @@ function populateSelect(id, options, defaultText) {
 
 
 function loadtab() {
-  const mmsi = document.getElementById("filter-mmsi").value.trim();
-  if (!mmsi) {
-    showMessage("Entrer un MMSI");
-    return;
-  }
+  const mmsi = document.getElementById("filter-mmsi").value.trim() ? document.getElementById("filter-mmsi").value.trim() : null;
 
   const params = new URLSearchParams({
     limits: itemsPerPage,

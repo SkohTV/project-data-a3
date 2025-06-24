@@ -295,6 +295,13 @@
     try
     {
       $offset = ($page - 1) * $limits;
+
+
+      if ($mmsi === null) {
+        $mmsi = '%';
+      }
+
+
       $request = 'SELECT * FROM point_donnee WHERE mmsi = :mmsi AND longueur BETWEEN :longueur_min AND :longueur_max AND largeur BETWEEN :largeur_min AND :largeur_max AND base_date_time BETWEEN :temps_min AND :temps_max';
       if ($transceiver_class !== null) {
         $request .= ' AND transceiver_class = :transceiver_class';
