@@ -98,28 +98,52 @@
   }
 
   //----------------------------------------------------------------------------
-  //--- dbRequestPoint_donnee --------------------------------------------------------
+  //--- dbRequestAllPoints_donnee --------------------------------------------------------
   //----------------------------------------------------------------------------
   // Request the list of point_donnee for a vessel from the database.
   // \param db The connected database.
   // \param mmsi The MMSI of the vessel to request.
+  // \param longueur_max The maximum length of the vessel to request.
+  // \param largeur_max The maximum width of the vessel to request.
+  // \param longueur_min The minimum length of the vessel to request.
+  // \param largeur_min The minimum width of the vessel to request.
+  // \param temps_min The minimum time of the point_donnee to request. (YYYY-MM-DD HH:MM:SS format)
+  // \param temps_max The maximum time of the point_donnee to request. (YYYY-MM-DD HH:MM:SS format)
+  // \param transceiver_class The transceiver class of the vessel to request.
+  // \param status_code The status code of the point_donnee to request.
 
-  function dbRequestPoint_donnee($db, $mmsi)
-  {
+  function dbRequestAllPoints_donnee($db, $mmsi, $longueur_max, $largeur_max, $longueur_min, $largeur_min, $temps_min, $temps_max, $transceiver_class, $status_code) {
     try
     {
-      $request = 'SELECT * FROM point_donnee WHERE mmsi = :mmsi ORDER BY base_date_time DESC';
+      $request = 'SELECT * FROM point_donnee WHERE mmsi = :mmsi AND latitude BETWEEN :latitude_min AND :latitude_max AND longitude BETWEEN :longitude_min AND :longitude_max AND base_date_time BETWEEN :temps_min AND :temps_max';
+      if ($transceiver_class !== null) {
+        $request .= ' AND transceiver_class = :transceiver_class';
+      }
+      if ($status_code !== null) {
+        $request .= ' AND status_code = :status_code';
+      }
       $statement = $db->prepare($request);
       $statement->bindParam(':mmsi', $mmsi);
+      $statement->bindParam(':latitude_min', $largeur_min);
+      $statement->bindParam(':latitude_max', $largeur_max);
+      $statement->bindParam(':longitude_min', $longueur_min);
+      $statement->bindParam(':longitude_max', $longueur_max);
+      $statement->bindParam(':temps_min', $temps_min);
+      $statement->bindParam(':temps_max', $temps_max);
+      if ($transceiver_class !== null) {
+        $statement->bindParam(':transceiver_class', $transceiver_class);
+      }
+      if ($status_code !== null) {
+        $statement->bindParam(':status_code', $status_code);
+      }
       $statement->execute();
-      $result = $statement->fetchAll(PDO::FETCH_ASSOC);
+      return $statement->fetchAll(PDO::FETCH_ASSOC);
     }
     catch (PDOException $exception)
     {
       error_log('Request error: '.$exception->getMessage());
       return false;
     }
-    return $result;
   }
 
   //----------------------------------------------------------------------------
@@ -160,5 +184,253 @@
     }
     return true;
   }
-  
 
+  //----------------------------------------------------------------------------
+  //--- dbRequestVesselNames --------------------------------------------------------
+  //----------------------------------------------------------------------------
+  // Request the list of vessel names from the database.
+  // \param db The connected database.
+
+  function dbRequestVesselNames($db)
+  {
+    try
+    {
+      $request = 'SELECT mmsi, vesselname FROM vessel ORDER BY vesselname';
+      $statement = $db->prepare($request);
+      $statement->execute();
+      $result = $statement->fetchAll(PDO::FETCH_ASSOC);
+    }
+    catch (PDOException $exception)
+    {
+      error_log('Request error: '.$exception->getMessage());
+      return false;
+    }
+    return $result;
+  }
+
+  //----------------------------------------------------------------------------
+  //--- dbRequestAllTransceiverClass --------------------------------------------------------
+  //----------------------------------------------------------------------------
+  // Request the list of transceiver classes from the database.
+  // \param db The connected database.
+  function dbRequestAllTransceiverClass($db)
+  {
+    try
+    {
+      $request = 'SELECT * FROM transceiver_class ORDER BY class';
+      $statement = $db->prepare($request);
+      $statement->execute();
+      $result = $statement->fetchAll(PDO::FETCH_ASSOC);
+    }
+    catch (PDOException $exception)
+    {
+      error_log('Request error: '.$exception->getMessage());
+      return false;
+    }
+    return $result;
+  }
+
+  //----------------------------------------------------------------------------
+  //--- dbRequestAllMMSI --------------------------------------------------------
+  //----------------------------------------------------------------------------
+  // Request the list of all MMSI from the database.
+  // \param db The connected database.
+  function dbRequestAllMMSI($db)
+  {
+    try
+    {
+      $request = 'SELECT mmsi FROM vessel ORDER BY mmsi';
+      $statement = $db->prepare($request);
+      $statement->execute();
+      $result = $statement->fetchAll(PDO::FETCH_ASSOC);
+    }
+    catch (PDOException $exception)
+    {
+      error_log('Request error: '.$exception->getMessage());
+      return false;
+    }
+    return $result;
+  }
+
+  //----------------------------------------------------------------------------
+  //--- dbRequestAllStatusCode --------------------------------------------------------
+  //----------------------------------------------------------------------------
+  // Request the list of all status codes from the database.
+  // \param db The connected database.
+  function dbRequestAllStatusCode($db)
+  {
+    try
+    {
+      $request = 'SELECT code, description FROM status_code ORDER BY code';
+      $statement = $db->prepare($request);
+      $statement->execute();
+      $result = $statement->fetchAll(PDO::FETCH_ASSOC);
+    }
+    catch (PDOException $exception)
+    {
+      error_log('Request error: '.$exception->getMessage());
+      return false;
+    }
+    return $result;
+  }
+
+  //----------------------------------------------------------------------------
+  //--- dbRequestTab --------------------------------------------------------
+  //----------------------------------------------------------------------------
+  // Request the list for the table in the visualization on website.
+  // \param db The connected database.
+  // \param mmsi The MMSI of the vessel to request.
+  // \param limits The number of results to return.
+  // \param page The page number to return.
+  // \param longueur_max The maximum length of the vessel to request.
+  // \param largeur_max The maximum width of the vessel to request.
+  // \param longueur_min The minimum length of the vessel to request.
+  // \param largeur_min The minimum width of the vessel to request.
+  // \param temps_min The minimum time of the point_donnee to request. (YYYY-MM-DD HH:MM:SS format)
+  // \param temps_max The maximum time of the point_donnee to request. (YYYY-MM-DD HH:MM:SS format)
+  // \param transceiver_class The transceiver class of the vessel to request.
+  // \param status_code The status code of the point_donnee to request.
+
+  function dbRequestTab($db, $limits, $page, $longueur_max, $longueur_min, $largeur_max, $largeur_min, $temps_max, $temps_min, $transceiver_class, $status_code, $mmsi) {
+    try
+    {
+      $offset = ($page - 1) * $limits;
+      $request = 'SELECT * FROM point_donnee WHERE mmsi = :mmsi AND longueur BETWEEN :longueur_min AND :longueur_max AND largeur BETWEEN :largeur_min AND :largeur_max AND base_date_time BETWEEN :temps_min AND :temps_max';
+      if ($transceiver_class !== null) {
+        $request .= ' AND transceiver_class = :transceiver_class';
+      }
+      if ($status_code !== null) {
+        $request .= ' AND status_code = :status_code';
+      }
+      $request .= ' LIMIT :limits OFFSET :offset';
+      $statement = $db->prepare($request);
+      $statement->bindParam(':mmsi', $mmsi);
+      $statement->bindParam(':longueur_min', $longueur_min);
+      $statement->bindParam(':longueur_max', $longueur_max);
+      $statement->bindParam(':largeur_min', $largeur_min);
+      $statement->bindParam(':largeur_max', $largeur_max);
+      $statement->bindParam(':temps_min', $temps_min);
+      $statement->bindParam(':temps_max', $temps_max);
+      if ($transceiver_class !== null) {
+        $statement->bindParam(':transceiver_class', $transceiver_class);
+      }
+      if ($status_code !== null) {
+        $statement->bindParam(':status_code', $status_code);
+      }
+      $statement->bindParam(':limits', $limits, PDO::PARAM_INT);
+      $statement->bindParam(':offset', $offset, PDO::PARAM_INT);
+      $statement->execute();
+      $result = $statement->fetchAll(PDO::FETCH_ASSOC);
+    }
+    catch (PDOException $exception)
+    {
+      error_log('Request error: '.$exception->getMessage());
+      return false;
+    }
+    // Return the result.
+    return $result;
+  }
+
+  //----------------------------------------------------------------------------
+  //--- dbRequestFilterValues --------------------------------------------------------
+  //----------------------------------------------------------------------------
+  // Request the filter values for the table in the visualization on website.
+  // -> GET php/get_filter_values : OUTPUT -> json{"longueur": ["<max>", "<min>"], "largeur": ["<max>", "<min>"], "temps":["<max>", "<min>"], "status_code": ["<code1>", ....], "transceiver": ["A", "B"]}
+  // \param db The connected database.
+  function dbRequestFilterValues($db)
+  {
+    try
+    {
+      $result = array();
+
+      // Request the maximum and minimum length.
+      $request = 'SELECT MAX(length) AS max_length, MIN(length) AS min_length FROM vessel';
+      $statement = $db->prepare($request);
+      $statement->execute();
+      $lengths = $statement->fetch(PDO::FETCH_ASSOC);
+      $result['longueur'] = [$lengths['max_length'], $lengths['min_length']];
+
+      // Request the maximum and minimum width.
+      $request = 'SELECT MAX(width) AS max_width, MIN(width) AS min_width FROM vessel';
+      $statement = $db->prepare($request);
+      $statement->execute();
+      $widths = $statement->fetch(PDO::FETCH_ASSOC);
+      $result['largeur'] = [$widths['max_width'], $widths['min_width']];
+
+      // Request the maximum and minimum time.
+      $request = 'SELECT MAX(base_date_time) AS max_time, MIN(base_date_time) AS min_time FROM point_donnee';
+      $statement = $db->prepare($request);
+      $statement->execute();
+      $times = $statement->fetch(PDO::FETCH_ASSOC);
+      $result['temps'] = [$times['max_time'], $times['min_time']];
+
+      // Request all status codes.
+      $request = 'SELECT code FROM status_code ORDER BY code';
+      $statement = $db->prepare($request);
+      $statement->execute();
+      $status_codes = $statement->fetchAll(PDO::FETCH_COLUMN);
+      $result['status_code'] = array_values($status_codes);
+    }
+    catch (PDOException $exception)
+    {
+      error_log('Request error: '.$exception->getMessage());
+      return false;
+    }
+
+    // Request all transceiver classes.
+    $request = 'SELECT class FROM transceiver_class ORDER BY class';
+    $statement = $db->prepare($request);
+    $statement->execute();
+    $transceivers = $statement->fetchAll(PDO::FETCH_COLUMN);
+    $result['transceiver'] = array_values($transceivers);
+
+    // Return the result.
+    return $result;
+
+  }
+
+  //----------------------------------------------------------------------------
+  //--- dbRequestAllClusters --------------------------------------------------------
+  //----------------------------------------------------------------------------
+  // Request the list of all clusters from the database.
+  // \param db The connected database.
+  function dbRequestAllClusters($db)
+  {
+    try
+    {
+      $request = 'SELECT * FROM cluster ORDER BY id';
+      $statement = $db->prepare($request);
+      $statement->execute();
+      $result = $statement->fetchAll(PDO::FETCH_ASSOC);
+    }
+    catch (PDOException $exception)
+    {
+      error_log('Request error: '.$exception->getMessage());
+      return false;
+    }
+    return $result;
+  }
+
+  //----------------------------------------------------------------------------
+  //--- dbRequestAllPoints_donnee_Cluster --------------------------------------------------------
+  //----------------------------------------------------------------------------
+  // Request the list of point_donnee for a cluster from the database.
+  // \param db The connected database.
+  // \param cluster The ID of the cluster to request.
+  function dbRequestAllPoints_donneeCluster($db, $cluster)
+  {
+    try
+    {
+      $request = 'SELECT * FROM point_donnee WHERE cluster_id = :cluster ORDER BY base_date_time';
+      $statement = $db->prepare($request);
+      $statement->bindParam(':cluster', $cluster, PDO::PARAM_INT);
+      $statement->execute();
+      $result = $statement->fetchAll(PDO::FETCH_ASSOC);
+    }
+    catch (PDOException $exception)
+    {
+      error_log('Request error: '.$exception->getMessage());
+      return false;
+    }
+    return $result;
+  }
