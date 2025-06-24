@@ -297,13 +297,14 @@
       $offset = ($page - 1) * $limits;
 
 
-      if ($mmsi === null) {
-        $mmsi = '%';
+
+
+      $request = 'SELECT * FROM point_donnee WHERE longueur BETWEEN :longueur_min AND :longueur_max AND largeur BETWEEN :largeur_min AND :largeur_max';
+
+
+      if ($mmsi !== null) {
+        $request .= ' AND mmsi = :mmsi';
       }
-
-
-      $request = 'SELECT * FROM point_donnee WHERE mmsi = :mmsi AND longueur BETWEEN :longueur_min AND :longueur_max AND largeur BETWEEN :largeur_min AND :largeur_max';
-
 
       if ($temps_min !== null && $temps_max !== null) {
         $request .= ' AND base_date_time BETWEEN :temps_min AND :temps_max';
