@@ -24,7 +24,7 @@ def get_cluster_indication(cluster_id):
 
 def prediction(lat, lon, sog, cog, heading):
     # (modèle + scaler)
-    pipeline = joblib.load('../data/model_1.pkl')
+    pipeline = joblib.load('models/model_1.pkl')
     model = pipeline['model']
     scaler = pipeline['scaler']
 
