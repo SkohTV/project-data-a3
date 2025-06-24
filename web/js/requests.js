@@ -105,9 +105,19 @@ function loadtab() {
         longueur_max: document.getElementById("filter-longueur-max").value,
         largeur_min: document.getElementById("filter-largeur-min").value,
         largeur_max: document.getElementById("filter-largeur-max").value,
-        temps_min: filterData.temps ? filterData.temps[1] : null,
-        temps_max: filterData.temps ? filterData.temps[0] : null
+        // temps_min: filterData.temps ? filterData.temps[1] : null,
+        // temps_max: filterData.temps ? filterData.temps[0] : null
     })
+
+
+    if (filterData.temps) {
+        const minDate = new Date(filterData.temps[1]);
+        const maxDate = new Date(filterData.temps[0]);
+        params.append('temps_min', Math.floor(minDate.getTime() / 1000));
+        params.append('temps_max', Math.floor(maxDate.getTime() / 1000));
+    }
+
+
 
     if (mmsi) {
         params.append('mmsi', mmsi);
