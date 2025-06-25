@@ -1,4 +1,7 @@
+@import url('https://fonts.googleapis.com/css2?family=Righteous&display=swap');
+
 * {
+  font-family: 'Righteous', sans-serif;
   margin: 0;
   padding: 0;
   box-sizing: border-box;
@@ -233,13 +236,39 @@ body {
   margin-bottom: 1rem;
 }
 
+.main-title {
+  font-family: 'Righteous', sans-serif;
+  font-size: 6rem;
+  font-weight: 900;
+  text-align: center;
+  margin: 0;
+  padding: 2rem 0;
+}
+
 .title-line {
   display: block;
-  background: linear-gradient(45deg, #64b5f6, #42a5f5, #2196f3);
+  background: linear-gradient(45deg, #00bcd4, #26c6da, #4dd0e1, #00acc1);
+  background-size: 400% 400%;
+  background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  animation: slowWave 6s ease-in-out infinite;
+  letter-spacing: 0.1em;
+}
 
-  background-clip: text;
+.title-line:nth-child(2) {
+  animation-delay: .5s;
+}
+
+@keyframes slowWave {
+  0%, 100% {
+    transform: translateY(0);
+    background-position: 0% 50%;
+  }
+  50% {
+    transform: translateY(-50px);
+    background-position: 100% 50%;
+  }
 }
 
 .subtitle {

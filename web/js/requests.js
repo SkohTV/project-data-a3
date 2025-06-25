@@ -10,133 +10,138 @@ document.addEventListener("DOMContentLoaded", function () {
   setupEventListeners();
 });
 
-document.addEventListener('DOMContentLoaded', () => {
-  const form = document.getElementById('add-vessel-form');
-  const messageBox = document.getElementById('vessel-form-message');
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById("add-vessel-form");
+  const messageBox = document.getElementById("vessel-form-message");
 
-  form.addEventListener('submit', async (e) => {
+  form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
     const formData = new FormData(form);
     const params = new URLSearchParams(formData);
 
     try {
-      const response = await fetch('php/requests.php/add_boat', {
-        method: 'POST',
+      const response = await fetch("php/requests.php/add_boat", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
+          "Content-Type": "application/x-www-form-urlencoded",
         },
         body: params.toString(),
       });
 
       if (response.status === 201) {
-        messageBox.textContent = 'Navire ajouté avec succès.';
-        messageBox.style.color = 'green';
+        messageBox.textContent = "Navire ajouté avec succès.";
+        messageBox.style.color = "green";
         form.reset();
       } else if (response.status === 400) {
-        messageBox.textContent = 'Champs requis manquants.';
-        messageBox.style.color = 'red';
+        messageBox.textContent = "Champs requis manquants.";
+        messageBox.style.color = "red";
       } else if (response.status === 500) {
-        messageBox.textContent = 'Erreur serveur. Veuillez réessayer.';
-        messageBox.style.color = 'red';
+        messageBox.textContent = "Erreur serveur. Veuillez réessayer.";
+        messageBox.style.color = "red";
       } else {
-        messageBox.textContent = 'Erreur inconnue.';
-        messageBox.style.color = 'red';
+        messageBox.textContent = "Erreur inconnue.";
+        messageBox.style.color = "red";
       }
     } catch (error) {
-      messageBox.textContent = 'Erreur de connexion au serveur.';
-      messageBox.style.color = 'red';
-      console.error('Erreur fetch:', error);
+      messageBox.textContent = "Erreur de connexion au serveur.";
+      messageBox.style.color = "red";
+      console.error("Erreur fetch:", error);
     }
   });
 });
 
-document.addEventListener('DOMContentLoaded', () => {
-  const form = document.getElementById('add-point-form');
-  const messageBox = document.getElementById('point-form-message');
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById("add-point-form");
+  const messageBox = document.getElementById("point-form-message");
 
-  form.addEventListener('submit', async (e) => {
+  form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
     const formData = new FormData(form);
     const params = new URLSearchParams(formData);
-    
+
     try {
-      const clusterUrl = `php/requests.php/predict_boat_cluster?latitude=${params.get('latitude')}&longitude=${params.get('longitude')}&sog=${params.get('sog')}&cog=${params.get('cog')}&heading=${params.get('heading')}`;
-      
+      const clusterUrl = `php/requests.php/predict_boat_cluster?latitude=${params.get(
+        "latitude"
+      )}&longitude=${params.get("longitude")}&sog=${params.get(
+        "sog"
+      )}&cog=${params.get("cog")}&heading=${params.get("heading")}`;
+
       const clusterResponse = await fetch(clusterUrl);
-      
+
       if (!clusterResponse.ok) {
         throw new Error(`Cluster prediction failed: ${clusterResponse.status}`);
       }
-      
+
       const clusterData = await clusterResponse.json();
       const id_cluster = clusterData[0];
       console.log("ClusterData:", clusterData);
-      
-      params.append('id_cluster', id_cluster);
 
-      const response = await fetch('php/requests.php/add_point_donnee', {
-        method: 'POST',
+      params.append("id_cluster", id_cluster);
+
+      const response = await fetch("php/requests.php/add_point_donnee", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
+          "Content-Type": "application/x-www-form-urlencoded",
         },
         body: params.toString(),
       });
 
-      console.log('Paramètres envoyés:', params.toString());
+      console.log("Paramètres envoyés:", params.toString());
 
       if (response.status === 201) {
-        messageBox.textContent = 'Point ajouté avec succès.';
-        messageBox.style.color = 'green';
+        messageBox.textContent = "Point ajouté avec succès.";
+        messageBox.style.color = "green";
         form.reset();
       } else if (response.status === 400) {
-        messageBox.textContent = 'Champs requis manquants.';
-        messageBox.style.color = 'red';
+        messageBox.textContent = "Champs requis manquants.";
+        messageBox.style.color = "red";
       } else if (response.status === 500) {
-        messageBox.textContent = 'Erreur serveur. Veuillez réessayer.';
-        messageBox.style.color = 'red';
+        messageBox.textContent = "Erreur serveur. Veuillez réessayer.";
+        messageBox.style.color = "red";
       } else {
-        messageBox.textContent = 'Erreur inconnue.';
-        messageBox.style.color = 'red';
+        messageBox.textContent = "Erreur inconnue.";
+        messageBox.style.color = "red";
       }
     } catch (error) {
-      console.error('Erreur:', error);
-      messageBox.textContent = 'Erreur de connexion au serveur ou prédiction du cluster.';
-      messageBox.style.color = 'red';
+      console.error("Erreur:", error);
+      messageBox.textContent =
+        "Erreur de connexion au serveur ou prédiction du cluster.";
+      messageBox.style.color = "red";
     }
   });
 });
 
-document.addEventListener('DOMContentLoaded', function() {
-  const vesselModeBtn = document.getElementById('vessel-mode-btn');
-  const pointModeBtn = document.getElementById('point-mode-btn');
-  const vesselSection = document.getElementById('vessel-section');
-  const pointSection = document.getElementById('point-section');
+document.addEventListener("DOMContentLoaded", function () {
+  const vesselModeBtn = document.getElementById("vessel-mode-btn");
+  const pointModeBtn = document.getElementById("point-mode-btn");
+  const vesselSection = document.getElementById("vessel-section");
+  const pointSection = document.getElementById("point-section");
 
   function switchMode(mode) {
-    vesselModeBtn.classList.remove('active');
-    pointModeBtn.classList.remove('active');
-    
-    vesselSection.classList.remove('active');
-    pointSection.classList.remove('active');
-    
-    if (mode === 'vessel') {
-      vesselModeBtn.classList.add('active');
-      vesselSection.classList.add('active');
-    } else if (mode === 'point') {
-      pointModeBtn.classList.add('active');
-      pointSection.classList.add('active');
+    vesselModeBtn.classList.remove("active");
+    pointModeBtn.classList.remove("active");
+
+    vesselSection.classList.remove("active");
+    pointSection.classList.remove("active");
+
+    if (mode === "vessel") {
+      vesselModeBtn.classList.add("active");
+      vesselSection.classList.add("active");
+    } else if (mode === "point") {
+      pointModeBtn.classList.add("active");
+      pointSection.classList.add("active");
     }
-    
-    vesselFormMessage.style.display = 'none';
-    pointFormMessage.style.display = 'none';
-    vesselFormMessage.className = 'form-message';
-    pointFormMessage.className = 'form-message';
+
+    vesselFormMessage.style.display = "none";
+    pointFormMessage.style.display = "none";
+    vesselFormMessage.className = "form-message";
+    pointFormMessage.className = "form-message";
   }
-  
-  vesselModeBtn.addEventListener('click', () => switchMode('vessel'));
-  pointModeBtn.addEventListener('click', () => switchMode('point'));
+
+  vesselModeBtn.addEventListener("click", () => switchMode("vessel"));
+  pointModeBtn.addEventListener("click", () => switchMode("point"));
 });
 
 function loadFilterValues() {
@@ -213,7 +218,22 @@ function populateSelect(id, options, defaultText) {
   });
 }
 
+function showLoader() {
+  const tbody = document.getElementById("vessels-tbody");
+  tbody.innerHTML = `
+    <tr>
+      <td colspan="10" class="loader-cell">
+        <div class="loader-container">
+          <div class="loader-spinner"></div>
+          <span class="loader-text">Chargement des données...</span>
+        </div>
+      </td>
+    </tr>
+  `;
+}
+
 function loadtab() {
+  showLoader();
   const mmsi = document.getElementById("filter-mmsi").value.trim();
 
   const params = new URLSearchParams({
@@ -236,10 +256,10 @@ function loadtab() {
     const oneDay = 24 * 60 * 60 * 1000;
 
     const selectedMinDate = new Date(
-        minDate.getTime() + (range * minSliderValue) / 100 - oneDay
+      minDate.getTime() + (range * minSliderValue) / 100 - oneDay
     );
     const selectedMaxDate = new Date(
-        minDate.getTime() + (range * maxSliderValue) / 100 + oneDay
+      minDate.getTime() + (range * maxSliderValue) / 100 + oneDay
     );
 
     params.append("temps_min", Math.floor(selectedMinDate.getTime() / 1000));
@@ -252,13 +272,13 @@ function loadtab() {
 
   const transceiver = document.getElementById("filter-transceiver").value;
   const status = document.getElementById("filter-status").value;
-  
+
   if (transceiver) {
-    
-    const transceiverCode = transceiver === 'A' ? '1' : transceiver === 'B' ? '2' : transceiver;
+    const transceiverCode =
+      transceiver === "A" ? "1" : transceiver === "B" ? "2" : transceiver;
     params.append("transceiver_class", transceiverCode);
   }
-  
+
   if (status) {
     params.append("status_code", status);
   }
