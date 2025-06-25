@@ -160,11 +160,23 @@
       $mmsi = $_GET['mmsi'] ?? null;
 
       // Validate parameters.
-      if (!is_numeric($longueur_max) || !is_numeric($longueur_min) || !is_numeric($largeur_max) || !is_numeric($largeur_min) ||
-          !is_numeric($temps_max) || !is_numeric($temps_min) || !is_numeric($transceiver_class) || !is_numeric($status_code) || !is_numeric($mmsi)) {
-        header('HTTP/1.1 400 Bad Request');
-        exit;
-      } 
+      // if (!is_numeric($longueur_max) || !is_numeric($longueur_min) || !is_numeric($largeur_max) || !is_numeric($largeur_min) ||
+      //     !is_numeric($temps_max) || !is_numeric($temps_min) || !is_numeric($transceiver_class) || !is_numeric($status_code) || !is_numeric($mmsi)) {
+      //   header('HTTP/1.1 400 Bad Request');
+      //   exit;
+      // } 
+
+      if ($temps_max !== null && $temps_min !== null) {
+        if (is_numeric($temps_max) && is_numeric($temps_min)) {
+          $temps_max = date('Y-m-d H:i:s', (int)$temps_max);
+          $temps_min = date('Y-m-d H:i:s', (int)$temps_min);
+        } else {
+          header('HTTP/1.1 400 Bad Request');
+          exit;
+        }
+      }
+
+
       $result = dbRequestAllPoints_donnee($db, $longueur_max, $longueur_min, $largeur_max, $largeur_min, $temps_max, $temps_min, $transceiver_class, $status_code, $mmsi);
       if ($result === false) {
         header('HTTP/1.1 500 Internal Server Error');
