@@ -97,10 +97,22 @@ function loadtab() {
   });
 
   if (filterData.temps) {
+    const minSliderValue = document.getElementById("filter-temps-min").value;
+    const maxSliderValue = document.getElementById("filter-temps-max").value;
+
     const minDate = new Date(filterData.temps[1]);
     const maxDate = new Date(filterData.temps[0]);
-    params.append("temps_min", Math.floor(minDate.getTime() / 1000));
-    params.append("temps_max", Math.floor(maxDate.getTime() / 1000));
+    const range = maxDate.getTime() - minDate.getTime();
+
+    const selectedMinDate = new Date(
+      minDate.getTime() + (range * minSliderValue) / 100
+    );
+    const selectedMaxDate = new Date(
+      minDate.getTime() + (range * maxSliderValue) / 100
+    );
+
+    params.append("temps_min", Math.floor(selectedMinDate.getTime() / 1000));
+    params.append("temps_max", Math.floor(selectedMaxDate.getTime() / 1000));
   }
 
   if (mmsi) {
