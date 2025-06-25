@@ -40,10 +40,9 @@ with open('./output.csv', 'r') as f:
 
 
 slices = points.getvalue()[:-1].split('\n')
-ret = [slices[i:i+10000] for i in range(len(slices) // 10000 + 1)]
+ret = [slices[i:i+10000] for i in range(0, len(slices), 10000)]
 
 for idx, itm in enumerate(ret):
     with open(f'points_final_{idx}.sql', 'w') as f:
         f.write(intro + '\n'.join(itm)[:-1] + ';')
-
 
