@@ -108,7 +108,7 @@ function predict_trajectoire_vesseltype(row) {
     })
 
     ajaxRequest("GET", `php/requests.php/predict_boat_trajectory?${params}`, (r) => {
-       console.log(JSON.parse(r)) 
+       console.log(r) 
     });
 
 }
