@@ -54,6 +54,7 @@ function add_lines(map, data) {
                 'type': 'geojson',
                 'data': generate_line(popup_msg, coords)
             });
+            console.log(generate_line(popup_msg, coords))
 
             // Style the line
             map.addLayer({
@@ -110,7 +111,7 @@ function predict_trajectoire_vesseltype(row) {
     let predicted_trajectory = null;
 
     ajaxRequest("GET", `php/requests.php/predict_boat_trajectory?${params}`, (r) => {
-        predicted_trajectory = r.map((x) => [JSON.parse(x).LON, JSON.parse(x).LAT])
+        predicted_trajectory = r.map((x) => [JSON.parse(x).LON[0], JSON.parse(x).LAT[0]])
 
         console.log(predicted_trajectory)
         let c = [['hello_cool', '#FF0', predicted_trajectory]]
