@@ -345,17 +345,100 @@ class VesselTypePredictor:
         print(f"\n-> MODÈLE SAUVEGARDÉ SOUS {file_path}")
         print(f"-> MEILLEUR MODÈLE: {best_model_name}")
 
+    def show_feature_info(self, file_path):
+        """AFFICHER LES INFORMATIONS SUR LES FEATURES UTILISÉES"""
+        print("-> ANALYSE DES FEATURES UTILISÉES...")
+        
+        df = self.load_and_prepare_data(file_path)
+        df_processed, features = self.feature_engineering(df)
+        
+        print(f"\n-> LISTE DES FEATURES ATTENDUES ({len(features)} features):")
+        for i, feature in enumerate(features):
+            if feature in df_processed.columns:
+                col_data = df_processed[feature]
+                print(f"  {i+1:2d}. {feature:20s} - Type: {col_data.dtype}, Min: {col_data.min():.2f}, Max: {col_data.max():.2f}, Moyenne: {col_data.mean():.2f}")
+            else:
+                print(f"  {i+1:2d}. {feature:20s} - FEATURE MANQUANTE (sera mise à 0)")
+        
+        print(f"\n-> EXEMPLE DE VALEURS POUR LA PRÉDICTION:")
+        sample_row = df_processed[features].iloc[0]
+        feature_values = ",".join([str(round(val, 2)) for val in sample_row.values])
+        print(f"python vessel_prediction.py --predict --features \"{feature_values}\" --data {file_path}")
+        
+        return features
+
+    def load_model(self, model_path):
+        """CHARGER UN MODÈLE PRÉ-ENTRAÎNÉ"""
+        print(f"-> CHARGEMENT DU MODÈLE: {model_path}")
+        
+        try:
+            with open(model_path, 'rb') as f:
+                model_data = pickle.load(f)
+            
+            self.best_models = {'loaded_model': model_data['model']}
+            self.scaler = model_data['scaler']
+            self.label_encoders = model_data['label_encoders']
+            
+            print(f"-> MODÈLE CHARGÉ: {model_data['model_name']}")
+            return True
+            
+        except Exception as e:
+            print(f"-> ERREUR LORS DU CHARGEMENT: {e}")
+            return False
+
+    def predict_from_features(self, feature_values, feature_names):
+        """PRÉDIRE À PARTIR D'UNE LISTE DE FEATURES"""
+        print("-> PRÉDICTION À PARTIR DES FEATURES...")
+        
+        if not self.best_models:
+            print("-> ERREUR: AUCUN MODÈLE CHARGÉ!")
+            return None
+        
+        X = np.array([feature_values]).reshape(1, -1)
+        
+        try:
+            X_scaled = self.scaler.transform(X)
+        except Exception as e:
+            print(f"-> ERREUR LORS DE LA NORMALISATION: {e}")
+            return None
+        
+        model = list(self.best_models.values())[0]
+        prediction = model.predict(X_scaled)[0]
+        
+        try:
+            probabilities = model.predict_proba(X_scaled)[0]
+            classes = model.classes_
+            
+            print(f"-> PRÉDICTION: {prediction}")
+            print("-> PROBABILITÉS:")
+            for cls, prob in zip(classes, probabilities):
+                print(f"   {cls}: {prob:.3f}")
+                
+        except:
+            print(f"-> PRÉDICTION: {prediction}")
+        
+        return prediction
+
 def main():
     parser = argparse.ArgumentParser(description="Pipeline Machine Learning pour la Prédiction du Type de Navire")
     parser.add_argument('--train', action='store_true', help='Entraîner le modèle')
     parser.add_argument('--evaluate', action='store_true', help='Évaluer le modèle')
     parser.add_argument('--predict', action='store_true', help='Prédire le type de navire')
+    parser.add_argument('--show-features', action='store_true', help='Afficher la liste des features attendues')
     parser.add_argument('--mmsi', type=int, help='MMSI du navire à prédire')
     parser.add_argument('--features', type=str, help='Liste des features séparées par des virgules')
-    parser.add_argument('--data', type=str, default='vessel_data.csv', help='Chemin vers le fichier CSV de données')
+    parser.add_argument('--data', type=str, default='/home/mkkuu/Documents/project-data-a3/ia/data/large.csv', help='Chemin vers le fichier CSV de données')
+    parser.add_argument('--model', type=str, default='best_vessel_model.pkl', help='Chemin vers le modèle sauvegardé')  # NOUVEAU
 
     args = parser.parse_args()
     predictor = VesselTypePredictor()
+
+    if args.show_features:
+        try:
+            predictor.show_feature_info(args.data)
+        except Exception as e:
+            print(f"ERREUR: {e}")
+        return
 
     if args.train or args.evaluate:
         df = predictor.load_and_prepare_data(args.data)
@@ -365,41 +448,54 @@ def main():
         
         if args.train:
             predictor.train_models(X_train_scaled, y_train)
+            best_model_name = list(predictor.best_models.keys())[0]
+            predictor.save_model(best_model_name, args.model)
+            
         if args.evaluate:
             results = predictor.evaluate_models(X_test_scaled, y_test)
-            predictor.plot_results(y_test, results)
-            plt.show()
+            best_model_name = predictor.plot_results(y_test, results)
+            predictor.save_model(best_model_name, args.model)
 
     elif args.predict:
-        if args.mmsi:
+        if not predictor.load_model(args.model):
+            print("-> IMPOSSIBLE DE CHARGER LE MODÈLE. ENTRAÎNEZ D'ABORD UN MODÈLE AVEC --train")
+            return
+        
+        if args.features:
+            try:
+                feature_values = list(map(float, args.features.split(',')))
+                
+                df = predictor.load_and_prepare_data(args.data)
+                df_processed, feature_names = predictor.feature_engineering(df)
+                
+                if len(feature_values) != len(feature_names):
+                    print(f"-> ERREUR: {len(feature_values)} features fournies, {len(feature_names)} attendues")
+                    print("-> Utilisez --show-features pour voir la liste complète")
+                    return
+                
+                prediction = predictor.predict_from_features(feature_values, feature_names)
+                
+            except Exception as e:
+                print(f"-> ERREUR LORS DE LA PRÉDICTION: {e}")
+                
+        elif args.mmsi:
             df = predictor.load_and_prepare_data(args.data)
             df_processed, features = predictor.feature_engineering(df)
             df_mmsi = df_processed[df_processed['MMSI'] == args.mmsi]
+            
             if df_mmsi.empty:
-                print(f"AUCUN NAVIRE TROUVÉ AVEC MMSI {args.mmsi}")
-                sys.exit(1)
-            X = df_mmsi[features]
-            X_scaled = predictor.scaler.fit_transform(X)
-            predictor.train_models(X_scaled, df_mmsi['VesselCategory'])
-            model = list(predictor.best_models.values())[0]
-            pred = model.predict(X_scaled)
-            print(f"PRÉDICTION POUR LE NAVIRE {args.mmsi}: {pred[0]}")
-
-        elif args.features:
-            feature_list = list(map(float, args.features.split(',')))
-            X = np.array([feature_list])
-            X_scaled = predictor.scaler.fit_transform(X)
-            predictor.train_models(X_scaled, ['Cargo'])
-            model = list(predictor.best_models.values())[0]
-            pred = model.predict(X_scaled)
-            print(f"PRÉDICTION À PARTIR DES FEATURES : {pred[0]}")
+                print(f"-> AUCUN NAVIRE TROUVÉ AVEC MMSI {args.mmsi}")
+                return
+                
+            X = df_mmsi[features].iloc[0].values
+            prediction = predictor.predict_from_features(X, features)
+            
         else:
-            print("VEUILLEZ SPÉCIFIER UN MMSI OU DES FEATURES POUR LA PRÉDICTION.")
-            parser.print_help()
-            sys.exit(1)
+            print("-> VEUILLEZ SPÉCIFIER UN MMSI OU DES FEATURES POUR LA PRÉDICTION.")
+            return
 
     else:
-        print("AUCUNE ACTION SPÉCIFIÉE. VEUILLEZ UTILISER --train, --evaluate OU --predict.")
+        print("-> AUCUNE ACTION SPÉCIFIÉE. UTILISEZ --train, --evaluate, --predict OU --show-features")
         parser.print_help()
 
 if __name__ == "__main__":

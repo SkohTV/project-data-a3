@@ -1,5 +1,7 @@
 .ipynb_checkpoints/
 big-data/result
+ia/data/large.csv
+ia/data/large.zip
 
 .DS_Store
 
