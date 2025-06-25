@@ -367,12 +367,12 @@ if ($requestRessource == 'predict_boat_trajectory') {
     $result = [];
     $return_var = 0;
     $json = [
-        "LAT" => floatval(escapeshellarg($latitude)),
-        "LON" => floatval(escapeshellarg($longitude)),
-        "SOG" => floatval(escapeshellarg($sog)),
-        "COG" => floatval(escapeshellarg($cog)),
-        "Heading" => floatval(escapeshellarg($heading)),
-        "VesselType" => intval(escapeshellarg($vesseltype)),
+        "LAT" => floatval($latitude),
+        "LON" => floatval($longitude),
+        "SOG" => floatval($sog),
+        "COG" => floatval($cog),
+        "Heading" => floatval($heading),
+        "VesselType" => intval($vesseltype),
     ];
     $cmd = "cd scripts && python3 besoin_client_3.py --json " . json_encode($json) . " --steps " . escapeshellarg($steps) . " 2>&1";
     exec($cmd, $result, $return_var);
