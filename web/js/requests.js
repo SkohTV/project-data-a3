@@ -316,6 +316,9 @@ function displayData(data) {
       <td>${point.heading}</td>
       <td>${point.status_code}</td>
       <td>${point.draft}</td>
+      <td>${point.transceiver_class}</td>
+      <td>${point.length}</td>
+      <td>${point.width}</td>
     </tr>
   `
     )
