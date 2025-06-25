@@ -317,33 +317,14 @@ function dbRequestTab($db, $limits, $page, $longueur_max, $longueur_min, $largeu
     try {
         $offset = ($page - 1) * $limits;
         
-        $baseWhere = 'FROM point_donnee pd JOIN vessel v on pd.mmsi = v.mmsi 
-                        WHERE v.length BETWEEN :longueur_min AND :longueur_max
-                         AND v.width BETWEEN :largeur_min AND :largeur_max';
-  
-        // $baseWhere = 'FROM point_donnee pd 
-        //              WHERE pd.mmsi IN (
-        //                  SELECT v.mmsi FROM vessel v 
-        //
-        //                  WHERE v.length BETWEEN :longueur_min AND :longueur_max
-        //                  AND v.width BETWEEN :largeur_min AND :largeur_max';
+        
+        $baseWhere = 'FROM point_donnee pd 
+                     INNER JOIN vessel v ON pd.mmsi = v.mmsi 
+                     WHERE 1=1';
+        
+        $params = [];
+        
 
-        $params = [
-            ':longueur_min' => $longueur_min,
-            ':longueur_max' => $longueur_max,
-            ':largeur_min' => $largeur_min,
-            ':largeur_max' => $largeur_max
-        ];
-        
-        
-        if ($transceiver_class !== null) {
-            $baseWhere .= ' AND v.transceiverclass = :transceiver_class';
-            $params[':transceiver_class'] = $transceiver_class;
-        }
-        
-        // $baseWhere .= ')';
-        
-        
         if ($mmsi !== null) {
             $baseWhere .= ' AND pd.mmsi = :mmsi';
             $params[':mmsi'] = $mmsi;
@@ -367,20 +348,51 @@ function dbRequestTab($db, $limits, $page, $longueur_max, $longueur_min, $largeu
         }
         
         
-        $countQuery = 'SELECT COUNT(DISTINCT pd.id_point) as total ' . $baseWhere;
-        $countStatement = $db->prepare($countQuery);
-        foreach ($params as $key => $value) {
-            $countStatement->bindValue($key, $value);
+        $baseWhere .= ' AND v.length BETWEEN :longueur_min AND :longueur_max';
+        $baseWhere .= ' AND v.width BETWEEN :largeur_min AND :largeur_max';
+        $params[':longueur_min'] = $longueur_min;
+        $params[':longueur_max'] = $longueur_max;
+        $params[':largeur_min'] = $largeur_min;
+        $params[':largeur_max'] = $largeur_max;
+        
+        
+        if ($transceiver_class !== null) {
+            $baseWhere .= ' AND v.code_transceiver = :transceiver_class';
+            $params[':transceiver_class'] = $transceiver_class;
         }
-        $countStatement->execute();
-        $totalCount = $countStatement->fetch(PDO::FETCH_ASSOC)['total'];
+        
+        
+        $skipCount = ($page > 10);
+        
+        if (!$skipCount) {
+            
+            $countQuery = 'SELECT COUNT(*) as total FROM (
+                          SELECT 1 ' . $baseWhere . ' LIMIT 50000
+                          ) as limited_result';
+            
+            $countStatement = $db->prepare($countQuery);
+            foreach ($params as $key => $value) {
+                $countStatement->bindValue($key, $value);
+            }
+            $countStatement->execute();
+            $totalCount = $countStatement->fetch(PDO::FETCH_ASSOC)['total'];
+            
+            
+            if ($totalCount >= 50000) {
+                $totalCount = $totalCount * 2;
+            }
+        } else {
+            
+            $totalCount = $page * $limits + $limits;
+        }
         
         
         $dataQuery = 'SELECT pd.id_point, pd.base_date_time, pd.mmsi, pd.latitude, pd.longitude, 
                       pd.speed_over_ground as sog, pd.cap_over_ground as cog, pd.heading, 
                       pd.code_status as status_code, pd.draft, pd.id_cluster ' . 
                      $baseWhere . 
-                     ' LIMIT :limits OFFSET :offset';
+                     ' ORDER BY pd.base_date_time DESC 
+                       LIMIT :limits OFFSET :offset';
         
         $params[':limits'] = (int)$limits;
         $params[':offset'] = (int)$offset;
@@ -400,6 +412,10 @@ function dbRequestTab($db, $limits, $page, $longueur_max, $longueur_min, $largeu
         $data = $dataStatement->fetchAll(PDO::FETCH_ASSOC);
         
         
+        if (count($data) < $limits && $page > 1) {
+            $totalCount = ($page - 1) * $limits + count($data);
+        }
+        
         $totalPages = ceil($totalCount / $limits);
         
         return [
@@ -408,7 +424,8 @@ function dbRequestTab($db, $limits, $page, $longueur_max, $longueur_min, $largeu
                 'current_page' => (int)$page,
                 'total_pages' => $totalPages,
                 'total_count' => (int)$totalCount,
-                'per_page' => (int)$limits
+                'per_page' => (int)$limits,
+                'estimated' => $skipCount
             ]
         ];
         
@@ -422,7 +439,8 @@ function dbRequestTab($db, $limits, $page, $longueur_max, $longueur_min, $largeu
                 'current_page' => 1,
                 'total_pages' => 0,
                 'total_count' => 0,
-                'per_page' => $limits
+                'per_page' => $limits,
+                'estimated' => false
             ]
         ];
     }
