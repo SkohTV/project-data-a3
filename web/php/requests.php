@@ -50,17 +50,7 @@
 
   if ($requestRessource == 'add_point_donnee') {
     if ($requestMethod == 'POST') {
-      $mmsi = $_POST['mmsi'] ?? null;
-      $base_date_time = $_POST['base_date_time'] ?? null;
-      $latitude = $_POST['latitude'] ?? null;
-      $longitude = $_POST['longitude'] ?? null;
-      $sog = $_POST['sog'] ?? null;
-      $cog = $_POST['cog'] ?? null;
-      $heading = $_POST['heading'] ?? null;
-      $status_code = $_POST['status_code'] ?? null;
-      $draft = $_POST['draft'] ?? null;
-      
-      if (!$mmsi || !$base_date_time || !$latitude || !$longitude || !$sog || !$cog || !$heading || !$status_code || !$draft) {
+      if (!isset($_POST['mmsi']) || !isset($_POST['base_date_time']) || !isset($_POST['latitude']) || !isset($_POST['longitude']) || !isset($_POST['sog']) || !isset($_POST['cog']) || !isset($_POST['heading']) || !isset($_POST['status_code']) || !isset($_POST['draft'])) {
         header('HTTP/1.1 400 Bad Request');
         exit;
       }
