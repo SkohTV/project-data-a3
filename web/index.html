@@ -146,7 +146,6 @@
 
     <section id="add-page" class="content-page">
       <div class="page-container">
-        <div class="page-card">
           <h1 class="page-title" style="text-align: center;">Ajouter un Navire</h1>
           <form id="add-vessel-form" class="form-container">
             <div class="form-group">
@@ -185,67 +184,92 @@
             <button type="submit" class="btn-primary">Ajouter le navire</button>
             <div id="form-message" class="form-message" style="margin-top: 30px;"></div>
           </form>
-        </div>
-        <div class="page-card" style="margin-top: 20px;">
-          <h2 class="page-subtitle">Ajouter un Point de Données AIS</h2>
-          <form id="add-data-form" class="form-container">
-            <div class="form-group">
-              <label for="mmsi">MMSI</label>
-              <input type="text" id="data-mmsi" name="data-mmsi" required />
-            </div>
-            <div class="form-group">
-              <label for="datetime">Date/Heure</label>
-              <input type="datetime-local" id="datetime" name="datetime" required />
-            </div>
-            <div class="form-group">
-              <label for="latitude">Latitude</label>
-              <input type="number" id="latitude" name="latitude" required step="0.000001" />
-            </div>
-            <div class="form-group">
-              <label for="longitude">Longitude</label>
-              <input type="number" id="longitude" name="longitude" required step="0.000001" />
-            </div>
-            <div class="form-group">
-              <label for="sog">Vitesse en noeuds</label>
-              <input type="number" id="sog" name="sog" required step="0.01" min="0" />
-            </div>
-            <div class="form-group">
-              <label for="cog">Cap en degrés</label>
-              <input type="number" id="cog" name="cog" required step="0.01" min="0" max="360" />
-            </div>
-            <div class="form-group">
-              <label for="heading">Cap réel</label>
-              <input type="number" id="heading" name="heading" required step="0.01" min="0" max="360" />
-            </div>
-            <div class="form-group">
-              <label for="status">Status Code</label>
-              <select id="status" name="status" required>
-                <option value="">Sélectionnez</option>
-                <option value="0">En route avec moteur</option>
-                <option value="1">Ancré</option>
-                <option value="2">Non manoeuvrable</option>
-                <option value="3">Manoeuvre restreinte</option>
-                <option value="4">Contraint par son tirant d'eau</option>
-                <option value="5">Amarré</option>
-                <option value="6">Échoué</option>
-                <option value="7">Pêche</option>
-                <option value="8">En route à la voile</option>
-                <option value="9">Réservé pour amendement futur (DG/HS/MP, HSC)</option>
-                <option value="10">Réservé pour amendement futur (DG/HS/MP, WIG)</option>
-                <option value="11">Réservé pour usage futur</option>
-                <option value="12">Réservé pour usage futur</option>
-                <option value="13">Réservé pour usage futur</option>
-                <option value="14">Réservé pour usage futur</option>
-                <option value="15">Non défini = par défaut</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label for="draft">Tirant d'eau (m)</label>
-              <input type="number" id="draft" name="draft" required step="0.01" min="0" />
-            </div>
-            <button type="submit" class="btn-primary">Ajouter le point de données</button>
-            <div id="data-form-message" class="form-message" style="margin-top: 30px;"></div>
-          </form>
+      </div>
+      <div class="page-container">
+            <h1 class="page-title">Ajouter un Point de Données</h1>
+            <p class="form-description">
+                Ajoutez un nouveau point de données de tracking maritime avec les informations de position et de navigation.
+            </p>
+            
+            <form id="add-point-form" class="form-container">
+                <p class="required-note">Tous les champs sont obligatoires</p>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="mmsi">MMSI</label>
+                        <input type="text" id="mmsi" name="mmsi" class="form-input" required 
+                               placeholder="ex: 123456789" pattern="[0-9]{9}" maxlength="9" />
+                    </div>
+                    <div class="form-group">
+                        <label for="base_date_time">Date et Heure</label>
+                        <input type="datetime-local" id="base_date_time" name="base_date_time" class="form-input" required />
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="latitude">Latitude</label>
+                        <input type="number" id="latitude" name="latitude" class="form-input" required step="0.000001" min="-90" max="90" placeholder="ex: 48.8566" />
+                    </div>
+                    <div class="form-group">
+                        <label for="longitude">Longitude</label>
+                        <input type="number" id="longitude" name="longitude" class="form-input" required step="0.000001" min="-180" max="180" placeholder="ex: 2.3522" />
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="sog">SOG (Speed Over Ground)</label>
+                        <input type="number" id="sog" name="sog" class="form-input" required step="0.1" min="0" max="102.3" placeholder="Vitesse en nœuds" />
+                    </div>
+                    <div class="form-group">
+                        <label for="cog">COG (Course Over Ground)</label>
+                        <input type="number" id="cog" name="cog" class="form-input" required step="0.1" min="0" max="359.9" placeholder="Cap en degrés" />
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="heading">Heading (Cap)</label>
+                        <input type="number" id="heading" name="heading" class="form-input" required step="1" min="0" max="359" placeholder="Cap en degrés" />
+                    </div>
+                    <div class="form-group">
+                        <label for="status_code">Code de Statut *</label>
+                        <select id="status_code" name="status_code" class="form-select" required>
+                            <option value="">Sélectionnez</option>
+                            <option value="0">En route avec moteur</option>
+                            <option value="1">Ancré</option>
+                            <option value="2">Non manoeuvrable</option>
+                            <option value="3">Manoeuvre restreinte</option>
+                            <option value="4">Contraint par son tirant d'eau</option>
+                            <option value="5">Amarré</option>
+                            <option value="6">Échoué</option>
+                            <option value="7">Pêche</option>
+                            <option value="8">En route à la voile</option>
+                            <option value="9">Réservé pour amendement futur (DG/HS/MP, HSC)</option>
+                            <option value="10">Réservé pour amendement futur (DG/HS/MP, WIG)</option>
+                            <option value="11">Réservé pour usage futur</option>
+                            <option value="12">Réservé pour usage futur</option>
+                            <option value="13">Réservé pour usage futur</option>
+                            <option value="14">Réservé pour usage futur</option>
+                            <option value="15">Non défini = par défaut</option>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="draft">Tirant d'Eau (m)</label>
+                        <input type="number" id="draft" name="draft" class="form-input" required step="0.1" min="0" max="25.5" placeholder="Tirant d'eau en mètres" />
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-primary" id="submit-btn">
+                    <span class="loading-spinner"></span>
+                    <span class="btn-text">Ajouter le Point de Données</span>
+                </button>
+                
+                <div id="form-message" class="form-message"></div>
+            </form>
       </div>
     </section>
 
