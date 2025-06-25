@@ -211,7 +211,7 @@ function loadtab() {
     largeur_max: document.getElementById("filter-largeur-max").value,
   });
 
-if (filterData.temps) {
+  if (filterData.temps) {
     const minSliderValue = document.getElementById("filter-temps-min").value;
     const maxSliderValue = document.getElementById("filter-temps-max").value;
 
@@ -230,7 +230,7 @@ if (filterData.temps) {
 
     params.append("temps_min", Math.floor(selectedMinDate.getTime() / 1000));
     params.append("temps_max", Math.floor(selectedMaxDate.getTime() / 1000));
-}
+  }
 
   if (mmsi) {
     params.append("mmsi", mmsi);
@@ -238,8 +238,16 @@ if (filterData.temps) {
 
   const transceiver = document.getElementById("filter-transceiver").value;
   const status = document.getElementById("filter-status").value;
-  if (transceiver) params.append("transceiver_class", transceiver);
-  if (status) params.append("status_code", status);
+  
+  if (transceiver) {
+    
+    const transceiverCode = transceiver === 'A' ? '1' : transceiver === 'B' ? '2' : transceiver;
+    params.append("transceiver_class", transceiverCode);
+  }
+  
+  if (status) {
+    params.append("status_code", status);
+  }
 
   ajaxRequest("GET", `php/requests.php/get_tab?${params}`, function (response) {
     if (response.data) {

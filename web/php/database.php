@@ -325,16 +325,12 @@ function dbRequestTab($db, $limits, $page, $longueur_max, $longueur_min, $largeu
     try {
         $offset = ($page - 1) * $limits;
         
-        $baseWhere = 'FROM point_donnee pd JOIN vessel v ON pd.mmsi = v.mmsi JOIN status_code sc ON sc.code_status = pd.code_status
-                        WHERE v.length BETWEEN :longueur_min AND :longueur_max
-                         AND v.width BETWEEN :largeur_min AND :largeur_max';
-  
-        // $baseWhere = 'FROM point_donnee pd 
-        //              WHERE pd.mmsi IN (
-        //                  SELECT v.mmsi FROM vessel v 
-        //
-        //                  WHERE v.length BETWEEN :longueur_min AND :longueur_max
-        //                  AND v.width BETWEEN :largeur_min AND :largeur_max';
+        
+        $baseWhere = 'FROM point_donnee pd 
+                     JOIN vessel v ON pd.mmsi = v.mmsi 
+                     JOIN status_code sc ON sc.code_status = pd.code_status
+                     WHERE v.length BETWEEN :longueur_min AND :longueur_max
+                       AND v.width BETWEEN :largeur_min AND :largeur_max';
 
         $params = [
             ':longueur_min' => $longueur_min,
@@ -345,11 +341,9 @@ function dbRequestTab($db, $limits, $page, $longueur_max, $longueur_min, $largeu
         
         
         if ($transceiver_class !== null) {
-            $baseWhere .= ' AND v.transceiverclass = :transceiver_class';
+            $baseWhere .= ' AND v.code_transceiver = :transceiver_class';
             $params[':transceiver_class'] = $transceiver_class;
         }
-        
-        // $baseWhere .= ')';
         
         
         if ($mmsi !== null) {
@@ -388,7 +382,8 @@ function dbRequestTab($db, $limits, $page, $longueur_max, $longueur_min, $largeu
                       pd.speed_over_ground as sog, pd.cap_over_ground as cog, pd.heading, 
                       pd.code_status as status_code, pd.draft, pd.id_cluster ' . 
                      $baseWhere . 
-                     ' LIMIT :limits OFFSET :offset';
+                     ' ORDER BY pd.base_date_time DESC
+                       LIMIT :limits OFFSET :offset';
         
         $params[':limits'] = (int)$limits;
         $params[':offset'] = (int)$offset;
@@ -424,14 +419,7 @@ function dbRequestTab($db, $limits, $page, $longueur_max, $longueur_min, $largeu
         error_log('Erreur de requête : ' . $exception->getMessage());
         return [
             'status' => 'error',
-            'message' => 'Erreur lors de l\'exécution de la requête : ' . $exception->getMessage(),
-            'data' => [],
-            'pagination' => [
-                'current_page' => 1,
-                'total_pages' => 0,
-                'total_count' => 0,
-                'per_page' => $limits
-            ]
+            'message' => 'Erreur lors de l\'exécution de la requête : ' . $exception->getMessage()
         ];
     }
 }
