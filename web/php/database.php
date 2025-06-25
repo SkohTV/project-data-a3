@@ -183,7 +183,7 @@
   // \param status_code The navigation status of the point_donnee. (FK point_donnee_status.code)
   // \param draft The draft of the point_donnee.
 
-  function dbAddPoint_donnee($db, $base_date_time, $mmsi, $latitude, $longitude, $sog, $cog, $heading, $status_code, $draft) {
+  function dbAddPoint_donnee($db, $base_date_time, $mmsi, $latitude, $longitude, $sog, $cog, $heading, $status_code, $draft, $id_cluster) {
     try
     {
       $latitude = (float)$latitude;
@@ -194,7 +194,7 @@
       $draft = (float)$draft;
       $status_code = (int)$status_code;
 
-      $request = 'INSERT INTO point_donnee (base_date_time, mmsi, latitude, longitude, sog, cog, heading, status_code, draft) VALUES (:base_date_time, :mmsi, :latitude, :longitude, :sog, :cog, :heading, :status_code, :draft)';
+      $request = 'INSERT INTO point_donnee (base_date_time, mmsi, latitude, longitude, speed_over_ground, cap_over_ground, heading, status_code, draft,id_cluster) VALUES (:base_date_time, :mmsi, :latitude, :longitude, :sog, :cog, :heading, :status_code, :draft, :id_cluster)';
       $statement = $db->prepare($request);
       $statement->bindParam(':base_date_time', $base_date_time);
       $statement->bindParam(':mmsi', $mmsi);
