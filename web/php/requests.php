@@ -347,7 +347,7 @@ if ($requestRessource == 'predict_boat_cluster') {
 
 
 // -> GET php/requests.php/predict_boat_trajectory?latitude=XXX&longitude=XXX&sog=XXX&cog=XXX&heading=XXX&vesseltype=XXX&steps=XXX : OUTPUT -> [[LAT1, LON1], [LAT2, LON2], ...]
-
+// http://etu0623.projets.isen-ouest.info/php/requests.php/predict_boat_trajectory?latitude=24.522600&longitude=-83.732800&sog=12.2&cog=113.1&heading=115&vesseltype=80&steps=15
 if ($requestRessource == 'predict_boat_trajectory') {
   if ($requestMethod == 'GET') {
     $latitude = $_GET['latitude'] ?? null;
@@ -378,6 +378,7 @@ if ($requestRessource == 'predict_boat_trajectory') {
     exec($cmd, $result, $return_var);
 
     if ($return_var !== 0) {
+      var_dump($cmd);
       error_log("Python script error: " . implode("\n", $result));
       header('HTTP/1.1 500 Internal Server Error');
       echo json_encode(['error' => 'Internal server error', 'details' => $result]);
