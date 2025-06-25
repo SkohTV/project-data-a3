@@ -318,105 +318,136 @@ function dbRequestTab($db, $limits, $page, $longueur_max, $longueur_min, $largeu
         $offset = ($page - 1) * $limits;
         
         
-        $baseWhere = 'FROM point_donnee pd 
-                     INNER JOIN vessel v ON pd.mmsi = v.mmsi 
-                     WHERE 1=1';
+        $isVeryBroadQuery = (
+            ($longueur_max - $longueur_min) > 400 && 
+            ($largeur_max - $largeur_min) > 80 &&
+            $mmsi === null &&
+            $temps_min === null &&
+            $status_code === null
+        );
         
-        $params = [];
-        
-
-        if ($mmsi !== null) {
-            $baseWhere .= ' AND pd.mmsi = :mmsi';
-            $params[':mmsi'] = $mmsi;
-        }
-        
-        if ($temps_min !== null && $temps_max !== null) {
-            $baseWhere .= ' AND pd.base_date_time BETWEEN :temps_min AND :temps_max';
-            $params[':temps_min'] = $temps_min;
-            $params[':temps_max'] = $temps_max;
-        } elseif ($temps_min !== null) {
-            $baseWhere .= ' AND pd.base_date_time >= :temps_min';
-            $params[':temps_min'] = $temps_min;
-        } elseif ($temps_max !== null) {
-            $baseWhere .= ' AND pd.base_date_time <= :temps_max';
-            $params[':temps_max'] = $temps_max;
-        }
-        
-        if ($status_code !== null) {
-            $baseWhere .= ' AND pd.code_status = :status_code';
-            $params[':status_code'] = $status_code;
-        }
-        
-        
-        $baseWhere .= ' AND v.length BETWEEN :longueur_min AND :longueur_max';
-        $baseWhere .= ' AND v.width BETWEEN :largeur_min AND :largeur_max';
-        $params[':longueur_min'] = $longueur_min;
-        $params[':longueur_max'] = $longueur_max;
-        $params[':largeur_min'] = $largeur_min;
-        $params[':largeur_max'] = $largeur_max;
-        
-        
-        if ($transceiver_class !== null) {
-            $baseWhere .= ' AND v.code_transceiver = :transceiver_class';
-            $params[':transceiver_class'] = $transceiver_class;
-        }
-        
-        
-        $skipCount = ($page > 10);
-        
-        if (!$skipCount) {
+        if ($isVeryBroadQuery) {
             
-            $countQuery = 'SELECT COUNT(*) as total FROM (
-                          SELECT 1 ' . $baseWhere . ' LIMIT 50000
-                          ) as limited_result';
+            $dataQuery = 'SELECT pd.id_point, pd.base_date_time, pd.mmsi, pd.latitude, pd.longitude, 
+                          pd.speed_over_ground as sog, pd.cap_over_ground as cog, pd.heading, 
+                          pd.code_status as status_code, pd.draft, pd.id_cluster
+                          FROM point_donnee pd 
+                          ORDER BY pd.base_date_time DESC 
+                          LIMIT :limits OFFSET :offset';
             
-            $countStatement = $db->prepare($countQuery);
-            foreach ($params as $key => $value) {
-                $countStatement->bindValue($key, $value);
-            }
-            $countStatement->execute();
-            $totalCount = $countStatement->fetch(PDO::FETCH_ASSOC)['total'];
+            $params = [
+                ':limits' => (int)$limits,
+                ':offset' => (int)$offset
+            ];
+            
+            $dataStatement = $db->prepare($dataQuery);
+            $dataStatement->bindValue(':limits', (int)$limits, PDO::PARAM_INT);
+            $dataStatement->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
+            $dataStatement->execute();
+            $data = $dataStatement->fetchAll(PDO::FETCH_ASSOC);
             
             
-            if ($totalCount >= 50000) {
-                $totalCount = $totalCount * 2;
-            }
+            $totalCount = 5000000;
+            $totalPages = ceil($totalCount / $limits);
+            
         } else {
             
-            $totalCount = $page * $limits + $limits;
-        }
-        
-        
-        $dataQuery = 'SELECT pd.id_point, pd.base_date_time, pd.mmsi, pd.latitude, pd.longitude, 
-                      pd.speed_over_ground as sog, pd.cap_over_ground as cog, pd.heading, 
-                      pd.code_status as status_code, pd.draft, pd.id_cluster ' . 
-                     $baseWhere . 
-                     ' ORDER BY pd.base_date_time DESC 
-                       LIMIT :limits OFFSET :offset';
-        
-        $params[':limits'] = (int)$limits;
-        $params[':offset'] = (int)$offset;
-        
-        $dataStatement = $db->prepare($dataQuery);
-        
-        
-        foreach ($params as $key => $value) {
-            if ($key === ':limits' || $key === ':offset') {
-                $dataStatement->bindValue($key, $value, PDO::PARAM_INT);
-            } else {
-                $dataStatement->bindValue($key, $value);
+            $whereConditions = [];
+            $params = [];
+            
+            
+            $needsVesselJoin = false;
+            
+            
+            if (($longueur_max - $longueur_min) < 400 || 
+                ($largeur_max - $largeur_min) < 80 || 
+                $transceiver_class !== null) {
+                $needsVesselJoin = true;
             }
+            
+            if ($needsVesselJoin) {
+                $baseQuery = 'FROM point_donnee pd INNER JOIN vessel v ON pd.mmsi = v.mmsi WHERE 1=1';
+                
+                if (($longueur_max - $longueur_min) < 400) {
+                    $whereConditions[] = 'v.length BETWEEN :longueur_min AND :longueur_max';
+                    $params[':longueur_min'] = $longueur_min;
+                    $params[':longueur_max'] = $longueur_max;
+                }
+                
+                if (($largeur_max - $largeur_min) < 80) {
+                    $whereConditions[] = 'v.width BETWEEN :largeur_min AND :largeur_max';
+                    $params[':largeur_min'] = $largeur_min;
+                    $params[':largeur_max'] = $largeur_max;
+                }
+                
+                if ($transceiver_class !== null) {
+                    $whereConditions[] = 'v.code_transceiver = :transceiver_class';
+                    $params[':transceiver_class'] = $transceiver_class;
+                }
+            } else {
+                $baseQuery = 'FROM point_donnee pd WHERE 1=1';
+            }
+            
+            
+            if ($mmsi !== null) {
+                $whereConditions[] = 'pd.mmsi = :mmsi';
+                $params[':mmsi'] = $mmsi;
+            }
+            
+            if ($temps_min !== null && $temps_max !== null) {
+                $whereConditions[] = 'pd.base_date_time BETWEEN :temps_min AND :temps_max';
+                $params[':temps_min'] = $temps_min;
+                $params[':temps_max'] = $temps_max;
+            } elseif ($temps_min !== null) {
+                $whereConditions[] = 'pd.base_date_time >= :temps_min';
+                $params[':temps_min'] = $temps_min;
+            } elseif ($temps_max !== null) {
+                $whereConditions[] = 'pd.base_date_time <= :temps_max';
+                $params[':temps_max'] = $temps_max;
+            }
+            
+            if ($status_code !== null) {
+                $whereConditions[] = 'pd.code_status = :status_code';
+                $params[':status_code'] = $status_code;
+            }
+            
+            if (!empty($whereConditions)) {
+                $baseQuery .= ' AND ' . implode(' AND ', $whereConditions);
+            }
+            
+            
+            $dataQuery = 'SELECT pd.id_point, pd.base_date_time, pd.mmsi, pd.latitude, pd.longitude, 
+                          pd.speed_over_ground as sog, pd.cap_over_ground as cog, pd.heading, 
+                          pd.code_status as status_code, pd.draft, pd.id_cluster ' . 
+                         $baseQuery . 
+                         ' ORDER BY pd.base_date_time DESC 
+                           LIMIT :limits OFFSET :offset';
+            
+            $params[':limits'] = (int)$limits;
+            $params[':offset'] = (int)$offset;
+            
+            $dataStatement = $db->prepare($dataQuery);
+            
+            foreach ($params as $key => $value) {
+                if ($key === ':limits' || $key === ':offset') {
+                    $dataStatement->bindValue($key, $value, PDO::PARAM_INT);
+                } else {
+                    $dataStatement->bindValue($key, $value);
+                }
+            }
+            
+            $dataStatement->execute();
+            $data = $dataStatement->fetchAll(PDO::FETCH_ASSOC);
+            
+            
+            if (count($data) < $limits) {
+                $totalCount = ($page - 1) * $limits + count($data);
+            } else {
+                $totalCount = $page * $limits + $limits;
+            }
+            
+            $totalPages = ceil($totalCount / $limits);
         }
-        
-        $dataStatement->execute();
-        $data = $dataStatement->fetchAll(PDO::FETCH_ASSOC);
-        
-        
-        if (count($data) < $limits && $page > 1) {
-            $totalCount = ($page - 1) * $limits + count($data);
-        }
-        
-        $totalPages = ceil($totalCount / $limits);
         
         return [
             'data' => $data,
@@ -425,7 +456,7 @@ function dbRequestTab($db, $limits, $page, $longueur_max, $longueur_min, $largeu
                 'total_pages' => $totalPages,
                 'total_count' => (int)$totalCount,
                 'per_page' => (int)$limits,
-                'estimated' => $skipCount
+                'estimated' => true
             ]
         ];
         
