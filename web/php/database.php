@@ -291,7 +291,7 @@
   // \param transceiver_class The transceiver class of the vessel to request.
   // \param status_code The status code of the point_donnee to request.
 
-  function dbRequestTab($db, $limits, $page, $longueur_max, $longueur_min, $largeur_max, $largeur_min, $temps_max, $temps_min, $transceiver_class, $status_code, $mmsi) {
+function dbRequestTab($db, $limits, $page, $longueur_max, $longueur_min, $largeur_max, $largeur_min, $temps_max, $temps_min, $transceiver_class, $status_code, $mmsi) {
     try {
         $offset = ($page - 1) * $limits;
         
@@ -336,12 +336,12 @@
         }
         
         if ($status_code !== null) {
-            $baseWhere .= ' AND pd.status_code = :status_code';
+            $baseWhere .= ' AND pd.code_status = :status_code';
             $params[':status_code'] = $status_code;
         }
         
         
-        $countQuery = 'SELECT COUNT(DISTINCT pd.mmsi, pd.base_date_time) as total ' . $baseWhere;
+        $countQuery = 'SELECT COUNT(DISTINCT pd.id_point) as total ' . $baseWhere;
         $countStatement = $db->prepare($countQuery);
         foreach ($params as $key => $value) {
             $countStatement->bindValue($key, $value);
@@ -350,8 +350,9 @@
         $totalCount = $countStatement->fetch(PDO::FETCH_ASSOC)['total'];
         
         
-        $dataQuery = 'SELECT DISTINCT pd.mmsi, pd.base_date_time, pd.latitude, pd.longitude, 
-                      pd.sog, pd.cog, pd.heading, pd.status_code, pd.draft ' . 
+        $dataQuery = 'SELECT pd.id_point, pd.base_date_time, pd.mmsi, pd.latitude, pd.longitude, 
+                      pd.speed_over_ground as sog, pd.cap_over_ground as cog, pd.heading, 
+                      pd.code_status as status_code, pd.draft, pd.id_cluster ' . 
                      $baseWhere . 
                      ' ORDER BY pd.base_date_time DESC, pd.mmsi ASC 
                        LIMIT :limits OFFSET :offset';
@@ -390,7 +391,14 @@
         error_log('Erreur de requête : ' . $exception->getMessage());
         return [
             'status' => 'error',
-            'message' => 'Erreur lors de l\'exécution de la requête : ' . $exception->getMessage()
+            'message' => 'Erreur lors de l\'exécution de la requête : ' . $exception->getMessage(),
+            'data' => [],
+            'pagination' => [
+                'current_page' => 1,
+                'total_pages' => 0,
+                'total_count' => 0,
+                'per_page' => $limits
+            ]
         ];
     }
 }
