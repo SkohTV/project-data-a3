@@ -96,7 +96,7 @@ function loadtab() {
     largeur_max: document.getElementById("filter-largeur-max").value,
   });
 
-  if (filterData.temps) {
+if (filterData.temps) {
     const minSliderValue = document.getElementById("filter-temps-min").value;
     const maxSliderValue = document.getElementById("filter-temps-max").value;
 
@@ -104,16 +104,18 @@ function loadtab() {
     const maxDate = new Date(filterData.temps[0]);
     const range = maxDate.getTime() - minDate.getTime();
 
+    const oneDay = 24 * 60 * 60 * 1000;
+
     const selectedMinDate = new Date(
-      minDate.getTime() + (range * minSliderValue) / 100
+        minDate.getTime() + (range * minSliderValue) / 100 - oneDay
     );
     const selectedMaxDate = new Date(
-      minDate.getTime() + (range * maxSliderValue) / 100
+        minDate.getTime() + (range * maxSliderValue) / 100 + oneDay
     );
 
     params.append("temps_min", Math.floor(selectedMinDate.getTime() / 1000));
     params.append("temps_max", Math.floor(selectedMaxDate.getTime() / 1000));
-  }
+}
 
   if (mmsi) {
     params.append("mmsi", mmsi);
