@@ -293,15 +293,14 @@
 
   function dbRequestTab($db, $limits, $page, $longueur_max, $longueur_min, $largeur_max, $largeur_min, $temps_max, $temps_min, $transceiver_class, $status_code, $mmsi) {
     try {
-
         $offset = ($page - 1) * $limits;
         
   
-        $baseWhere = 'FROM point_donnee pd
-                     JOIN vessel v ON pd.mmsi = v.mmsi
-                     WHERE v.length BETWEEN :longueur_min AND :longueur_max
-                     AND v.width BETWEEN :largeur_min AND :largeur_max';
-        
+        $baseWhere = 'FROM point_donnee pd 
+                     WHERE pd.mmsi IN (
+                         SELECT v.mmsi FROM vessel v 
+                         WHERE v.length BETWEEN :longueur_min AND :longueur_max
+                         AND v.width BETWEEN :largeur_min AND :largeur_max';
         
         $params = [
             ':longueur_min' => $longueur_min,
@@ -309,6 +308,14 @@
             ':largeur_min' => $largeur_min,
             ':largeur_max' => $largeur_max
         ];
+        
+        
+        if ($transceiver_class !== null) {
+            $baseWhere .= ' AND v.transceiverclass = :transceiver_class';
+            $params[':transceiver_class'] = $transceiver_class;
+        }
+        
+        $baseWhere .= ')';
         
         
         if ($mmsi !== null) {
@@ -328,18 +335,13 @@
             $params[':temps_max'] = $temps_max;
         }
         
-        if ($transceiver_class !== null) {
-            $baseWhere .= ' AND v.transceiverclass = :transceiver_class';
-            $params[':transceiver_class'] = $transceiver_class;
-        }
-        
         if ($status_code !== null) {
             $baseWhere .= ' AND pd.status_code = :status_code';
             $params[':status_code'] = $status_code;
         }
         
         
-        $countQuery = 'SELECT COUNT(*) as total ' . $baseWhere;
+        $countQuery = 'SELECT COUNT(DISTINCT pd.mmsi, pd.base_date_time) as total ' . $baseWhere;
         $countStatement = $db->prepare($countQuery);
         foreach ($params as $key => $value) {
             $countStatement->bindValue($key, $value);
@@ -348,7 +350,12 @@
         $totalCount = $countStatement->fetch(PDO::FETCH_ASSOC)['total'];
         
         
-        $dataQuery = 'SELECT pd.* ' . $baseWhere . ' ORDER BY pd.base_date_time DESC LIMIT :limits OFFSET :offset';
+        $dataQuery = 'SELECT DISTINCT pd.mmsi, pd.base_date_time, pd.latitude, pd.longitude, 
+                      pd.sog, pd.cog, pd.heading, pd.status_code, pd.draft ' . 
+                     $baseWhere . 
+                     ' ORDER BY pd.base_date_time DESC, pd.mmsi ASC 
+                       LIMIT :limits OFFSET :offset';
+        
         $params[':limits'] = (int)$limits;
         $params[':offset'] = (int)$offset;
         
@@ -369,7 +376,6 @@
         
         $totalPages = ceil($totalCount / $limits);
         
-        
         return [
             'data' => $data,
             'pagination' => [
@@ -382,11 +388,10 @@
         
     } catch (PDOException $exception) {
         error_log('Erreur de requête : ' . $exception->getMessage());
-        echo json_encode([
-            'status' => 'error', 
-            'message' => 'Erreur lors de l exécution de la requête : ' . $exception->getMessage()
-        ]);
-        return false;
+        return [
+            'status' => 'error',
+            'message' => 'Erreur lors de l\'exécution de la requête : ' . $exception->getMessage()
+        ];
     }
 }
 
