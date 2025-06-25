@@ -134,7 +134,7 @@
   // \param transceiver_class The transceiver class of the vessel to request.
   // \param status_code The status code of the point_donnee to request.
 
-  function dbRequestAllPoints_donnee($db, $mmsi, $longueur_max, $largeur_max, $longueur_min, $largeur_min, $temps_min, $temps_max, $transceiver_class, $status_code) {
+  function dbRequestAllPoints_donnee($db, $longueur_max, $longueur_min, $largeur_max, $largeur_min, $temps_max, $temps_min, $transceiver_class, $status_code, $mmsi) {
     try {
       $baseWhere = 'FROM point_donnee pd 
         JOIN vessel v ON pd.mmsi = v.mmsi 
