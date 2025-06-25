@@ -341,7 +341,7 @@ if ($requestRessource == 'predict_boat_cluster') {
 // -> get php/requests.php/predict_boat_trajectory?latitude=xxx&longitude=xxx&sog=xxx&cog=xxx&heading=xxx&vesseltype=xxx&steps=xxx : output -> [[lat1, lon1], [lat2, lon2], ...]
 // http://etu0623.projets.isen-ouest.info/php/requests.php/predict_boat_trajectory?latitude=24.522600&longitude=-83.732800&sog=12.2&cog=113.1&heading=115&vesseltype=80&steps=15
 if ($requestRessource == 'predict_boat_trajectory') {
-  if ($requestMethod == 'get') {
+  if ($requestMethod == 'GET') {
     $latitude = $_get['latitude'] ?? null;
     $longitude = $_get['longitude'] ?? null;
     $sog = $_get['sog'] ?? null;
@@ -388,7 +388,7 @@ if ($requestRessource == 'predict_boat_trajectory') {
 // -> get php/requests.php/fetch_boat_picture?mmsi=XXX output -> https://....
 //
 if ($requestRessource == 'fetch_boat_picture') {
-  if ($requestMethod == 'get') {
+  if ($requestMethod == 'GET') {
     $mmsi = $_get['mmsi'] ?? null;
 
     if (!is_numeric($latitude)) {
