@@ -71,7 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       
       const clusterData = await clusterResponse.json();
-      const id_cluster = clusterData.id_cluster;
+      const id_cluster = clusterData[0];
       console.log("Cluster ID:", id_cluster);
       
       params.append('id_cluster', id_cluster);

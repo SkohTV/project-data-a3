@@ -428,7 +428,7 @@ def main():
     parser.add_argument('--mmsi', type=int, help='MMSI du navire à prédire')
     parser.add_argument('--features', type=str, help='Liste des features séparées par des virgules')
     parser.add_argument('--data', type=str, default='/home/mkkuu/Documents/project-data-a3/ia/data/large.csv', help='Chemin vers le fichier CSV de données')
-    parser.add_argument('--model', type=str, default='best_vessel_model.pkl', help='Chemin vers le modèle sauvegardé')  # NOUVEAU
+    parser.add_argument('--model', type=str, default='best_vessel_model.pkl', help='Chemin vers le modèle sauvegardé')
 
     args = parser.parse_args()
     predictor = VesselTypePredictor()
