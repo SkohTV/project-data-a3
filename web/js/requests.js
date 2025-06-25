@@ -238,7 +238,7 @@ function displayData(data) {
     .map(
       (point) => `
     <tr>
-      <td><input type="checkbox" data-mmsi="${point.mmsi}"></td>
+      <td><input type="radio" data-mmsi="${point.mmsi}"></td>
       <td>${point.mmsi}</td>
       <td>${new Date(point.base_date_time).toLocaleString()}</td>
       <td>${parseFloat(point.latitude).toFixed(6)}</td>
