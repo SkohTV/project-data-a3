@@ -863,7 +863,7 @@ body {
     }
 }
 
-#vessels-map {
+#vessels-map, #clusters-map, #predict-map {
     aspect-ratio: 3/2;
 }
 
