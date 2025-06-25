@@ -366,7 +366,7 @@ if ($requestRessource == 'predict_boat_trajectory') {
         "heading" => floatval($heading),
         "vesseltype" => intval($vesseltype),
     ];
-    $cmd = "cd scripts && python3.10 -o besoin_client_3.py --json '" . json_encode($json) . "' --steps " . escapeshellarg($steps) . " 2>&1";
+    $cmd = "cd scripts && python3.10 -O besoin_client_3.py --json '" . json_encode($json) . "' --steps " . escapeshellarg($steps) . " 2>&1";
     exec($cmd, $result, $return_var);
 
     if ($return_var !== 0) {
@@ -398,7 +398,7 @@ if ($requestRessource == 'fetch_boat_picture') {
 
     $result = [];
     $return_var = 0;
-    $cmd = "cd ../scripts && python3.10 -o scrap-pic.py " . escapeshellarg($mmsi) . " 2>&1";
+    $cmd = "cd ../scripts && python3.10 -O scrap-pic.py " . escapeshellarg($mmsi) . " 2>&1";
     exec($cmd, $result, $return_var);
 
     if ($return_var !== 0) {
