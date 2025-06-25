@@ -204,6 +204,7 @@
       $statement->bindParam(':longitude', $longitude);
       $statement->bindParam(':sog', $sog);
       $statement->bindParam(':cog', $cog);
+      $statement->bindParam(':status_code', $status_code, PDO::PARAM_INT);
       $statement->bindParam(':heading', $heading);
       $statement->bindParam(':draft', $draft);
       $statement->bindParam(':id_cluster', $id_cluster);
