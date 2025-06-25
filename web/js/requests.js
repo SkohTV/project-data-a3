@@ -233,6 +233,7 @@ function showLoader() {
 }
 
 function loadtab() {
+  // FOR TAB
   showLoader();
   const mmsi = document.getElementById("filter-mmsi").value.trim();
 
@@ -292,6 +293,11 @@ function loadtab() {
       updatePagination(response.length);
     }
   });
+
+  // FOR MAP
+  ajaxRequest('GET', `php/requests.php/all_points_donnee?${params}`, (r) => {
+    console.log(r)
+  })
 }
 
 function displayData(data) {

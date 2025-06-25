@@ -4,7 +4,6 @@ let map_clusters = null;
 let map_predict = null;
 
 
-// id either vessels-map or clusters-map or predict-map
 // id either visu, clusters or predict
 function generate_map(id) {
     if (id == 'visu')
@@ -125,6 +124,6 @@ function predict_trajectoire_vesseltype(row) {
     });
 }
 
-DEFAULT_PREDICT = [209016000, 'TORRENT', 24.522600, -83.732800, 12.2, 113.1, 115];
 
-predict_trajectoire_vesseltype(DEFAULT_PREDICT)
+DEFAULT_PREDICT = [209016000, 'TORRENT', 24.522600, -83.732800, 12.2, 113.1, 115];
+// predict_trajectoire_vesseltype(DEFAULT_PREDICT)
