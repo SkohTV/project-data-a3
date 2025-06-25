@@ -319,7 +319,7 @@ if ($requestRessource == 'predict_boat_cluster') {
 
     $result = [];
     $return_var = 0;
-    $cmd = "cd scripts && python3 besoin_client_1.py --lat " . escapeshellarg($latitude) . " --lon " . escapeshellarg($longitude) . " --sog " . escapeshellarg($sog) . " --cog " . escapeshellarg($cog) . " --heading " . escapeshellarg($heading) . " 2>&1";
+    $cmd = "cd scripts && python3.10 besoin_client_1.py --lat " . escapeshellarg($latitude) . " --lon " . escapeshellarg($longitude) . " --sog " . escapeshellarg($sog) . " --cog " . escapeshellarg($cog) . " --heading " . escapeshellarg($heading) . " 2>&1";
     exec($cmd, $result, $return_var);
 
     if ($return_var !== 0) {
