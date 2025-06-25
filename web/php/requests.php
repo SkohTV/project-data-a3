@@ -391,7 +391,7 @@ if ($requestRessource == 'fetch_boat_picture') {
   if ($requestMethod == 'GET') {
     $mmsi = $_get['mmsi'] ?? null;
 
-    if (!is_numeric($latitude)) {
+    if (!is_numeric($mmsi)) {
       header('http/1.1 400 bad request');
       exit;
     }
