@@ -378,7 +378,7 @@
       
       $dataQuery = 'SELECT pd.id_point, pd.base_date_time, pd.mmsi, pd.latitude, pd.longitude, 
               pd.speed_over_ground as sog, pd.cap_over_ground as cog, pd.heading, 
-              pd.code_status, v.length, v.width, v.code_transceiver as status_code, pd.draft, pd.id_cluster ' .
+              pd.code_status as status_code, v.length, v.width, v.code_transceiver as transceiver, pd.draft, pd.id_cluster ' .
              $baseWhere .
              ' LIMIT :limits OFFSET :offset';
 
