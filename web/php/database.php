@@ -317,7 +317,7 @@ function dbRequestTab($db, $limits, $page, $longueur_max, $longueur_min, $largeu
     try {
         $offset = ($page - 1) * $limits;
         
-        $baseWhere = 'FROM point_donnee pd JOIN vessel v on pd.mmsi = v.mmsi 
+        $baseWhere = 'FROM point_donnee pd JOIN vessel v ON pd.mmsi = v.mmsi JOIN status_code sc ON sc.code_status = pd.code_status
                         WHERE v.length BETWEEN :longueur_min AND :longueur_max
                          AND v.width BETWEEN :largeur_min AND :largeur_max';
   
@@ -362,7 +362,7 @@ function dbRequestTab($db, $limits, $page, $longueur_max, $longueur_min, $largeu
         }
         
         if ($status_code !== null) {
-            $baseWhere .= ' AND pd.code_status = :status_code';
+            $baseWhere .= ' AND sc.description = :status_code';
             $params[':status_code'] = $status_code;
         }
         
