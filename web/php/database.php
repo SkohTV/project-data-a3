@@ -322,104 +322,102 @@
   // \param temps_max The maximum time of the point_donnee to request. (YYYY-MM-DD HH:MM:SS format)
   // \param transceiver_class The transceiver class of the vessel to request.
   // \param status_code The status code of the point_donnee to request.
+  function dbRequestTab($db, $limits, $page, $longueur_max, $longueur_min, $largeur_max, $largeur_min, $temps_max, $temps_min, $transceiver_class, $status_code, $mmsi) {
+    try {
+      $offset = ($page - 1) * $limits;
 
-function dbRequestTab($db, $limits, $page, $longueur_max, $longueur_min, $largeur_max, $largeur_min, $temps_max, $temps_min, $transceiver_class, $status_code, $mmsi) {
-  try {
-    $offset = ($page - 1) * $limits;
+      $baseWhere = 'FROM point_donnee pd 
+        JOIN vessel v ON pd.mmsi = v.mmsi 
+        JOIN status_code sc ON sc.code_status = pd.code_status
+        WHERE v.length >= :longueur_min AND v.length <= :longueur_max
+        AND v.width >= :largeur_min AND v.width <= :largeur_max';
 
+      $params = [
+        ':longueur_min' => $longueur_min,
+        ':longueur_max' => $longueur_max,
+        ':largeur_min' => $largeur_min,
+        ':largeur_max' => $largeur_max
+      ];
 
-    // echo "$longueur_max, $longueur_min, $largeur_max, $largeur_min, $temps_max, $temps_min, $transceiver_class, $status_code, $mmsi";
-
-    $baseWhere = 'FROM point_donnee pd 
-      JOIN vessel v ON pd.mmsi = v.mmsi 
-      JOIN status_code sc ON sc.code_status = pd.code_status
-      WHERE v.length >= :longueur_min AND v.length <= :longueur_max
-      AND v.width >= :largeur_min AND v.width <= :largeur_max';
-
-    $params = [
-      ':longueur_min' => $longueur_min,
-      ':longueur_max' => $longueur_max,
-      ':largeur_min' => $largeur_min,
-      ':largeur_max' => $largeur_max
-    ];
-
-    if ($transceiver_class !== null) {
-      $baseWhere .= ' AND v.code_transceiver = :transceiver_class';
-      $params[':transceiver_class'] = $transceiver_class;
-    }
-
-    if ($mmsi !== null) {
-      $baseWhere .= ' AND pd.mmsi = :mmsi';
-      $params[':mmsi'] = $mmsi;
-    }
-
-    if ($temps_min !== null && $temps_max !== null) {
-      $baseWhere .= ' AND pd.base_date_time >= :temps_min AND pd.base_date_time <= :temps_max';
-      $params[':temps_min'] = $temps_min;
-      $params[':temps_max'] = $temps_max;
-    } elseif ($temps_min !== null) {
-      $baseWhere .= ' AND pd.base_date_time >= :temps_min';
-      $params[':temps_min'] = $temps_min;
-    } elseif ($temps_max !== null) {
-      $baseWhere .= ' AND pd.base_date_time <= :temps_max';
-      $params[':temps_max'] = $temps_max;
-    }
-
-    if ($status_code !== null) {
-      $baseWhere .= ' AND sc.description = :status_code';
-      $params[':status_code'] = $status_code;
-    }
-
-    $countQuery = 'SELECT COUNT(DISTINCT pd.id_point) as total ' . $baseWhere;
-    $countStatement = $db->prepare($countQuery);
-    foreach ($params as $key => $value) {
-      $countStatement->bindValue($key, $value);
-    }
-    $countStatement->execute();
-    $totalCount = $countStatement->fetch(PDO::FETCH_ASSOC)['total'];
-
-    $dataQuery = 'SELECT pd.id_point, pd.base_date_time, pd.mmsi, pd.latitude, pd.longitude, 
-            pd.speed_over_ground as sog, pd.cap_over_ground as cog, pd.heading, 
-            pd.code_status as status_code, pd.draft, pd.id_cluster ' .
-           $baseWhere .
-           ' LIMIT :limits OFFSET :offset';
-
-    $params[':limits'] = (int)$limits;
-    $params[':offset'] = (int)$offset;
-
-    $dataStatement = $db->prepare($dataQuery);
-
-    foreach ($params as $key => $value) {
-      if ($key === ':limits' || $key === ':offset') {
-        $dataStatement->bindValue($key, $value, PDO::PARAM_INT);
-      } else {
-        $dataStatement->bindValue($key, $value);
+      if ($transceiver_class !== null && $transceiver_class !== '') {
+        $baseWhere .= ' AND v.code_transceiver = :transceiver_class';
+        $params[':transceiver_class'] = $transceiver_class;
       }
+
+      if ($mmsi !== null && $mmsi !== '') {
+        $baseWhere .= ' AND pd.mmsi = :mmsi';
+        $params[':mmsi'] = $mmsi;
+      }
+
+      if ($temps_min !== null && $temps_min !== '' && $temps_max !== null && $temps_max !== '') {
+        $baseWhere .= ' AND pd.base_date_time >= :temps_min AND pd.base_date_time <= :temps_max';
+        $params[':temps_min'] = $temps_min;
+        $params[':temps_max'] = $temps_max;
+      } elseif ($temps_min !== null && $temps_min !== '') {
+        $baseWhere .= ' AND pd.base_date_time >= :temps_min';
+        $params[':temps_min'] = $temps_min;
+      } elseif ($temps_max !== null && $temps_max !== '') {
+        $baseWhere .= ' AND pd.base_date_time <= :temps_max';
+        $params[':temps_max'] = $temps_max;
+      }
+
+      if ($status_code !== null && $status_code !== '') {
+        $baseWhere .= ' AND sc.description = :status_code';
+        $params[':status_code'] = $status_code;
+      }
+
+      
+      $countQuery = 'SELECT COUNT(*) as total ' . $baseWhere;
+      $countStatement = $db->prepare($countQuery);
+      foreach ($params as $key => $value) {
+        $countStatement->bindValue($key, $value);
+      }
+      $countStatement->execute();
+      $totalCount = $countStatement->fetch(PDO::FETCH_ASSOC)['total'];
+
+      
+      $dataQuery = 'SELECT pd.id_point, pd.base_date_time, pd.mmsi, pd.latitude, pd.longitude, 
+              pd.speed_over_ground as sog, pd.cap_over_ground as cog, pd.heading, 
+              pd.code_status as status_code, pd.draft, pd.id_cluster ' .
+             $baseWhere .
+             ' LIMIT :limits OFFSET :offset';
+
+      $params[':limits'] = (int)$limits;
+      $params[':offset'] = (int)$offset;
+
+      $dataStatement = $db->prepare($dataQuery);
+
+      foreach ($params as $key => $value) {
+        if ($key === ':limits' || $key === ':offset') {
+          $dataStatement->bindValue($key, $value, PDO::PARAM_INT);
+        } else {
+          $dataStatement->bindValue($key, $value);
+        }
+      }
+
+      $dataStatement->execute();
+      $data = $dataStatement->fetchAll(PDO::FETCH_ASSOC);
+
+      $totalPages = $limits > 0 ? ceil($totalCount / $limits) : 1;
+
+      return [
+        'data' => $data,
+        'pagination' => [
+          'current_page' => (int)$page,
+          'total_pages' => (int)$totalPages,
+          'total_count' => (int)$totalCount,
+          'per_page' => (int)$limits
+        ]
+      ];
+
+    } catch (PDOException $exception) {
+      error_log('Erreur de requête : ' . $exception->getMessage());
+      return [
+        'status' => 'error',
+        'message' => 'Erreur lors de l\'exécution de la requête : ' . $exception->getMessage(),
+      ];
     }
-
-    $dataStatement->execute();
-    $data = $dataStatement->fetchAll(PDO::FETCH_ASSOC);
-
-    $totalPages = ceil($totalCount / $limits);
-
-    return [
-      'data' => $data,
-      'pagination' => [
-        'current_page' => (int)$page,
-        'total_pages' => $totalPages,
-        'total_count' => (int)$totalCount,
-        'per_page' => (int)$limits
-      ]
-    ];
-
-  } catch (PDOException $exception) {
-    error_log('Erreur de requête : ' . $exception->getMessage());
-    return [
-      'status' => 'error',
-      'message' => 'Erreur lors de l\'exécution de la requête : ' . $exception->getMessage(),
-    ];
   }
-}
 
   //----------------------------------------------------------------------------
   //--- dbRequestFilterValues --------------------------------------------------------
