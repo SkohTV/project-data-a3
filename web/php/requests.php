@@ -374,7 +374,7 @@ if ($requestRessource == 'predict_boat_trajectory') {
         "Heading" => floatval($heading),
         "VesselType" => intval($vesseltype),
     ];
-    $cmd = "cd scripts && python3 besoin_client_3.py --json " . json_encode($json) . " --steps " . escapeshellarg($steps) . " 2>&1";
+    $cmd = "cd scripts && python3 besoin_client_3.py --json '" . json_encode($json) . "' --steps " . escapeshellarg($steps) . " 2>&1";
     exec($cmd, $result, $return_var);
 
     if ($return_var !== 0) {
