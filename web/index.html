@@ -146,44 +146,106 @@
 
     <section id="add-page" class="content-page">
       <div class="page-container">
-        <h1 class="page-title" style="text-align: center;">Ajouter un Navire</h1>
-        <form id="add-vessel-form" class="form-container">
-          <div class="form-group">
-            <label for="mmsi">MMSI</label>
-            <input type="text" id="mmsi" name="mmsi" required />
-          </div>
-          <div class="form-group">
-            <label for="vesselname">Nom du Navire</label>
-            <input type="text" id="vesselname" name="vesselname" required />
-          </div>
-          <div class="form-group">
-            <label for="imo">IMO</label>
-            <input type="text" id="imo" name="imo" required />
-          </div>
-          <div class="form-group">
-            <label for="callsign">Callsign</label>
-            <input type="text" id="callsign" name="callsign" required />
-          </div>
-          <div class="form-group">
-            <label for="transceiverclass">Classe Transceiver *</label>
-            <select id="transceiverclass" name="transceiverclass" required>
-              <option value="">Sélectionnez</option>
-              <option value="A">A</option>
-              <option value="B">B</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="length">Longueur (m)</label>
-            <input type="number" id="length" name="length" required min="0" />
-          </div>
-          <div class="form-group">
-            <label for="width">Largeur (m)</label>
-            <input type="number" id="width" name="width" required min="0" />
-          </div>
+        <div class="page-card">
+          <h1 class="page-title" style="text-align: center;">Ajouter un Navire</h1>
+          <form id="add-vessel-form" class="form-container">
+            <div class="form-group">
+              <label for="mmsi">MMSI</label>
+              <input type="text" id="mmsi" name="mmsi" required />
+            </div>
+            <div class="form-group">
+              <label for="vesselname">Nom du Navire</label>
+              <input type="text" id="vesselname" name="vesselname" required />
+            </div>
+            <div class="form-group">
+              <label for="imo">IMO</label>
+              <input type="text" id="imo" name="imo" required />
+            </div>
+            <div class="form-group">
+              <label for="callsign">Callsign</label>
+              <input type="text" id="callsign" name="callsign" required />
+            </div>
+            <div class="form-group">
+              <label for="transceiverclass">Classe de transpondeur</label>
+              <select id="transceiverclass" name="transceiverclass" required>
+                <option value="">Sélectionnez</option>
+                <option value="A">A</option>
+                <option value="B">B</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="length">Longueur (m)</label>
+              <input type="number" id="length" name="length" required min="0" />
+            </div>
+            <div class="form-group">
+              <label for="width">Largeur (m)</label>
+              <input type="number" id="width" name="width" required min="0" />
+            </div>
 
-          <button type="submit" class="btn-primary">Ajouter le navire</button>
-          <div id="form-message" class="form-message" style="margin-top: 30px;"></div>
-        </form>
+            <button type="submit" class="btn-primary">Ajouter le navire</button>
+            <div id="form-message" class="form-message" style="margin-top: 30px;"></div>
+          </form>
+        </div>
+        <div class="page-card" style="margin-top: 20px;">
+          <h2 class="page-subtitle">Ajouter un Point de Données AIS</h2>
+          <form id="add-data-form" class="form-container">
+            <div class="form-group">
+              <label for="mmsi">MMSI</label>
+              <input type="text" id="data-mmsi" name="data-mmsi" required />
+            </div>
+            <div class="form-group">
+              <label for="datetime">Date/Heure</label>
+              <input type="datetime-local" id="datetime" name="datetime" required />
+            </div>
+            <div class="form-group">
+              <label for="latitude">Latitude</label>
+              <input type="number" id="latitude" name="latitude" required step="0.000001" />
+            </div>
+            <div class="form-group">
+              <label for="longitude">Longitude</label>
+              <input type="number" id="longitude" name="longitude" required step="0.000001" />
+            </div>
+            <div class="form-group">
+              <label for="sog">Vitesse en noeuds</label>
+              <input type="number" id="sog" name="sog" required step="0.01" min="0" />
+            </div>
+            <div class="form-group">
+              <label for="cog">Cap en degrés</label>
+              <input type="number" id="cog" name="cog" required step="0.01" min="0" max="360" />
+            </div>
+            <div class="form-group">
+              <label for="heading">Cap réel</label>
+              <input type="number" id="heading" name="heading" required step="0.01" min="0" max="360" />
+            </div>
+            <div class="form-group">
+              <label for="status">Status Code</label>
+              <select id="status" name="status" required>
+                <option value="">Sélectionnez</option>
+                <option value="0">En route avec moteur</option>
+                <option value="1">Ancré</option>
+                <option value="2">Non manoeuvrable</option>
+                <option value="3">Manoeuvre restreinte</option>
+                <option value="4">Contraint par son tirant d'eau</option>
+                <option value="5">Amarré</option>
+                <option value="6">Échoué</option>
+                <option value="7">Pêche</option>
+                <option value="8">En route à la voile</option>
+                <option value="9">Réservé pour amendement futur (DG/HS/MP, HSC)</option>
+                <option value="10">Réservé pour amendement futur (DG/HS/MP, WIG)</option>
+                <option value="11">Réservé pour usage futur</option>
+                <option value="12">Réservé pour usage futur</option>
+                <option value="13">Réservé pour usage futur</option>
+                <option value="14">Réservé pour usage futur</option>
+                <option value="15">Non défini = par défaut</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="draft">Tirant d'eau (m)</label>
+              <input type="number" id="draft" name="draft" required step="0.01" min="0" />
+            </div>
+            <button type="submit" class="btn-primary">Ajouter le point de données</button>
+            <div id="data-form-message" class="form-message" style="margin-top: 30px;"></div>
+          </form>
       </div>
     </section>
 
