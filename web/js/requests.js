@@ -99,9 +99,6 @@ function setupDateSlider() {
   maxSlider.value = 100;
 
   const updateDates = () => {
-    if (minSlider.value == minSlider.min && maxSlider.value == maxSlider.max)
-      return
-
     const minDate = new Date(filterData.temps[1]);
     const maxDate = new Date(filterData.temps[0]);
     const range = maxDate.getTime() - minDate.getTime();
