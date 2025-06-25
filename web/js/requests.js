@@ -70,6 +70,8 @@ document.addEventListener('DOMContentLoaded', () => {
         body: params.toString(),
       });
 
+      var_dump(response);
+
       if (response.status === 201) {
         messageBox.textContent = 'Point ajouté avec succès.';
         messageBox.style.color = 'green';
