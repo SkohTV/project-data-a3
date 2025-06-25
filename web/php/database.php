@@ -186,6 +186,14 @@
   function dbAddPoint_donnee($db, $base_date_time, $mmsi, $latitude, $longitude, $sog, $cog, $heading, $status_code, $draft) {
     try
     {
+      $latitude = (float)$latitude;
+      $longitude = (float)$longitude;
+      $sog = (float)$sog;
+      $cog = (float)$cog;
+      $heading = (float)$heading;
+      $draft = (float)$draft;
+      $status_code = (int)$status_code;
+
       $request = 'INSERT INTO point_donnee (base_date_time, mmsi, latitude, longitude, sog, cog, heading, status_code, draft) VALUES (:base_date_time, :mmsi, :latitude, :longitude, :sog, :cog, :heading, :status_code, :draft)';
       $statement = $db->prepare($request);
       $statement->bindParam(':base_date_time', $base_date_time);
