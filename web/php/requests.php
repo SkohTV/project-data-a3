@@ -398,7 +398,7 @@ if ($requestRessource == 'fetch_boat_picture') {
 
     $result = [];
     $return_var = 0;
-    $cmd = "cd ../scripts && python3.10 -O scrap-pic.py " . escapeshellarg($mmsi) . " 2>&1";
+    $cmd = "cd ../scripts && python3 scrap-pic.py " . escapeshellarg($mmsi) . " 2>&1";
     exec($cmd, $result, $return_var);
 
     if ($return_var !== 0) {
