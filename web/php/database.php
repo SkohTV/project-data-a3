@@ -317,13 +317,17 @@ function dbRequestTab($db, $limits, $page, $longueur_max, $longueur_min, $largeu
     try {
         $offset = ($page - 1) * $limits;
         
-  
-        $baseWhere = 'FROM point_donnee pd 
-                     WHERE pd.mmsi IN (
-                         SELECT v.mmsi FROM vessel v 
-                         WHERE v.length BETWEEN :longueur_min AND :longueur_max
+        $baseWhere = 'FROM point_donnee pd JOIN vessel v on pd.mmsi = v.mmsi 
+                        WHERE v.length BETWEEN :longueur_min AND :longueur_max
                          AND v.width BETWEEN :largeur_min AND :largeur_max';
-        
+  
+        // $baseWhere = 'FROM point_donnee pd 
+        //              WHERE pd.mmsi IN (
+        //                  SELECT v.mmsi FROM vessel v 
+        //
+        //                  WHERE v.length BETWEEN :longueur_min AND :longueur_max
+        //                  AND v.width BETWEEN :largeur_min AND :largeur_max';
+
         $params = [
             ':longueur_min' => $longueur_min,
             ':longueur_max' => $longueur_max,
@@ -337,7 +341,7 @@ function dbRequestTab($db, $limits, $page, $longueur_max, $longueur_min, $largeu
             $params[':transceiver_class'] = $transceiver_class;
         }
         
-        $baseWhere .= ')';
+        // $baseWhere .= ')';
         
         
         if ($mmsi !== null) {
