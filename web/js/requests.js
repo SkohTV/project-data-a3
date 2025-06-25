@@ -60,19 +60,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const formData = new FormData(form);
     const params = new URLSearchParams(formData);
-    ajaxRequest("GET", "php/requests.php/predict_boat_cluster?latitude=" + params.get('latitude') + "&longitude=" + params.get('longitude') + "&sog=" + params.get('sog') + "&cog=" + params.get('cog') + "&heading=" + params.get('heading'), function (response) {
-      if (response.status === 200) {
-        const id_cluster = response.data.id_cluster;
-        console.log("Cluster ID:", id_cluster);
-      } else {
-        console.error("Erreur lors de la prédiction du cluster:", response);
-        messageBox.textContent = 'Erreur lors de la prédiction du cluster.';
-        messageBox.style.color = 'red';
-        return;
-      }
-    });
-    params.append('id_cluster', id_cluster);
+    
     try {
+      const clusterUrl = `php/requests.php/predict_boat_cluster?latitude=${params.get('latitude')}&longitude=${params.get('longitude')}&sog=${params.get('sog')}&cog=${params.get('cog')}&heading=${params.get('heading')}`;
+      
+      const clusterResponse = await fetch(clusterUrl);
+      
+      if (!clusterResponse.ok) {
+        throw new Error(`Cluster prediction failed: ${clusterResponse.status}`);
+      }
+      
+      const clusterData = await clusterResponse.json();
+      const id_cluster = clusterData.id_cluster;
+      console.log("Cluster ID:", id_cluster);
+      
+      params.append('id_cluster', id_cluster);
+
       const response = await fetch('php/requests.php/add_point_donnee', {
         method: 'POST',
         headers: {
@@ -98,9 +101,9 @@ document.addEventListener('DOMContentLoaded', () => {
         messageBox.style.color = 'red';
       }
     } catch (error) {
-      messageBox.textContent = 'Erreur de connexion au serveur.';
+      console.error('Erreur:', error);
+      messageBox.textContent = 'Erreur de connexion au serveur ou prédiction du cluster.';
       messageBox.style.color = 'red';
-      console.error('Erreur fetch:', error);
     }
   });
 });
