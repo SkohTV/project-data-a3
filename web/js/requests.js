@@ -65,7 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const id_cluster = response.data.id_cluster;
       }
     }
-    ajaxRequest("GET", "php/requests.php/predict_boat_cluster?latitude=" + params.get('latitude') + "&longitude=" + params.get('longitude') +"&cog=" + params.get('cog') + "&sog=" + params.get('sog') + "&heading=" + params.get('heading'), callback);
+    ajaxRequest("GET", "php/requests.php/predict_boat_cluster?latitude=" + params.get('latitude') + "&longitude=" + params.get('longitude') + "&sog=" + params.get('sog') + "&cog=" + params.get('cog') + "&heading=" + params.get('heading'), callback);
     params.append('id_cluster', id_cluster);
     try {
       const response = await fetch('php/requests.php/add_point_donnee', {
