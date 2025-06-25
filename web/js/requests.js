@@ -56,13 +56,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const pointModeBtn = document.getElementById('point-mode-btn');
   const vesselSection = document.getElementById('vessel-section');
   const pointSection = document.getElementById('point-section');
-  
-  const vesselForm = document.getElementById('add-vessel-form');
-  const pointForm = document.getElementById('add-point-form');
-  const submitBtn = document.getElementById('submit-btn');
-  const vesselFormMessage = document.getElementById('vessel-form-message');
-  const pointFormMessage = document.getElementById('point-form-message');
-  
+
   function switchMode(mode) {
     vesselModeBtn.classList.remove('active');
     pointModeBtn.classList.remove('active');
@@ -86,17 +80,6 @@ document.addEventListener('DOMContentLoaded', function() {
   
   vesselModeBtn.addEventListener('click', () => switchMode('vessel'));
   pointModeBtn.addEventListener('click', () => switchMode('point'));
-  
-  function setCurrentDateTime() {
-    const now = new Date();
-    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-    const dateTimeInput = document.getElementById('base_date_time');
-    if (dateTimeInput) {
-      dateTimeInput.value = now.toISOString().slice(0, 16);
-    }
-  }
-  
-  setCurrentDateTime();
 });
 
 function loadFilterValues() {

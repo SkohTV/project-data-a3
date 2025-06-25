@@ -157,7 +157,11 @@
 
         <div id="vessel-section" class="form-section active">
           <h1 class="page-title" style="text-align: center;">Ajouter un navire</h1>
+          <p class="form-description" style="text-align: center;">
+              Ajoutez un nouveau navire à la base de donnée du site pour ajouter des points de données.
+          </p>
           <form id="add-vessel-form" class="form-container">
+            <p class="required-note">Tous les champs sont obligatoires</p>
             <div class="form-group">
               <label for="mmsi">MMSI</label>
               <input type="text" id="mmsi" name="mmsi" class="form-input" required placeholder="ex: 205874000"/>
@@ -191,8 +195,8 @@
               <input type="number" id="width" name="width" class="form-input" required placeholder="ex: 22" min="0"/>
             </div>
 
-            <button type="submit" class="btn-primary">Ajouter le navire</button>
-            <div id="vessel-form-message" class="form-message" style="margin-top: 30px;"></div>
+            <button type="submit" class="btn-primary" style="margin-top: 30px;">Ajouter le navire</button>
+            <div id="vessel-form-message" class="form-message"></div>
           </form>
         </div>
 
@@ -234,7 +238,7 @@
                   <input type="number" id="heading" name="heading" class="form-input" required step="1" min="0" max="359" placeholder="Cap en degrés" />
               </div>
               <div class="form-group">
-                  <label for="status_code">Code de Statut *</label>
+                  <label for="status_code">Code de Status</label>
                   <select id="status_code" name="status_code" class="form-select" required>
                       <option value="">Sélectionnez</option>
                       <option value="0">En route avec moteur</option>
@@ -260,7 +264,7 @@
                   <input type="number" id="draft" name="draft" class="form-input" required step="0.1" min="0" max="25.5" placeholder="Tirant d'eau en mètres" />
               </div>
 
-              <button type="submit" class="btn-primary" id="submit-btn">
+              <button type="submit" class="btn-primary" id="submit-btn" style="margin-top: 10px;">
                   <span class="loading-spinner"></span>
                   <span class="btn-text">Ajouter le point de données</span>
               </button>
