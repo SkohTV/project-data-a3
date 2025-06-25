@@ -60,7 +60,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const formData = new FormData(form);
     const params = new URLSearchParams(formData);
-    const id_cluster = ajaxRequest("GET", "php/requests.php/predict_boat_cluster?latitude=" + params.get('latitude') + "&longitude=" + params.get('longitude') +"&cog=" + params.get('cog') + "&sog=" + params.get('sog') + "&heading=" + params.get('heading'));
+    function callback(response) {
+    if (response.status === 200) {
+      const id_cluster = response.data.id_cluster;
+    }
+    ajaxRequest("GET", "php/requests.php/predict_boat_cluster?latitude=" + params.get('latitude') + "&longitude=" + params.get('longitude') +"&cog=" + params.get('cog') + "&sog=" + params.get('sog') + "&heading=" + params.get('heading'), callback);
     params.append('id_cluster', id_cluster);
     try {
       const response = await fetch('php/requests.php/add_point_donnee', {
