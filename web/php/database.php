@@ -100,7 +100,7 @@
         return false;
       }
       // Insert the vessel into the vessel table.
-      $request = 'INSERT INTO vessel (mmsi, vesselname, imo_number, callsign, code_transceiver, length, width) VALUES (:mmsi, :vesselname, :imo, :callsign, :transceiverclass, :length, :width)';
+      $request = 'INSERT INTO vessel (mmsi, vessel_name, imo_number, callsign, code_transceiver, length, width) VALUES (:mmsi, :vesselname, :imo, :callsign, :transceiverclass, :length, :width)';
       $statement = $db->prepare($request);
       $statement->bindParam(':mmsi', $mmsi);
       $statement->bindParam(':vesselname', $vesselname);
