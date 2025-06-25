@@ -80,12 +80,6 @@ function add_lines(map, data) {
     }
 }
 
-    `<div>
-        <h1>${mmsi}</h1>
-        <image src=${}>
-    </div>`
-}
-
 
 
 
