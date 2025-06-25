@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 
 
-DATA_FILES = os.path.realpath("../data/")
+DATA_FILES = os.path.realpath("./models/")
 
 
 # ----------------------------------------------
@@ -100,7 +100,7 @@ for i in range(args.steps):
   pred = model.predict(current_to_pred)
   pred = scalerY.inverse_transform(pred)[0]
 
-  print(f'{{"LAT": {current['LAT'] + pred[0]}, "LON": {current['LON'] + pred[0]}}}')
+  print(f"{{\"LAT\": {current['LAT'] + pred[0]}, \"LON\": {current['LON'] + pred[0]}}}")
 
   current = {
     'LAT': current['LAT'] + pred[0],

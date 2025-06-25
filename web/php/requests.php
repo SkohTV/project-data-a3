@@ -345,4 +345,51 @@ if ($requestRessource == 'predict_boat_cluster') {
   }
 }
 
+
+// -> GET php/requests.php/predict_boat_trajectory?latitude=XXX&longitude=XXX&sog=XXX&cog=XXX&heading=XXX&vesseltype=XXX&steps=XXX : OUTPUT -> [[LAT1, LON1], [LAT2, LON2], ...]
+
+if ($requestRessource == 'predict_boat_trajectory') {
+  if ($requestMethod == 'GET') {
+    $latitude = $_GET['latitude'] ?? null;
+    $longitude = $_GET['longitude'] ?? null;
+    $sog = $_GET['sog'] ?? null;
+    $cog = $_GET['cog'] ?? null;
+    $heading = $_GET['heading'] ?? null;
+    $vesseltype = $_GET['vesseltype'] ?? null;
+    $steps = $_GET['steps'] ?? null;
+
+    
+    if (!is_numeric($latitude) || !is_numeric($longitude) || !is_numeric($sog) || !is_numeric($cog) || !is_numeric($heading) || !is_numeric($vesseltype) || !is_numeric($steps)) {
+      header('HTTP/1.1 400 Bad Request');
+      exit;
+    }
+
+    $result = [];
+    $return_var = 0;
+    $json = [
+        "LAT" => escapeshellarg($latitude),
+        "LON" => escapeshellarg($longitude),
+        "SOG" => escapeshellarg($sog),
+        "COG" => escapeshellarg($cog),
+        "Heading" => escapeshellarg($heading),
+        "VesselType" => escapeshellarg($vesseltype),
+    ];
+    $cmd = "cd scripts && python3 besoin_client_3.py --json " . json_encode($json) . " --steps " . escapeshellarg($steps) . " 2>&1";
+    exec($cmd, $result, $return_var);
+
+    if ($return_var !== 0) {
+      error_log("Python script error: " . implode("\n", $result));
+      header('HTTP/1.1 500 Internal Server Error');
+      echo json_encode(['error' => 'Internal server error', 'details' => $result]);
+      exit;
+    }
+
+    echo json_encode($result);
+    exit;
+  } else {
+    header('HTTP/1.1 405 Method Not Allowed');
+    exit;
+  }
+}
+
 ?>

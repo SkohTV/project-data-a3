@@ -93,3 +93,6 @@ map_visu = generate_map('visu')
 map_clusters = generate_map('clusters')
 map_predict = generate_map('predict')
 add_lines(map_visu, c)
+
+DEFAULT_PREDICT_VESSEL_TYPE = 80;
+DEFAULT_PREDICT = [24.522600, -83.732800, 12.2, 113.1, 115];
