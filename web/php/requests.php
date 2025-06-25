@@ -50,15 +50,14 @@
 
   if ($requestRessource == 'add_point_donnee') {
     if ($requestMethod == 'POST') {
-      if (!isset($_POST['mmsi']) || !isset($_POST['base_date_time']) || !isset($_POST['latitude']) || !isset($_POST['longitude']) || !isset($_POST['sog']) || !isset($_POST['cog']) || !isset($_POST['heading']) || !isset($_POST['status_code']) || !isset($_POST['draft'])) {
+      if (!isset($_POST['mmsi']) || !isset($_POST['base_date_time']) || !isset($_POST['latitude']) || !isset($_POST['longitude']) || !isset($_POST['sog']) || !isset($_POST['cog']) || !isset($_POST['heading']) || !isset($_POST['status_code']) || !isset($_POST['draft']) || !isset($_POST['id_cluster'])) {
         header('HTTP/1.1 400 Bad Request');
         exit;
       }
 
       $base_date_time = str_replace('T', ' ', $_POST['base_date_time']) . ':00';
-      error_log("base_date_time: " . $base_date_time);
 
-      $result = dbAddPoint_donnee($db, $base_date_time, $_POST['mmsi'], $_POST['latitude'], $_POST['longitude'], $_POST['sog'], $_POST['cog'], $_POST['heading'], $_POST['status_code'], $_POST['draft']);
+      $result = dbAddPoint_donnee($db, $base_date_time, $_POST['mmsi'], $_POST['latitude'], $_POST['longitude'], $_POST['sog'], $_POST['cog'], $_POST['heading'], $_POST['status_code'], $_POST['draft'], $_POST['id_cluster']);
       if ($result === false) {
         header('HTTP/1.1 500 Internal Server Error');
         exit;
