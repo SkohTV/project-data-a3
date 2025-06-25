@@ -193,7 +193,9 @@
       $heading = (float)$heading;
       $draft = (float)$draft;
       $status_code = (int)$status_code;
-      $id_cluster = (int)$id_cluster;
+      $id_cluster = (int)$id_cluster + 1;
+        
+      $base_date_time = urldecode($base_date_time);
       $base_date_time = date('Y-m-d H:i:s', strtotime($base_date_time));
 
       $request = 'INSERT INTO point_donnee (base_date_time, mmsi, latitude, longitude, speed_over_ground, cap_over_ground, heading, draft, code_status, id_cluster) VALUES (:base_date_time, :mmsi, :latitude, :longitude, :sog, :cog, :heading, :draft, :status_code, :id_cluster)';
