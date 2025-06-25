@@ -105,7 +105,7 @@ function predict_trajectoire_vesseltype(row) {
         cog: row[3],
         heading: row[4],
         vesseltype: DEFAULT_PREDICT_VESSEL_TYPE,
-        steps: 15,
+        steps: 5000,
     })
 
     let predicted_trajectory = null;
@@ -113,8 +113,8 @@ function predict_trajectoire_vesseltype(row) {
     ajaxRequest("GET", `php/requests.php/predict_boat_trajectory?${params}`, (r) => {
         predicted_trajectory = r.map((x) => [JSON.parse(x).LON[0], JSON.parse(x).LAT[0]])
 
-        console.log(predicted_trajectory)
-        let c = [['hello_cool', '#FF0', predicted_trajectory]]
+        let c = [['hello_cool', '#F00', predicted_trajectory]]
+        map_predict = generate_map('predict')
         add_lines(map_predict, c)
     });
 }
