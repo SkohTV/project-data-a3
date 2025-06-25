@@ -327,7 +327,7 @@ function dbRequestTab($db, $limits, $page, $longueur_max, $longueur_min, $largeu
     $offset = ($page - 1) * $limits;
 
 
-    echo "$longueur_max, $longueur_min, $largeur_max, $largeur_min, $temps_max, $temps_min, $transceiver_class, $status_code, $mmsi";
+    // echo "$longueur_max, $longueur_min, $largeur_max, $largeur_min, $temps_max, $temps_min, $transceiver_class, $status_code, $mmsi";
 
     $baseWhere = 'FROM point_donnee pd 
       JOIN vessel v ON pd.mmsi = v.mmsi 
