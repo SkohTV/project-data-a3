@@ -69,9 +69,8 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         body: params.toString(),
       });
-
-      console.log('Response status:', response);
       
+      console.log('Paramètres envoyés:', params.toString());
 
       if (response.status === 201) {
         messageBox.textContent = 'Point ajouté avec succès.';
