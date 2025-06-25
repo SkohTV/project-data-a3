@@ -23,7 +23,8 @@ jobs:
         run: |
           mkdir ~/.ssh
           ssh-keyscan -H ${{ secrets.SSH_HOST }} > ~/.ssh/known_hosts
-          sshpass -p '${{ secrets.VPS_PASSWORD }}' ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "rm -rf ~/*"
+          rm -rf ./docs
+          # sshpass -p '${{ secrets.VPS_PASSWORD }}' ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "rm -rf ~/*"
           sshpass -p '${{ secrets.VPS_PASSWORD }}' scp -r ./web/* ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~
 
       - name: cleanup
