@@ -962,3 +962,117 @@ body {
   display: none;
   margin-right: 8px;
 }
+
+/* Styles pour le sélecteur de mode */
+.mode-selector {
+  display: flex;
+  justify-content: center;
+  gap: 0;
+  margin-bottom: 3rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  padding: 0.5rem;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.mode-btn {
+  flex: 1;
+  padding: 1rem 1.5rem;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 8px;
+  position: relative;
+}
+
+.mode-btn:hover {
+  color: white;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.mode-btn.active {
+  background: linear-gradient(45deg, #64b5f6, #2196f3);
+  color: white;
+  box-shadow: 0 4px 15px rgba(100, 181, 246, 0.3);
+}
+
+.mode-btn.active:hover {
+  background: linear-gradient(45deg, #42a5f5, #1976d2);
+}
+
+.form-section {
+  display: none;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.form-section.active {
+  display: block;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.form-description {
+  font-size: 1.1rem;
+  opacity: 0.9;
+  margin-bottom: 2rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.required-note {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.6);
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.loading-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 1s ease-in-out infinite;
+  display: none;
+  margin-right: 8px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.btn-primary.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-primary.loading .loading-spinner {
+  display: inline-block;
+}
+
+@media (max-width: 768px) {
+  .mode-selector {
+    flex-direction: column;
+    max-width: 300px;
+  }
+  
+  .mode-btn {
+    padding: 0.8rem 1rem;
+    font-size: 0.9rem;
+  }
+}
