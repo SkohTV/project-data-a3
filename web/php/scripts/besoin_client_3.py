@@ -8,6 +8,9 @@ import os
 import numpy as np
 import pandas as pd
 
+import warnings
+warnings.filterwarnings("ignore", category=UserWarning, module="sklearn")
+
 
 DATA_FILES = os.path.realpath("./models/")
 
