@@ -147,8 +147,46 @@
     <section id="add-page" class="content-page">
       <div class="simple-page">
         <h1>Ajouter un Navire</h1>
+        <form id="add-vessel-form" class="form-container">
+          <div class="form-group">
+            <label for="mmsi">MMSI *</label>
+            <input type="text" id="mmsi" name="mmsi" required />
+          </div>
+          <div class="form-group">
+            <label for="vesselname">Nom du Navire *</label>
+            <input type="text" id="vesselname" name="vesselname" required />
+          </div>
+          <div class="form-group">
+            <label for="imo">IMO *</label>
+            <input type="text" id="imo" name="imo" required />
+          </div>
+          <div class="form-group">
+            <label for="callsign">Callsign *</label>
+            <input type="text" id="callsign" name="callsign" required />
+          </div>
+          <div class="form-group">
+            <label for="transceiverclass">Classe Transceiver *</label>
+            <select id="transceiverclass" name="transceiverclass" required>
+              <option value="">Sélectionnez</option>
+              <option value="A">A</option>
+              <option value="B">B</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="length">Longueur (m) *</label>
+            <input type="number" id="length" name="length" required min="0" />
+          </div>
+          <div class="form-group">
+            <label for="width">Largeur (m) *</label>
+            <input type="number" id="width" name="width" required min="0" />
+          </div>
+
+          <button type="submit" class="btn-primary">Ajouter le navire</button>
+          <div id="form-message" class="form-message" style="margin-top: 20px;"></div>
+        </form>
       </div>
     </section>
+
 
     <section id="visualize-page" class="content-page">
       <div class="page-container">
