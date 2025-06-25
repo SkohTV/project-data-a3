@@ -105,7 +105,7 @@ function predict_trajectoire_vesseltype(row) {
         cog: row[3],
         heading: row[4],
         vesseltype: DEFAULT_PREDICT_VESSEL_TYPE,
-        steps: 5000,
+        steps: 1000,
     })
 
     let predicted_trajectory = null;
