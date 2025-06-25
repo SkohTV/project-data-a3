@@ -338,50 +338,85 @@ if ($requestRessource == 'predict_boat_cluster') {
 }
 
 
-// -> GET php/requests.php/predict_boat_trajectory?latitude=XXX&longitude=XXX&sog=XXX&cog=XXX&heading=XXX&vesseltype=XXX&steps=XXX : OUTPUT -> [[LAT1, LON1], [LAT2, LON2], ...]
+// -> get php/requests.php/predict_boat_trajectory?latitude=xxx&longitude=xxx&sog=xxx&cog=xxx&heading=xxx&vesseltype=xxx&steps=xxx : output -> [[lat1, lon1], [lat2, lon2], ...]
 // http://etu0623.projets.isen-ouest.info/php/requests.php/predict_boat_trajectory?latitude=24.522600&longitude=-83.732800&sog=12.2&cog=113.1&heading=115&vesseltype=80&steps=15
-if ($requestRessource == 'predict_boat_trajectory') {
-  if ($requestMethod == 'GET') {
-    $latitude = $_GET['latitude'] ?? null;
-    $longitude = $_GET['longitude'] ?? null;
-    $sog = $_GET['sog'] ?? null;
-    $cog = $_GET['cog'] ?? null;
-    $heading = $_GET['heading'] ?? null;
-    $vesseltype = $_GET['vesseltype'] ?? null;
-    $steps = $_GET['steps'] ?? null;
+if ($requestressource == 'predict_boat_trajectory') {
+  if ($requestmethod == 'get') {
+    $latitude = $_get['latitude'] ?? null;
+    $longitude = $_get['longitude'] ?? null;
+    $sog = $_get['sog'] ?? null;
+    $cog = $_get['cog'] ?? null;
+    $heading = $_get['heading'] ?? null;
+    $vesseltype = $_get['vesseltype'] ?? null;
+    $steps = $_get['steps'] ?? null;
 
     
     if (!is_numeric($latitude) || !is_numeric($longitude) || !is_numeric($sog) || !is_numeric($cog) || !is_numeric($heading) || !is_numeric($vesseltype) || !is_numeric($steps)) {
-      header('HTTP/1.1 400 Bad Request');
+      header('http/1.1 400 bad request');
       exit;
     }
 
     $result = [];
     $return_var = 0;
     $json = [
-        "LAT" => floatval($latitude),
-        "LON" => floatval($longitude),
-        "SOG" => floatval($sog),
-        "COG" => floatval($cog),
-        "Heading" => floatval($heading),
-        "VesselType" => intval($vesseltype),
+        "lat" => floatval($latitude),
+        "lon" => floatval($longitude),
+        "sog" => floatval($sog),
+        "cog" => floatval($cog),
+        "heading" => floatval($heading),
+        "vesseltype" => intval($vesseltype),
     ];
-    $cmd = "cd scripts && python3.10 -O besoin_client_3.py --json '" . json_encode($json) . "' --steps " . escapeshellarg($steps) . " 2>&1";
+    $cmd = "cd scripts && python3.10 -o besoin_client_3.py --json '" . json_encode($json) . "' --steps " . escapeshellarg($steps) . " 2>&1";
     exec($cmd, $result, $return_var);
 
     if ($return_var !== 0) {
-      error_log("Python script error: " . implode("\n", $result));
-      header('HTTP/1.1 500 Internal Server Error');
-      echo json_encode(['error' => 'Internal server error', 'details' => $result]);
+      error_log("python script error: " . implode("\n", $result));
+      header('http/1.1 500 internal server error');
+      echo json_encode(['error' => 'internal server error', 'details' => $result]);
       exit;
     }
 
     echo json_encode($result);
     exit;
   } else {
-    header('HTTP/1.1 405 Method Not Allowed');
+    header('http/1.1 405 method not allowed');
     exit;
   }
 }
+
+
+// -> get php/requests.php/fetch_boat_picture?mmsi=XXX output -> https://....
+//
+if ($requestressource == 'fetch_boat_picture') {
+  if ($requestmethod == 'get') {
+    $mmsi = $_get['mmsi'] ?? null;
+
+    if (!is_numeric($latitude)) {
+      header('http/1.1 400 bad request');
+      exit;
+    }
+
+    $result = [];
+    $return_var = 0;
+    $cmd = "cd ../scripts && python3.10 -o scrap-pic.py " . escapeshellarg($mmsi) . " 2>&1";
+    exec($cmd, $result, $return_var);
+
+    if ($return_var !== 0) {
+      error_log("python script error: " . implode("\n", $result));
+      header('http/1.1 500 internal server error');
+      echo json_encode(['error' => 'internal server error', 'details' => $result]);
+      exit;
+    }
+
+    echo json_encode($result);
+    exit;
+  } else {
+    header('http/1.1 405 method not allowed');
+    exit;
+  }
+}
+
+
+
 
 ?>

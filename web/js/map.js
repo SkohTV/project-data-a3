@@ -17,8 +17,8 @@ function generate_map(id) {
     return new maplibregl.Map({
         container: container,
         style: 'https://demotiles.maplibre.org/style.json',
-        center: [-80, 20],
-        zoom: 3
+        center: [-88, 25],
+        zoom: 4
     });
 }
 
@@ -80,6 +80,12 @@ function add_lines(map, data) {
     }
 }
 
+    `<div>
+        <h1>${mmsi}</h1>
+        <image src=${}>
+    </div>`
+}
+
 
 
 
@@ -97,13 +103,15 @@ c = [
 
 function predict_trajectoire_vesseltype(row) {
     DEFAULT_PREDICT_VESSEL_TYPE = 80;
+    let mmsi = row[0]
+    let name = row[1]
 
     const params = new URLSearchParams({
-        latitude: row[0],
-        longitude: row[1],
-        sog: row[2],
-        cog: row[3],
-        heading: row[4],
+        latitude: row[2],
+        longitude: row[3],
+        sog: row[4],
+        cog: row[5],
+        heading: row[6],
         vesseltype: DEFAULT_PREDICT_VESSEL_TYPE,
         steps: 1000,
     })
@@ -113,12 +121,16 @@ function predict_trajectoire_vesseltype(row) {
     ajaxRequest("GET", `php/requests.php/predict_boat_trajectory?${params}`, (r) => {
         predicted_trajectory = r.map((x) => [JSON.parse(x).LON[0], JSON.parse(x).LAT[0]])
 
-        let c = [['hello_cool', '#F00', predicted_trajectory]]
-        map_predict = generate_map('predict')
-        add_lines(map_predict, c)
+
+        ajaxRequest("GET", `php/requests.php/fetch_boat_picture?mmsi=${mmsi}`, (r) => {
+            let popup_txt = `<div><h1>${name}</h1><image src=${r}></div>`
+            let c = [[popup_txt, '#F00', predicted_trajectory]]
+            map_predict = generate_map('predict')
+            add_lines(map_predict, c)
+        })
     });
 }
 
-DEFAULT_PREDICT = [24.522600, -83.732800, 12.2, 113.1, 115];
+DEFAULT_PREDICT = [209016000, 'TORRENT', 24.522600, -83.732800, 12.2, 113.1, 115];
 
 predict_trajectoire_vesseltype(DEFAULT_PREDICT)
