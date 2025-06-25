@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('add-vessel-form');
-  const messageBox = document.getElementById('form-message');
+  const messageBox = document.getElementById('vessel-form-message');
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -31,6 +31,47 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (response.status === 201) {
         messageBox.textContent = 'Navire ajouté avec succès.';
+        messageBox.style.color = 'green';
+        form.reset();
+      } else if (response.status === 400) {
+        messageBox.textContent = 'Champs requis manquants.';
+        messageBox.style.color = 'red';
+      } else if (response.status === 500) {
+        messageBox.textContent = 'Erreur serveur. Veuillez réessayer.';
+        messageBox.style.color = 'red';
+      } else {
+        messageBox.textContent = 'Erreur inconnue.';
+        messageBox.style.color = 'red';
+      }
+    } catch (error) {
+      messageBox.textContent = 'Erreur de connexion au serveur.';
+      messageBox.style.color = 'red';
+      console.error('Erreur fetch:', error);
+    }
+  });
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.getElementById('add-point-form');
+  const messageBox = document.getElementById('point-form-message');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData(form);
+    const params = new URLSearchParams(formData);
+
+    try {
+      const response = await fetch('php/requests.php/add_point', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: params.toString(),
+      });
+
+      if (response.status === 201) {
+        messageBox.textContent = 'Point ajouté avec succès.';
         messageBox.style.color = 'green';
         form.reset();
       } else if (response.status === 400) {
