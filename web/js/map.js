@@ -111,10 +111,10 @@ function predict_trajectoire_vesseltype(row) {
 
     ajaxRequest("GET", `php/requests.php/predict_boat_trajectory?${params}`, (r) => {
         predicted_trajectory = r.map((x) => [JSON.parse(x).LON, JSON.parse(x).LAT])
-    });
 
-    console.log(predicted_trajectory)
-    add_lines(map_predict, ['hello_cool', '#FF0', predicted_trajectory])
+        console.log(predicted_trajectory)
+        add_lines(map_predict, ['hello_cool', '#FF0', predicted_trajectory])
+    });
 }
 
 DEFAULT_PREDICT = [24.522600, -83.732800, 12.2, 113.1, 115];
