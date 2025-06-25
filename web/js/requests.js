@@ -61,8 +61,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const formData = new FormData(form);
     const params = new URLSearchParams(formData);
     function callback(response) {
-    if (response.status === 200) {
-      const id_cluster = response.data.id_cluster;
+      if (response.status === 200) {
+        const id_cluster = response.data.id_cluster;
+      }
     }
     ajaxRequest("GET", "php/requests.php/predict_boat_cluster?latitude=" + params.get('latitude') + "&longitude=" + params.get('longitude') +"&cog=" + params.get('cog') + "&sog=" + params.get('sog') + "&heading=" + params.get('heading'), callback);
     params.append('id_cluster', id_cluster);
