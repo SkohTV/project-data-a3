@@ -1,15 +1,14 @@
-
 let filterData = {};
 let currentPagination = 1;
 let itemsPerPage = 10;
-
+let totalPages = 1;
+let totalCount = 0;
 
 document.addEventListener("DOMContentLoaded", function () {
   loadFilterValues();
   loadtab();
   setupEventListeners();
 });
-
 
 function loadFilterValues() {
   ajaxRequest("GET", "php/requests.php/get_filter_values", function (response) {
@@ -18,20 +17,13 @@ function loadFilterValues() {
   });
 }
 
-
 function initializeFilters() {
-
   setupSlider("longueur", filterData.longueur[1], filterData.longueur[0]);
   setupSlider("largeur", filterData.largeur[1], filterData.largeur[0]);
-  
-
   setupDateSlider();
-  
-
   populateSelect("filter-transceiver", filterData.transceiver, "Tous");
   populateSelect("filter-status", filterData.status_code, "Tous les status");
 }
-
 
 function setupSlider(type, min, max) {
   const minSlider = document.getElementById(`filter-${type}-min`);
@@ -46,7 +38,7 @@ function setupSlider(type, min, max) {
   minVal.textContent = min;
   maxVal.textContent = max;
 
-  [minSlider, maxSlider].forEach(slider => {
+  [minSlider, maxSlider].forEach((slider) => {
     slider.oninput = () => {
       minVal.textContent = minSlider.value;
       maxVal.textContent = maxSlider.value;
@@ -54,12 +46,7 @@ function setupSlider(type, min, max) {
   });
 }
 
-
-
-
-
 // date slider avec conversion en timestamp car sinon on ne peut pas faire de comparaison
-
 function setupDateSlider() {
   const minSlider = document.getElementById("filter-temps-min");
   const maxSlider = document.getElementById("filter-temps-max");
@@ -68,15 +55,19 @@ function setupDateSlider() {
 
   minSlider.value = 0;
   maxSlider.value = 100;
-  
+
   const updateDates = () => {
     const minDate = new Date(filterData.temps[1]);
     const maxDate = new Date(filterData.temps[0]);
     const range = maxDate.getTime() - minDate.getTime();
-    
-    const selectedMin = new Date(minDate.getTime() + (range * minSlider.value / 100));
-    const selectedMax = new Date(minDate.getTime() + (range * maxSlider.value / 100));
-    
+
+    const selectedMin = new Date(
+      minDate.getTime() + (range * minSlider.value) / 100
+    );
+    const selectedMax = new Date(
+      minDate.getTime() + (range * maxSlider.value) / 100
+    );
+
     minVal.textContent = selectedMin.toLocaleDateString();
     maxVal.textContent = selectedMax.toLocaleDateString();
   };
@@ -85,65 +76,64 @@ function setupDateSlider() {
   if (filterData.temps) updateDates();
 }
 
-
 function populateSelect(id, options, defaultText) {
   const select = document.getElementById(id);
   select.innerHTML = `<option value="">${defaultText}</option>`;
-  options.forEach(option => {
+  options.forEach((option) => {
     select.innerHTML += `<option value="${option}">${option}</option>`;
   });
 }
 
-
 function loadtab() {
-    const mmsi = document.getElementById("filter-mmsi").value.trim();
+  const mmsi = document.getElementById("filter-mmsi").value.trim();
 
-    const params = new URLSearchParams({
-        limits: itemsPerPage,
-        page: currentPagination,
-        longueur_min: document.getElementById("filter-longueur-min").value,
-        longueur_max: document.getElementById("filter-longueur-max").value,
-        largeur_min: document.getElementById("filter-largeur-min").value,
-        largeur_max: document.getElementById("filter-largeur-max").value,
-        // temps_min: filterData.temps ? filterData.temps[1] : null,
-        // temps_max: filterData.temps ? filterData.temps[0] : null
-    })
+  const params = new URLSearchParams({
+    limits: itemsPerPage,
+    page: currentPagination,
+    longueur_min: document.getElementById("filter-longueur-min").value,
+    longueur_max: document.getElementById("filter-longueur-max").value,
+    largeur_min: document.getElementById("filter-largeur-min").value,
+    largeur_max: document.getElementById("filter-largeur-max").value,
+  });
 
+  if (filterData.temps) {
+    const minDate = new Date(filterData.temps[1]);
+    const maxDate = new Date(filterData.temps[0]);
+    params.append("temps_min", Math.floor(minDate.getTime() / 1000));
+    params.append("temps_max", Math.floor(maxDate.getTime() / 1000));
+  }
 
-    if (filterData.temps) {
-        const minDate = new Date(filterData.temps[1]);
-        const maxDate = new Date(filterData.temps[0]);
-        params.append('temps_min', Math.floor(minDate.getTime() / 1000));
-        params.append('temps_max', Math.floor(maxDate.getTime() / 1000));
-    }
-
-
-
-    if (mmsi) {
-        params.append('mmsi', mmsi);
-    }
+  if (mmsi) {
+    params.append("mmsi", mmsi);
+  }
 
   const transceiver = document.getElementById("filter-transceiver").value;
   const status = document.getElementById("filter-status").value;
-  if (transceiver) params.append('transceiver_class', transceiver);
-  if (status) params.append('status_code', status);
+  if (transceiver) params.append("transceiver_class", transceiver);
+  if (status) params.append("status_code", status);
 
-  ajaxRequest("GET", `php/requests.php/get_tab?${params}`, function(response) {
-    displayData(response);
-    updatePagination(response.length);
+  ajaxRequest("GET", `php/requests.php/get_tab?${params}`, function (response) {
+    if (response.data) {
+      displayData(response.data);
+      updatePaginationInfo(response.pagination);
+    } else {
+      displayData(response);
+      updatePagination(response.length);
+    }
   });
 }
 
-
 function displayData(data) {
   const tbody = document.getElementById("vessels-tbody");
-  
+
   if (!data || data.length === 0) {
     tbody.innerHTML = '<tr><td colspan="10">Aucune donnée disponible</td></tr>';
     return;
   }
 
-  tbody.innerHTML = data.map(point => `
+  tbody.innerHTML = data
+    .map(
+      (point) => `
     <tr>
       <td><input type="checkbox" data-mmsi="${point.mmsi}"></td>
       <td>${point.mmsi}</td>
@@ -156,54 +146,63 @@ function displayData(data) {
       <td>${point.status_code}</td>
       <td>${point.draft}</td>
     </tr>
-  `).join('');
+  `
+    )
+    .join("");
 }
 
+function updatePaginationInfo(pagination) {
+  totalPages = pagination.total_pages;
+  totalCount = pagination.total_count;
+  currentPagination = pagination.current_page;
+
+  document.getElementById("prev-page").disabled = currentPagination <= 1;
+  document.getElementById("next-page").disabled =
+    currentPagination >= totalPages;
+
+  document.getElementById(
+    "pagination-info-text"
+  ).textContent = `Page ${currentPagination} / ${totalPages} (${totalCount} résultat${
+    totalCount > 1 ? "s" : ""
+  } au total)`;
+}
 
 function updatePagination(dataLength) {
   const hasMore = dataLength === itemsPerPage;
-  document.getElementById('prev-page').disabled = currentPagination <= 1;
-  document.getElementById('next-page').disabled = !hasMore;
-  document.getElementById('pagination-info-text').textContent = `Page ${currentPagination}`;
+  document.getElementById("prev-page").disabled = currentPagination <= 1;
+  document.getElementById("next-page").disabled = !hasMore;
+  document.getElementById(
+    "pagination-info-text"
+  ).textContent = `Page ${currentPagination}`;
 }
 
-
 function setupEventListeners() {
-
   document.getElementById("filter-button").onclick = () => {
     currentPagination = 1;
     loadtab();
   };
-  
-  document.getElementById("reset-button").onclick = resetFilters;
-  
 
-  document.getElementById('prev-page').onclick = () => {
+  document.getElementById("reset-button").onclick = resetFilters;
+
+  document.getElementById("prev-page").onclick = () => {
     if (currentPagination > 1) {
       currentPagination--;
       loadtab();
     }
   };
-  
-  document.getElementById('next-page').onclick = () => {
-    currentPagination++;
-    loadtab();
+
+  document.getElementById("next-page").onclick = () => {
+    if (currentPagination < totalPages) {
+      currentPagination++;
+      loadtab();
+    }
   };
 
-
-
-  
-  document.getElementById('items-per-page').onchange = (e) => {
+  document.getElementById("items-per-page").onchange = (e) => {
     itemsPerPage = parseInt(e.target.value);
     currentPagination = 1;
     loadtab();
   };
-  
-
-
-
-
-
 
   let timeout;
   document.getElementById("filter-mmsi").oninput = () => {
@@ -215,45 +214,42 @@ function setupEventListeners() {
   };
 }
 
-
 function resetFilters() {
   if (!filterData.longueur) return;
-  
+
   document.getElementById("filter-longueur-min").value = filterData.longueur[1];
   document.getElementById("filter-longueur-max").value = filterData.longueur[0];
   document.getElementById("filter-largeur-min").value = filterData.largeur[1];
   document.getElementById("filter-largeur-max").value = filterData.largeur[0];
   document.getElementById("filter-temps-min").value = 0;
-  
   document.getElementById("filter-temps-max").value = 100;
-  
   document.getElementById("filter-transceiver").value = "";
   document.getElementById("filter-status").value = "";
-  
-  
+  document.getElementById("filter-mmsi").value = "";
+
   initializeFilters();
   currentPagination = 1;
-
-
-
   loadtab();
 }
 
-
 function showMessage(message) {
-  document.getElementById("vessels-tbody").innerHTML = 
-    `<tr><td colspan="10">${message}</td></tr>`;
+  document.getElementById(
+    "vessels-tbody"
+  ).innerHTML = `<tr><td colspan="10">${message}</td></tr>`;
 }
 
-
-
-
-
-
-function applyFilters() { loadtab(); }
-function refreshVisualization() { loadtab(); }
-function predictClusters() { alert("Je fais ca demain la team"); }
-function predictSelected(type) { alert("Je fais ca demain la team, ou ce soir si j'ai le temps "); }
-function exportData() { alert("Je fais ca demain la team"); }
-
-
+function applyFilters() {
+  loadtab();
+}
+function refreshVisualization() {
+  loadtab();
+}
+function predictClusters() {
+  alert("Je fais ca demain la team");
+}
+function predictSelected(type) {
+  alert("Je fais ca demain la team, ou ce soir si j'ai le temps ");
+}
+function exportData() {
+  alert("Je fais ca demain la team");
+}

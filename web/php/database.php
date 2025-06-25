@@ -293,16 +293,16 @@
 
   function dbRequestTab($db, $limits, $page, $longueur_max, $longueur_min, $largeur_max, $largeur_min, $temps_max, $temps_min, $transceiver_class, $status_code, $mmsi) {
     try {
-  
+
         $offset = ($page - 1) * $limits;
         
   
-        $request = 'SELECT pd.* FROM point_donnee pd
-                   JOIN vessel v ON pd.mmsi = v.mmsi
-                   WHERE v.length BETWEEN :longueur_min AND :longueur_max
-                   AND v.width BETWEEN :largeur_min AND :largeur_max';
+        $baseWhere = 'FROM point_donnee pd
+                     JOIN vessel v ON pd.mmsi = v.mmsi
+                     WHERE v.length BETWEEN :longueur_min AND :longueur_max
+                     AND v.width BETWEEN :largeur_min AND :largeur_max';
         
-  
+        
         $params = [
             ':longueur_min' => $longueur_min,
             ':longueur_max' => $longueur_max,
@@ -310,61 +310,77 @@
             ':largeur_max' => $largeur_max
         ];
         
-  
+        
         if ($mmsi !== null) {
-            $request .= ' AND pd.mmsi = :mmsi';
+            $baseWhere .= ' AND pd.mmsi = :mmsi';
             $params[':mmsi'] = $mmsi;
         }
         
-  
         if ($temps_min !== null && $temps_max !== null) {
-            $request .= ' AND pd.base_date_time BETWEEN :temps_min AND :temps_max';
+            $baseWhere .= ' AND pd.base_date_time BETWEEN :temps_min AND :temps_max';
             $params[':temps_min'] = $temps_min;
             $params[':temps_max'] = $temps_max;
         } elseif ($temps_min !== null) {
-            $request .= ' AND pd.base_date_time >= :temps_min';
+            $baseWhere .= ' AND pd.base_date_time >= :temps_min';
             $params[':temps_min'] = $temps_min;
         } elseif ($temps_max !== null) {
-            $request .= ' AND pd.base_date_time <= :temps_max';
+            $baseWhere .= ' AND pd.base_date_time <= :temps_max';
             $params[':temps_max'] = $temps_max;
         }
         
-  
         if ($transceiver_class !== null) {
-            $request .= ' AND v.code_transceiver = :transceiver_class';
+            $baseWhere .= ' AND v.transceiverclass = :transceiver_class';
             $params[':transceiver_class'] = $transceiver_class;
         }
         
-  
         if ($status_code !== null) {
-            $request .= ' AND pd.code_status = :status_code';
+            $baseWhere .= ' AND pd.status_code = :status_code';
             $params[':status_code'] = $status_code;
         }
         
-  
-        $request .= ' LIMIT :limits OFFSET :offset';
+        
+        $countQuery = 'SELECT COUNT(*) as total ' . $baseWhere;
+        $countStatement = $db->prepare($countQuery);
+        foreach ($params as $key => $value) {
+            $countStatement->bindValue($key, $value);
+        }
+        $countStatement->execute();
+        $totalCount = $countStatement->fetch(PDO::FETCH_ASSOC)['total'];
+        
+        
+        $dataQuery = 'SELECT pd.* ' . $baseWhere . ' ORDER BY pd.base_date_time DESC LIMIT :limits OFFSET :offset';
         $params[':limits'] = (int)$limits;
         $params[':offset'] = (int)$offset;
         
-  
-        $statement = $db->prepare($request);
+        $dataStatement = $db->prepare($dataQuery);
         
-  
+        
         foreach ($params as $key => $value) {
             if ($key === ':limits' || $key === ':offset') {
-                $statement->bindValue($key, $value, PDO::PARAM_INT);
+                $dataStatement->bindValue($key, $value, PDO::PARAM_INT);
             } else {
-                $statement->bindValue($key, $value);
+                $dataStatement->bindValue($key, $value);
             }
         }
         
-        $statement->execute();
-        $result = $statement->fetchAll(PDO::FETCH_ASSOC);
+        $dataStatement->execute();
+        $data = $dataStatement->fetchAll(PDO::FETCH_ASSOC);
         
-        return $result;
+        
+        $totalPages = ceil($totalCount / $limits);
+        
+        
+        return [
+            'data' => $data,
+            'pagination' => [
+                'current_page' => (int)$page,
+                'total_pages' => $totalPages,
+                'total_count' => (int)$totalCount,
+                'per_page' => (int)$limits
+            ]
+        ];
         
     } catch (PDOException $exception) {
-  
         error_log('Erreur de requête : ' . $exception->getMessage());
         echo json_encode([
             'status' => 'error', 
