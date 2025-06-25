@@ -1076,3 +1076,7 @@ body {
     font-size: 0.9rem;
   }
 }
+
+.boat-pic {
+    max-width: 100px;
+}

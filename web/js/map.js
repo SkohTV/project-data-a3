@@ -117,7 +117,7 @@ function predict_trajectoire_vesseltype(row) {
 
 
         ajaxRequest("GET", `php/requests.php/fetch_boat_picture?mmsi=${mmsi}`, (r) => {
-            let popup_txt = `<div><h1>${name}</h1><image src=${r}></div>`
+            let popup_txt = `<div><h1>${name}</h1><image class='boat-pic' src=${r}></div>`
             let c = [[popup_txt, '#F00', predicted_trajectory]]
             map_predict = generate_map('predict')
             add_lines(map_predict, c)
