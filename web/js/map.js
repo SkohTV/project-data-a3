@@ -1,12 +1,26 @@
 
+let map_visu = null;
+let map_clusters = null;
+let map_predict = null;
 
 
-let map_visu = new maplibregl.Map({
-    container: 'vessels-map',
-    style: 'https://demotiles.maplibre.org/style.json',
-    center: [-80, 20],
-    zoom: 3
-});
+// id either vessels-map or clusters-map or predict-map
+// id either visu, clusters or predict
+function generate_map(id) {
+    if (id == 'visu')
+        container = 'vessels-map'
+    if (id == 'clusters')
+        container = 'clusters-map'
+    if (id == 'predict')
+        container = 'predict-map'
+
+    return new maplibregl.Map({
+        container: container,
+        style: 'https://demotiles.maplibre.org/style.json',
+        center: [-80, 20],
+        zoom: 3
+    });
+}
 
 
 
@@ -75,4 +89,7 @@ c = [
     ['hello3', '#00F', [[-69, 9], [-12, 0]]],
 ]
 
+map_visu = generate_map('visu')
+map_clusters = generate_map('clusters')
+map_predict = generate_map('predict')
 add_lines(map_visu, c)
