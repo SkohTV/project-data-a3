@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const params = new URLSearchParams(formData);
 
     try {
-      const response = await fetch('php/add_boat', {
+      const response = await fetch('php/requests.php/add_boat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
