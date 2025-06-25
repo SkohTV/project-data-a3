@@ -342,13 +342,13 @@ if ($requestRessource == 'predict_boat_cluster') {
 // http://etu0623.projets.isen-ouest.info/php/requests.php/predict_boat_trajectory?latitude=24.522600&longitude=-83.732800&sog=12.2&cog=113.1&heading=115&vesseltype=80&steps=15
 if ($requestRessource == 'predict_boat_trajectory') {
   if ($requestMethod == 'GET') {
-    $latitude = $_get['latitude'] ?? null;
-    $longitude = $_get['longitude'] ?? null;
-    $sog = $_get['sog'] ?? null;
-    $cog = $_get['cog'] ?? null;
-    $heading = $_get['heading'] ?? null;
-    $vesseltype = $_get['vesseltype'] ?? null;
-    $steps = $_get['steps'] ?? null;
+    $latitude = $_GET['latitude'] ?? null;
+    $longitude = $_GET['longitude'] ?? null;
+    $sog = $_GET['sog'] ?? null;
+    $cog = $_GET['cog'] ?? null;
+    $heading = $_GET['heading'] ?? null;
+    $vesseltype = $_GET['vesseltype'] ?? null;
+    $steps = $_GET['steps'] ?? null;
 
     
     if (!is_numeric($latitude) || !is_numeric($longitude) || !is_numeric($sog) || !is_numeric($cog) || !is_numeric($heading) || !is_numeric($vesseltype) || !is_numeric($steps)) {
@@ -389,7 +389,7 @@ if ($requestRessource == 'predict_boat_trajectory') {
 //
 if ($requestRessource == 'fetch_boat_picture') {
   if ($requestMethod == 'GET') {
-    $mmsi = $_get['mmsi'] ?? null;
+    $mmsi = $_GET['mmsi'] ?? null;
 
     if (!is_numeric($mmsi)) {
       header('http/1.1 400 bad request');
