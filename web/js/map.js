@@ -113,7 +113,8 @@ function predict_trajectoire_vesseltype(row) {
         predicted_trajectory = r.map((x) => [JSON.parse(x).LON, JSON.parse(x).LAT])
 
         console.log(predicted_trajectory)
-        add_lines(map_predict, ['hello_cool', '#FF0', predicted_trajectory])
+        let c = [['hello_cool', '#FF0', predicted_trajectory]]
+        add_lines(map_predict, c)
     });
 }
 
