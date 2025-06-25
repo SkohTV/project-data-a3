@@ -90,10 +90,10 @@ c = [
     ['hello3', '#00F', [[-69, 9], [-12, 0]]],
 ]
 
-map_visu = generate_map('visu')
-map_clusters = generate_map('clusters')
-map_predict = generate_map('predict')
-add_lines(map_visu, c)
+// map_visu = generate_map('visu')
+// map_clusters = generate_map('clusters')
+// map_predict = generate_map('predict')
+// add_lines(map_visu, c)
 
 function predict_trajectoire_vesseltype(row) {
     DEFAULT_PREDICT_VESSEL_TYPE = 80;
