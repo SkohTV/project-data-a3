@@ -205,7 +205,7 @@
       $statement->bindParam(':heading', $heading);
       $statement->bindParam(':status_code', $status_code);
       $statement->bindParam(':draft', $draft);
-      $statement->bindParam(':id_cluster', $id_cluster);
+      $statement->bindParam(':id_cluster', $id_cluster+1);
       $statement->execute();
     }
     catch (PDOException $exception)
