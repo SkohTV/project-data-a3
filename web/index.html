@@ -150,23 +150,23 @@
           <form id="add-vessel-form" class="form-container">
             <div class="form-group">
               <label for="mmsi">MMSI</label>
-              <input type="text" id="mmsi" name="mmsi" required />
+              <input type="text" id="mmsi" name="mmsi" class="form-input" required placeholder="ex: 205874000"/>
             </div>
             <div class="form-group">
               <label for="vesselname">Nom du Navire</label>
-              <input type="text" id="vesselname" name="vesselname" required />
+              <input type="text" id="vesselname" name="vesselname" class="form-input" required placeholder="ex: HOLLANDAIS VOLANT"/>
             </div>
             <div class="form-group">
               <label for="imo">IMO</label>
-              <input type="text" id="imo" name="imo" required />
+              <input type="text" id="imo" name="imo" class="form-input" required placeholder="ex: JK526542"/>
             </div>
             <div class="form-group">
               <label for="callsign">Callsign</label>
-              <input type="text" id="callsign" name="callsign" required />
+              <input type="text" id="callsign" name="callsign" class="form-input" required placeholder="ex: MS56231"/>
             </div>
             <div class="form-group">
               <label for="transceiverclass">Classe de transpondeur</label>
-              <select id="transceiverclass" name="transceiverclass" required>
+              <select id="transceiverclass" name="transceiverclass" class="form-select" required>
                 <option value="">Sélectionnez</option>
                 <option value="A">A</option>
                 <option value="B">B</option>
@@ -174,11 +174,11 @@
             </div>
             <div class="form-group">
               <label for="length">Longueur (m)</label>
-              <input type="number" id="length" name="length" required min="0" />
+              <input type="number" id="length" name="length" class="form-input" required placeholder="ex: 60" min="0"/>
             </div>
             <div class="form-group">
               <label for="width">Largeur (m)</label>
-              <input type="number" id="width" name="width" required min="0" />
+              <input type="number" id="width" name="width" class="form-input" required placeholder="ex: 22" min="0"/>
             </div>
 
             <button type="submit" class="btn-primary">Ajouter le navire</button>
