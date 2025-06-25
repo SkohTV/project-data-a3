@@ -60,12 +60,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const formData = new FormData(form);
     const params = new URLSearchParams(formData);
-    function callback(response) {
+    ajaxRequest("GET", "php/requests.php/predict_boat_cluster?latitude=" + params.get('latitude') + "&longitude=" + params.get('longitude') + "&sog=" + params.get('sog') + "&cog=" + params.get('cog') + "&heading=" + params.get('heading'), function (response) {
       if (response.status === 200) {
         const id_cluster = response.data.id_cluster;
+        console.log("Cluster ID:", id_cluster);
+      } else {
+        console.error("Erreur lors de la prédiction du cluster:", response);
+        messageBox.textContent = 'Erreur lors de la prédiction du cluster.';
+        messageBox.style.color = 'red';
+        return;
       }
-    }
-    ajaxRequest("GET", "php/requests.php/predict_boat_cluster?latitude=" + params.get('latitude') + "&longitude=" + params.get('longitude') + "&sog=" + params.get('sog') + "&cog=" + params.get('cog') + "&heading=" + params.get('heading'), callback);
+    });
     params.append('id_cluster', id_cluster);
     try {
       const response = await fetch('php/requests.php/add_point_donnee', {
