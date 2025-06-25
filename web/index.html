@@ -9,25 +9,43 @@
       rel="stylesheet"
     />
     <script src="https://unpkg.com/maplibre-gl@^5.6.0/dist/maplibre-gl.js"></script>
-    <link href="https://unpkg.com/maplibre-gl@^5.6.0/dist/maplibre-gl.css" rel="stylesheet" />
+    <link
+      href="https://unpkg.com/maplibre-gl@^5.6.0/dist/maplibre-gl.css"
+      rel="stylesheet"
+    />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <link rel="stylesheet" href="styles.css" />
 
     <script src="js/ajax.js"></script>
     <script src="js/requests.js"></script>
 
-
     <link rel="icon" type="image/png" href="images/crabe.png" />
-
   </head>
   <body>
-
-    <div id="errors" style="display: none; position: fixed; top: 50px; right: 20px; background: #f44336; color: white; padding: 15px; border-radius: 5px; z-index: 1000;"></div>
+    <div
+      id="errors"
+      style="
+        display: none;
+        position: fixed;
+        top: 50px;
+        right: 20px;
+        background: #f44336;
+        color: white;
+        padding: 15px;
+        border-radius: 5px;
+        z-index: 1000;
+      "
+    ></div>
 
     <header class="header">
       <div class="nav-container">
         <div class="logo">
-          <img src="images/crabe.png" alt="Logo Crabe" class="logo-img" style="height: 32px; vertical-align: middle; margin-right: 8px;" />
+          <img
+            src="images/crabe.png"
+            alt="Logo Crabe"
+            class="logo-img"
+            style="height: 32px; vertical-align: middle; margin-right: 8px"
+          />
           Bato sur lô
         </div>
         <nav>
@@ -106,6 +124,20 @@
               <a href="#" class="cta-button" data-page="visualize"
                 >Commencer l'exploration</a
               >
+              <div
+                style="
+                  display: flex;
+                  justify-content: center;
+                  gap: 40px;
+                  margin: 70px 0;
+                "
+              >
+                <img
+                  src="images/bateau.png"
+                  alt="image demandé sur la page d'accueil"
+                  style="height: 120px"
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -121,7 +153,9 @@
     <section id="visualize-page" class="content-page">
       <div class="page-container">
         <h1 class="page-title">Visualisation des Navires</h1>
-        <p class="page-description">Liste des points de données AIS de la base de données</p>
+        <p class="page-description">
+          Liste des points de données AIS de la base de données
+        </p>
 
         <div class="filters-container">
           <div class="filter-group">
@@ -243,25 +277,37 @@
           <button id="filter-button" class="btn-secondary">
             Appliquer filtres
           </button>
-          <button id="reset-button" class="btn-secondary">
-            Réinitialiser
-          </button>
+          <button id="reset-button" class="btn-secondary">Réinitialiser</button>
         </div>
 
-        <div class="pagination-container" style="margin: 20px 0; display: flex; justify-content: space-between; align-items: center;">
+        <div
+          class="pagination-container"
+          style="
+            margin: 20px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+          "
+        >
           <div class="pagination-info">
             <span id="pagination-info-text">Page 1 sur 1 (0 résultats)</span>
           </div>
           <div class="pagination-controls">
             <label for="items-per-page">Éléments par page:</label>
-            <select id="items-per-page" class="form-select" style="width: auto; margin: 0 10px;">
+            <select
+              id="items-per-page"
+              class="form-select"
+              style="width: auto; margin: 0 10px"
+            >
               <option value="10" selected>10</option>
               <option value="25">25</option>
               <option value="50">50</option>
               <option value="100">100</option>
             </select>
-            <button id="prev-page" class="btn-secondary" disabled>Précédent</button>
-            <span id="page-numbers" style="margin: 0 10px;"></span>
+            <button id="prev-page" class="btn-secondary" disabled>
+              Précédent
+            </button>
+            <span id="page-numbers" style="margin: 0 10px"></span>
             <button id="next-page" class="btn-secondary">Suivant</button>
           </div>
         </div>
