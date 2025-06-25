@@ -378,7 +378,6 @@ if ($requestRessource == 'predict_boat_trajectory') {
     exec($cmd, $result, $return_var);
 
     if ($return_var !== 0) {
-      var_dump($cmd);
       error_log("Python script error: " . implode("\n", $result));
       header('HTTP/1.1 500 Internal Server Error');
       echo json_encode(['error' => 'Internal server error', 'details' => $result]);

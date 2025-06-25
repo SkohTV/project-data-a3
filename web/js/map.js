@@ -94,5 +94,25 @@ map_clusters = generate_map('clusters')
 map_predict = generate_map('predict')
 add_lines(map_visu, c)
 
-DEFAULT_PREDICT_VESSEL_TYPE = 80;
+function predict_trajectoire_vesseltype(row) {
+    DEFAULT_PREDICT_VESSEL_TYPE = 80;
+
+    const params = new URLSearchParams({
+        latitude: row[0],
+        longitude: row[1],
+        sog: row[2],
+        cog: row[3],
+        heading: row[4],
+        vesseltype: DEFAULT_PREDICT_VESSEL_TYPE,
+        steps: 15,
+    })
+
+    ajaxRequest("GET", `php/requests.php/predict_boat_trajectory?${params}`, (r) => {
+       console.log(r) 
+    });
+
+}
+
 DEFAULT_PREDICT = [24.522600, -83.732800, 12.2, 113.1, 115];
+
+predict_trajectoire_vesseltype(DEFAULT_PREDICT)
