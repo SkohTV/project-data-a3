@@ -78,7 +78,29 @@
   function dbAddVessel($db, $mmsi, $vesselname, $imo, $callsign, $transceiverclass, $length, $width) {
     try
     {
-      $request = 'INSERT INTO vessel (mmsi, vesselname, imo, callsign, transceiverclass, length, width) VALUES (:mmsi, :vesselname, :imo, :callsign, :transceiverclass, :length, :width)';
+      // Get the transceiver class ID from the transceiver_class table.
+      $transceiverclass = strtoupper($transceiverclass);
+      $request = 'SELECT code_transceiver FROM transceiver_class WHERE class = :transceiverclass';
+      $statement = $db->prepare($request);
+      $statement->bindParam(':transceiverclass', $transceiverclass);
+      $statement->execute();
+      $transceiverclass = $statement->fetchColumn();
+      if ($transceiverclass === false) {
+        error_log('Transceiver class not found: '.$transceiverclass);
+        return false;
+      }
+      // Check if the vessel already exists.
+      $request = 'SELECT COUNT(*) FROM vessel WHERE mmsi = :mmsi';
+      $statement = $db->prepare($request);
+      $statement->bindParam(':mmsi', $mmsi);
+      $statement->execute();
+      $count = $statement->fetchColumn();
+      if ($count > 0) {
+        error_log('Vessel already exists with MMSI: '.$mmsi);
+        return false;
+      }
+      // Insert the vessel into the vessel table.
+      $request = 'INSERT INTO vessel (mmsi, vesselname, imo_number, callsign, code_transceiver, length, width) VALUES (:mmsi, :vesselname, :imo, :callsign, :transceiverclass, :length, :width)';
       $statement = $db->prepare($request);
       $statement->bindParam(':mmsi', $mmsi);
       $statement->bindParam(':vesselname', $vesselname);
