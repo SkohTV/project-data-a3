@@ -376,8 +376,7 @@ function dbRequestTab($db, $limits, $page, $longueur_max, $longueur_min, $largeu
                       pd.speed_over_ground as sog, pd.cap_over_ground as cog, pd.heading, 
                       pd.code_status as status_code, pd.draft, pd.id_cluster ' . 
                      $baseWhere . 
-                     ' ORDER BY pd.base_date_time DESC, pd.mmsi ASC 
-                       LIMIT :limits OFFSET :offset';
+                     ' LIMIT :limits OFFSET :offset';
         
         $params[':limits'] = (int)$limits;
         $params[':offset'] = (int)$offset;
