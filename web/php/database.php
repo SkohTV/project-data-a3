@@ -193,20 +193,20 @@
       $heading = (float)$heading;
       $draft = (float)$draft;
       $status_code = (int)$status_code;
-      $id_cluster = (int)$id_cluster + 1;
+      $id_cluster = (int)$id_cluster;
+      $base_date_time = date('Y-m-d H:i:s', strtotime($base_date_time));
 
       $request = 'INSERT INTO point_donnee (base_date_time, mmsi, latitude, longitude, speed_over_ground, cap_over_ground, heading, draft, code_status, id_cluster) VALUES (:base_date_time, :mmsi, :latitude, :longitude, :sog, :cog, :heading :draft, :status_code, :id_cluster)';
       $statement = $db->prepare($request);
-      $statement->bindParam(':base_date_time', $base_date_time);
+      $statement->bindParam(':base_date_time', $base_date_time, PDO::PARAM_STR);
       $statement->bindParam(':mmsi', $mmsi);
       $statement->bindParam(':latitude', $latitude);
       $statement->bindParam(':longitude', $longitude);
       $statement->bindParam(':sog', $sog);
       $statement->bindParam(':cog', $cog);
       $statement->bindParam(':heading', $heading);
-      $statement->bindParam(':status_code', $status_code);
       $statement->bindParam(':draft', $draft);
-      $statement->bindParam(':id_cluster', $id_cluster, PDO::PARAM_INT);
+      $statement->bindParam(':id_cluster', $id_cluster);
       $statement->execute();
     }
     catch (PDOException $exception)

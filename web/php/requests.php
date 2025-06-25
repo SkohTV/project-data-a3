@@ -55,8 +55,6 @@
         exit;
       }
 
-      $base_date_time = str_replace('T', ' ', $_POST['base_date_time']) . ':00';
-
       $result = dbAddPoint_donnee($db, $base_date_time, $_POST['mmsi'], $_POST['latitude'], $_POST['longitude'], $_POST['sog'], $_POST['cog'], $_POST['heading'], $_POST['status_code'], $_POST['draft'], $_POST['id_cluster']);
       if ($result === false) {
         header('HTTP/1.1 500 Internal Server Error');
