@@ -14,6 +14,7 @@
       rel="stylesheet"
     />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
     <link rel="stylesheet" href="css/styles.css" />
     <link rel="stylesheet" href="css/visu.css" />
     <link rel="stylesheet" href="css/astronaute.css" />
@@ -57,7 +58,9 @@
               <a href="#" class="nav-link active" data-page="home">Accueil</a>
             </li>
             <li>
-              <a href="#" class="nav-link" data-page="add">Ajout de données AIS</a>
+              <a href="#" class="nav-link" data-page="add"
+                >Ajout de données AIS</a
+              >
             </li>
             <li>
               <a href="#" class="nav-link" data-page="visualize">Visualiser</a>
@@ -72,7 +75,9 @@
         <div class="parallax-scene">
           <div class="stars-layer"></div>
           <div class="earth-container">
-            <div class="astronaut"></div>
+            <div class="astronaut" id="astronaut">
+              <img src="images/Sujet.png" alt="super astronaute" />
+            </div>
             <canvas id="globe-canvas"></canvas>
             <div class="earth-glow"></div>
           </div>
@@ -101,7 +106,8 @@
               <div class="feature-card" data-page="add">
                 <h3>Ajout de données AIS</h3>
                 <p>
-                  Enregistrez de nouveaux points de données AIS et navires dans la base
+                  Enregistrez de nouveaux points de données AIS et navires dans
+                  la base
                 </p>
               </div>
               <div class="feature-card" data-page="visualize">
@@ -145,7 +151,11 @@
     <section id="add-page" class="content-page">
       <div class="page-container">
         <div class="mode-selector">
-          <button id="vessel-mode-btn" class="mode-btn active" data-mode="vessel">
+          <button
+            id="vessel-mode-btn"
+            class="mode-btn active"
+            data-mode="vessel"
+          >
             Navire
           </button>
           <button id="point-mode-btn" class="mode-btn" data-mode="point">
@@ -154,31 +164,67 @@
         </div>
 
         <div id="vessel-section" class="form-section active">
-          <h1 class="page-title" style="text-align: center;">Ajouter un navire</h1>
-          <p class="form-description" style="text-align: center;">
-              Ajoutez un nouveau navire à la base de donnée du site pour ajouter des points de données.
+          <h1 class="page-title" style="text-align: center">
+            Ajouter un navire
+          </h1>
+          <p class="form-description" style="text-align: center">
+            Ajoutez un nouveau navire à la base de donnée du site pour ajouter
+            des points de données.
           </p>
           <form id="add-vessel-form" class="form-container">
             <p class="required-note">Tous les champs sont obligatoires</p>
             <div class="form-group">
               <label for="mmsi">MMSI</label>
-              <input type="text" id="mmsi" name="mmsi" class="form-input" required placeholder="ex: 205874000"/>
+              <input
+                type="text"
+                id="mmsi"
+                name="mmsi"
+                class="form-input"
+                required
+                placeholder="ex: 205874000"
+              />
             </div>
             <div class="form-group">
               <label for="vesselname">Nom du Navire</label>
-              <input type="text" id="vesselname" name="vesselname" class="form-input" required placeholder="ex: HOLLANDAIS VOLANT"/>
+              <input
+                type="text"
+                id="vesselname"
+                name="vesselname"
+                class="form-input"
+                required
+                placeholder="ex: HOLLANDAIS VOLANT"
+              />
             </div>
             <div class="form-group">
               <label for="imo">IMO</label>
-              <input type="text" id="imo" name="imo" class="form-input" required placeholder="ex: JK526542"/>
+              <input
+                type="text"
+                id="imo"
+                name="imo"
+                class="form-input"
+                required
+                placeholder="ex: JK526542"
+              />
             </div>
             <div class="form-group">
               <label for="callsign">Callsign</label>
-              <input type="text" id="callsign" name="callsign" class="form-input" required placeholder="ex: MS56231"/>
+              <input
+                type="text"
+                id="callsign"
+                name="callsign"
+                class="form-input"
+                required
+                placeholder="ex: MS56231"
+              />
             </div>
             <div class="form-group">
               <label for="transceiverclass">Classe de transpondeur</label>
-              <select id="transceiverclass" name="transceiverclass" class="form-select" required>
+              <select
+                id="transceiverclass"
+                name="transceiverclass"
+                class="form-select"
+                required
+              >
                 <option value="">Sélectionnez</option>
                 <option value="A">A</option>
                 <option value="B">B</option>
@@ -186,93 +232,200 @@
             </div>
             <div class="form-group">
               <label for="length">Longueur (m)</label>
-              <input type="number" id="length" name="length" class="form-input" required placeholder="ex: 60" min="0"/>
+              <input
+                type="number"
+                id="length"
+                name="length"
+                class="form-input"
+                required
+                placeholder="ex: 60"
+                min="0"
+              />
             </div>
             <div class="form-group">
               <label for="width">Largeur (m)</label>
-              <input type="number" id="width" name="width" class="form-input" required placeholder="ex: 22" min="0"/>
+              <input
+                type="number"
+                id="width"
+                name="width"
+                class="form-input"
+                required
+                placeholder="ex: 22"
+                min="0"
+              />
             </div>
 
-            <button type="submit" class="btn-primary" style="margin-top: 30px;">Ajouter le navire</button>
+            <button type="submit" class="btn-primary" style="margin-top: 30px">
+              Ajouter le navire
+            </button>
             <div id="vessel-form-message" class="form-message"></div>
           </form>
         </div>
 
         <div id="point-section" class="form-section">
           <h1 class="page-title">Ajouter un point de données</h1>
-          <p class="form-description" style="text-align: center;">
-              Ajoutez un nouveau point de données de tracking maritime avec les informations de position et de navigation.
+          <p class="form-description" style="text-align: center">
+            Ajoutez un nouveau point de données de tracking maritime avec les
+            informations de position et de navigation.
           </p>
-          
-          <form id="add-point-form" class="form-container">
-              <p class="required-note">Tous les champs sont obligatoires</p>
-              
-              <div class="form-group">
-                  <label for="point-mmsi">MMSI</label>
-                  <input type="text" id="point-mmsi" name="mmsi" class="form-input" required placeholder="ex: 123456789" maxlength="9" list="point-mmsi-list"/>
-                  <datalist id="point-mmsi-list"></datalist>
-                </div>
-              <div class="form-group">
-                  <label for="base_date_time">Date et Heure</label>
-                  <input type="datetime-local" id="base_date_time" name="base_date_time" class="form-input" required />
-              </div>
-              <div class="form-group">
-                  <label for="latitude">Latitude</label>
-                  <input type="number" id="latitude" name="latitude" class="form-input" required step="0.000001" min="-90" max="90" placeholder="ex: 48.8566" />
-              </div>
-              <div class="form-group">
-                  <label for="longitude">Longitude</label>
-                  <input type="number" id="longitude" name="longitude" class="form-input" required step="0.000001" min="-180" max="180" placeholder="ex: 2.3522" />
-              </div>
-              <div class="form-group">
-                  <label for="sog">SOG (Speed Over Ground)</label>
-                  <input type="number" id="sog" name="sog" class="form-input" required step="0.1" min="0" max="102.3" placeholder="Vitesse en nœuds" />
-              </div>
-              <div class="form-group">
-                  <label for="cog">COG (Course Over Ground)</label>
-                  <input type="number" id="cog" name="cog" class="form-input" required step="0.1" min="0" max="359.9" placeholder="Cap en degrés" />
-              </div>
-              <div class="form-group">
-                  <label for="heading">Heading (Cap)</label>
-                  <input type="number" id="heading" name="heading" class="form-input" required step="1" min="0" max="359" placeholder="Cap en degrés" />
-              </div>
-              <div class="form-group">
-                  <label for="status_code">Code de Status</label>
-                  <select id="status_code" name="status_code" class="form-select" required>
-                      <option value="">Sélectionnez</option>
-                      <option value="0">En route avec moteur</option>
-                      <option value="1">Ancré</option>
-                      <option value="2">Non manoeuvrable</option>
-                      <option value="3">Manoeuvre restreinte</option>
-                      <option value="4">Contraint par son tirant d'eau</option>
-                      <option value="5">Amarré</option>
-                      <option value="6">Échoué</option>
-                      <option value="7">Pêche</option>
-                      <option value="8">En route à la voile</option>
-                      <option value="9">Réservé pour amendement futur (DG/HS/MP, HSC)</option>
-                      <option value="10">Réservé pour amendement futur (DG/HS/MP, WIG)</option>
-                      <option value="11">Réservé pour usage futur</option>
-                      <option value="12">Réservé pour usage futur</option>
-                      <option value="13">Réservé pour usage futur</option>
-                      <option value="14">Réservé pour usage futur</option>
-                      <option value="15">Non défini = par défaut</option>
-                  </select>
-              </div>
-              <div class="form-group">
-                  <label for="draft">Tirant d'Eau (m)</label>
-                  <input type="number" id="draft" name="draft" class="form-input" required step="0.1" min="0" max="25.5" placeholder="Tirant d'eau en mètres" />
-              </div>
 
-              <button type="submit" class="btn-primary" id="submit-btn" style="margin-top: 10px;">
-                  <span class="loading-spinner"></span>
-                  <span class="btn-text">Ajouter le point de données</span>
-              </button>
-              <div id="point-form-message" class="form-message"></div>
+          <form id="add-point-form" class="form-container">
+            <p class="required-note">Tous les champs sont obligatoires</p>
+
+            <div class="form-group">
+              <label for="point-mmsi">MMSI</label>
+              <input
+                type="text"
+                id="point-mmsi"
+                name="mmsi"
+                class="form-input"
+                required
+                placeholder="ex: 123456789"
+                maxlength="9"
+                list="point-mmsi-list"
+              />
+              <datalist id="point-mmsi-list"></datalist>
+            </div>
+            <div class="form-group">
+              <label for="base_date_time">Date et Heure</label>
+              <input
+                type="datetime-local"
+                id="base_date_time"
+                name="base_date_time"
+                class="form-input"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label for="latitude">Latitude</label>
+              <input
+                type="number"
+                id="latitude"
+                name="latitude"
+                class="form-input"
+                required
+                step="0.000001"
+                min="-90"
+                max="90"
+                placeholder="ex: 48.8566"
+              />
+            </div>
+            <div class="form-group">
+              <label for="longitude">Longitude</label>
+              <input
+                type="number"
+                id="longitude"
+                name="longitude"
+                class="form-input"
+                required
+                step="0.000001"
+                min="-180"
+                max="180"
+                placeholder="ex: 2.3522"
+              />
+            </div>
+            <div class="form-group">
+              <label for="sog">SOG (Speed Over Ground)</label>
+              <input
+                type="number"
+                id="sog"
+                name="sog"
+                class="form-input"
+                required
+                step="0.1"
+                min="0"
+                max="102.3"
+                placeholder="Vitesse en nœuds"
+              />
+            </div>
+            <div class="form-group">
+              <label for="cog">COG (Course Over Ground)</label>
+              <input
+                type="number"
+                id="cog"
+                name="cog"
+                class="form-input"
+                required
+                step="0.1"
+                min="0"
+                max="359.9"
+                placeholder="Cap en degrés"
+              />
+            </div>
+            <div class="form-group">
+              <label for="heading">Heading (Cap)</label>
+              <input
+                type="number"
+                id="heading"
+                name="heading"
+                class="form-input"
+                required
+                step="1"
+                min="0"
+                max="359"
+                placeholder="Cap en degrés"
+              />
+            </div>
+            <div class="form-group">
+              <label for="status_code">Code de Status</label>
+              <select
+                id="status_code"
+                name="status_code"
+                class="form-select"
+                required
+              >
+                <option value="">Sélectionnez</option>
+                <option value="0">En route avec moteur</option>
+                <option value="1">Ancré</option>
+                <option value="2">Non manoeuvrable</option>
+                <option value="3">Manoeuvre restreinte</option>
+                <option value="4">Contraint par son tirant d'eau</option>
+                <option value="5">Amarré</option>
+                <option value="6">Échoué</option>
+                <option value="7">Pêche</option>
+                <option value="8">En route à la voile</option>
+                <option value="9">
+                  Réservé pour amendement futur (DG/HS/MP, HSC)
+                </option>
+                <option value="10">
+                  Réservé pour amendement futur (DG/HS/MP, WIG)
+                </option>
+                <option value="11">Réservé pour usage futur</option>
+                <option value="12">Réservé pour usage futur</option>
+                <option value="13">Réservé pour usage futur</option>
+                <option value="14">Réservé pour usage futur</option>
+                <option value="15">Non défini = par défaut</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="draft">Tirant d'Eau (m)</label>
+              <input
+                type="number"
+                id="draft"
+                name="draft"
+                class="form-input"
+                required
+                step="0.1"
+                min="0"
+                max="25.5"
+                placeholder="Tirant d'eau en mètres"
+              />
+            </div>
+
+            <button
+              type="submit"
+              class="btn-primary"
+              id="submit-btn"
+              style="margin-top: 10px"
+            >
+              <span class="loading-spinner"></span>
+              <span class="btn-text">Ajouter le point de données</span>
+            </button>
+            <div id="point-form-message" class="form-message"></div>
           </form>
         </div>
       </div>
     </section>
-
 
     <section id="visualize-page" class="content-page">
       <div class="page-container">
@@ -388,7 +541,8 @@
               id="filter-mmsi"
               class="form-input"
               placeholder="Rechercher MMSI..."
-              list="filter-mmsi-list" />
+              list="filter-mmsi-list"
+            />
             <datalist id="filter-mmsi-list"></datalist>
           </div>
 
@@ -469,7 +623,6 @@
                 <th>Transceiver</th>
                 <th>Length</th>
                 <th>Width</th>
-                
               </tr>
             </thead>
             <tbody id="vessels-tbody">
@@ -490,8 +643,12 @@
           <button class="btn-secondary" onclick="refreshVisualization()">
             Actualiser
           </button>
-          <a href="#" class="nav-link btn-primary" data-page="clusters">Prédire les clusters</a>
-          <a href="#" class="nav-link active btn-primary" data-page="predict">Prédire trajectoire/type</a>
+          <a href="#" class="nav-link btn-primary" data-page="clusters"
+            >Prédire les clusters</a
+          >
+          <a href="#" class="nav-link active btn-primary" data-page="predict"
+            >Prédire trajectoire/type</a
+          >
           <button class="btn-secondary" onclick="exportData()">
             Exporter données
           </button>
@@ -506,19 +663,17 @@
         <div class="map-container" id="clusters-map">
           <div class="placeholder-text">Super carte<br /></div>
         </div>
-
       </div>
     </section>
 
     <section id="predict-page" class="content-page">
       <div class="page-container">
         <h1>Prédictions IA</h1>
-        <h2 id='vessel-type-predicted'></h2>
+        <h2 id="vessel-type-predicted"></h2>
 
         <div class="map-container" id="predict-map">
           <div class="placeholder-text">Super carte<br /></div>
         </div>
-
       </div>
     </section>
 
@@ -528,5 +683,6 @@
 
     <script src="js/script.js"></script>
     <script src="js/autocompletion.js"></script>
+    <script src="js/astronaute.js"></script>
   </body>
 </html>
