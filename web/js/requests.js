@@ -222,7 +222,7 @@ function showLoader() {
   const tbody = document.getElementById("vessels-tbody");
   tbody.innerHTML = `
     <tr>
-      <td colspan="10" class="loader-cell">
+      <td colspan="13" class="loader-cell">
         <div class="loader-container">
           <div class="loader-spinner"></div>
           <span class="loader-text">Chargement des données...</span>
