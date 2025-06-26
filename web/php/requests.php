@@ -418,7 +418,7 @@ if ($requestRessource == 'predict_boat_type') {
 
     $result = [];
     $return_var = 0;
-    $cmd = ".numpy_hell/bin/python3 besoin_client_2.py --predict --features " . implode(", ", $params) . " 2>&1";
+    $cmd = "cd scripts && .numpy_hell/bin/python3 besoin_client_2.py --predict --features '" . implode(", ", $params) . "' 2>&1";
     exec($cmd, $result, $return_var);
 
     if ($return_var !== 0) {
