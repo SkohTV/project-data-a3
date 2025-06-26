@@ -9,7 +9,7 @@ document.getElementById("filter-mmsi").oninput = () => {
         dataList.innerHTML = "";
         response.forEach((item) => {
             const option = document.createElement("option");
-            option.value = item;
+            option.value = item.mmsi;
             dataList.appendChild(option);
         });
         }
