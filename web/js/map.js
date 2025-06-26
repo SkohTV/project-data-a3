@@ -66,6 +66,7 @@ function add_lines(map, data) {
       // Marker with popup
       const popup = new maplibregl.Popup({offset: 25}).setHTML(popup_msg);
       new maplibregl.Marker()
+        .setOpacity(0.5)
         .setLngLat(coords[0])
         .setPopup(popup)
         .addTo(map);
