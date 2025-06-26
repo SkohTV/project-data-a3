@@ -107,7 +107,7 @@
     }
   }
 
-  // -> GET php/all_mmsi
+  // -> GET php/requests.php/all_mmsi : OUTPUT -> LIST all_mmsi
 
   if ($requestRessource == 'all_mmsi') {
     if ($requestMethod == 'GET') {

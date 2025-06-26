@@ -798,24 +798,19 @@ def main():
             df_processed, feature_columns = predictor.feature_engineering(df)
             print(f"-> FEATURES CRÉÉES: {len(feature_columns)}")
             
-            # Séparation des données
             X_train, X_test, y_train, y_test = predictor.split_data_by_vessel(df_processed, feature_columns)
             
-            # Normalisation
             X_train_scaled, X_test_scaled = predictor.scale_features(X_train, X_test)
             
             if args.train:
-                # Entraînement
                 predictor.train_models(X_train_scaled, y_train)
             
             if args.evaluate:
-                # Évaluation
                 results = predictor.evaluate_models(X_test_scaled, y_test)
                 
                 if results:
                     best_model = predictor.plot_results(y_test, results)
                     
-                    # Sauvegarde du meilleur modèle
                     predictor.save_model(best_model, args.model)
                 
         except Exception as e:
