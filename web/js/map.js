@@ -217,10 +217,10 @@ function predict_clusters() {
 
   ajaxRequest('GET', `php/requests.php/all_points_donnee?${params}`, (r) => {
 
-    const tr = r.reduce((acc, { mmsi, vessel_name, length, width, latitude, longitude, cluster }) => {
+    const tr = r.reduce((acc, { mmsi, vessel_name, length, width, latitude, longitude, id_cluster }) => {
 
       if (!acc[mmsi])
-        acc[mmsi] = { mmsi, vessel_name, length, width, color: colors[cluster], vals: [] };
+        acc[mmsi] = { mmsi, vessel_name, length, width, color: colors[Number(id_cluster)-1], vals: [] };
 
       acc[mmsi].vals.push([longitude, latitude]);
       return acc;
