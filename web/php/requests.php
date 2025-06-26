@@ -395,21 +395,30 @@ if ($requestRessource == 'predict_boat_trajectory') {
 }
 
 
-// -> get php/requests.php/predict_boat_type?mmsi=XXX -> 'type'
-// http://etu0623.projets.isen-ouest.info/php/requests.php/predict_boat_type?mmsi=XXX
+// -> get php/requests.php/predict_boat_type?sog=XXX&cog=XXX&heading=XXX&length=XXX&width=XXX&draft=XXX&status=XXX&transceiver=XXX -> 'type'
+// http://etu0623.projets.isen-ouest.info/php/requests.php/predict_boat_type?sog=XXX&cog=XXX&heading=XXX&length=XXX&width=XXX&draft=XXX&status=XXX&transceiver=XXX
 if ($requestRessource == 'predict_boat_type') {
   if ($requestMethod == 'GET') {
-    $mmsi = $_GET['mmsi'] ?? null;
+    $sog = $_GET['sog'] ?? null;
+    $cog = $_GET['cog'] ?? null;
+    $heading = $_GET['heading'] ?? null;
+    $length = $_GET['length'] ?? null;
+    $width = $_GET['width'] ?? null;
+    $draft = $_GET['draft'] ?? null;
+    $status = $_GET['status'] ?? null;
+    $transceiver = $_GET['transceiver'] ?? null;
 
     
-    if (!is_numeric($mmsi)) {
+    if (!is_numeric($sog) || !is_numeric($cog) || !is_numeric($heading) || !is_numeric($length) || !is_numeric($width) || !is_numeric($draft) || !is_numeric($status)) {
       header('http/1.1 400 bad request');
       exit;
     }
 
+    $params = [$sog, $cog, $heading, $length, $width, $draft, $status, $transceiver];
+
     $result = [];
     $return_var = 0;
-    $cmd = "cd scripts && ./numpy_hell/bin/python3 besoin_client_2.py --!TODO" . " 2>&1";
+    $cmd = ".numpy_hell/bin/python3 besoin_client_2.py --predict --features " . implode(", ", $params) . " 2>&1";
     exec($cmd, $result, $return_var);
 
     if ($return_var !== 0) {
