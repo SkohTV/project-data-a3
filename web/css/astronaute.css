@@ -15,9 +15,9 @@
 
 @keyframes orbitAndSpin {
     0% {
-        transform: translate(-50%, -50%) rotate(0deg) translateX(200px) rotate(0deg);
+        transform: translate(-85%, -85%) rotate(0deg) translateX(500px) rotate(0deg);
     }
     100% {
-        transform: translate(-50%, -50%) rotate(360deg) translateX(200px) rotate(-360deg);
+        transform: translate(-85%, -85%) rotate(360deg) translateX(500px) rotate(-360deg);
     }
 }
