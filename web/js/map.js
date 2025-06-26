@@ -88,34 +88,42 @@ function add_lines(map, data) {
 }
 
 
-function predict_trajectoire_vesseltype(row) {
+function predict_trajectoire_vesseltype() {
   DEFAULT_PREDICT_VESSEL_TYPE = 80;
   let mmsi = document.querySelector('#vessels-table input[type="radio"]:checked').dataset['mmsi']
-  let name = 'unnamed'
 
   const params = new URLSearchParams({
-    latitude: row[2],
-    longitude: row[3],
-    sog: row[4],
-    cog: row[5],
-    heading: row[6],
-    vesseltype: DEFAULT_PREDICT_VESSEL_TYPE,
-    steps: 1000,
+    mmsi: mmsi
+  });
+
+  ajaxRequest('GET', `php/requests.php/all_points_donnee?${params}`, (r) => {
+    console.log('mmsi') 
+    console.log(r)
   })
 
-  let predicted_trajectory = null;
+  // const params = new URLSearchParams({
+  //   latitude: row[2],
+  //   longitude: row[3],
+  //   sog: row[4],
+  //   cog: row[5],
+  //   heading: row[6],
+  //   vesseltype: DEFAULT_PREDICT_VESSEL_TYPE,
+  //   steps: 1000,
+  // })
 
-  ajaxRequest("GET", `php/requests.php/predict_boat_trajectory?${params}`, (r) => {
-    predicted_trajectory = r.map((x) => [JSON.parse(x).LON[0], JSON.parse(x).LAT[0]])
-
-
-    ajaxRequest("GET", `php/requests.php/fetch_boat_picture?mmsi=${mmsi}`, (r) => {
-      let popup_txt = `<div><h1>${name}</h1><image class='boat-pic' src=${r}></div>`
-      let c = [[popup_txt, '#F00', predicted_trajectory]]
-      map_predict = generate_map('predict')
-      add_lines(map_predict, c)
-    })
-  });
+  // let predicted_trajectory = null;
+  //
+  // ajaxRequest("GET", `php/requests.php/predict_boat_trajectory?${params}`, (r) => {
+  //   predicted_trajectory = r.map((x) => [JSON.parse(x).LON[0], JSON.parse(x).LAT[0]])
+  //
+  //
+  //   ajaxRequest("GET", `php/requests.php/fetch_boat_picture?mmsi=${mmsi}`, (r) => {
+  //     let popup_txt = `<div><h1>${name}</h1><image class='boat-pic' src=${r}></div>`
+  //     let c = [[popup_txt, '#F00', predicted_trajectory]]
+  //     map_predict = generate_map('predict')
+  //     add_lines(map_predict, c)
+  //   })
+  // });
 }
 
 function generate_popup_txt(mmsi, name, length, width) {

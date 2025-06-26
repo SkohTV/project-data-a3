@@ -166,7 +166,7 @@ function navigateToPage(pageId) {
   }
 
   if (pageId == 'predict') {
-      console.log('hii')
+      predict_trajectoire_vesseltype()
   }
 }
 
