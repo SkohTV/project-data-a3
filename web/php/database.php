@@ -179,7 +179,7 @@
       $dataQuery = 'SELECT pd.id_point, pd.base_date_time, pd.mmsi, pd.latitude, pd.longitude, 
               pd.speed_over_ground as sog, pd.cap_over_ground as cog, pd.heading, 
               pd.code_status as status_code, v.length, v.width, v.code_transceiver as transceiver, pd.draft, pd.id_cluster ' .
-             $baseWhere . ' LIMIT 50000';
+             $baseWhere . ' AND RAND() < 0.04 LIMIT 50000';
 
       $dataStatement = $db->prepare($dataQuery);
 

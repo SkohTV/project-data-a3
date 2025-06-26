@@ -296,7 +296,22 @@ function loadtab() {
 
   // FOR MAP
   ajaxRequest('GET', `php/requests.php/all_points_donnee?${params}`, (r) => {
-    console.log(r)
+
+    const transformed = r.reduce((acc, { mmsi, latitude, longitude }) => {
+
+      if (!acc[mmsi])
+        acc[mmsi] = { mmsi, color: '#F00', vals: [] };
+
+      acc[mmsi].vals.push([latitude, longitude]);
+      return acc;
+
+    }, {});
+
+    const transformedArray = Object.values(transformed);
+
+    map_visu = generate_map('visu')
+
+    console.log(transformedArray);
   })
 }
 
