@@ -678,7 +678,7 @@ class VesselTypePredictor:
             # print(f"\n-> PROBABILITÉS PAR CLASSE:")
             stats = {}
             for i, class_name in enumerate(model.classes_):
-                stats[class_name] = prediction_proba
+                stats[class_name] = prediction_proba[i]
                 ...
                 # print(f"   {class_name}: {prediction_proba[i]:.4f} ({prediction_proba[i]*100:.2f}%)")
             print(max(stats, key=stats.get))
@@ -880,6 +880,7 @@ def main():
             # print(f"-> CONFIANCE: {result['confidence']:.4f}")
     
     else:
+        ...
         # print("-> VEUILLEZ SPÉCIFIER --train, --evaluate, --predict ou --info")
         # print_help()
 
