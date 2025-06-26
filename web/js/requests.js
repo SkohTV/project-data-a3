@@ -338,7 +338,7 @@ function displayData(data) {
       <td>${point.heading}</td>
       <td>${point.status_code}</td>
       <td>${point.draft}</td>
-      <td>${point.transceiver ? "A" : "B"}</td>
+      <td>${point.transceiver == 1 ? "A" : "B"}</td>
       <td>${point.length}</td>
       <td>${point.width}</td>
     </tr>
