@@ -158,13 +158,15 @@ function predict_trajectoire_vesseltype() {
 
     ajaxRequest("GET", `php/requests.php/predict_boat_type?${params}`, (r) => {
 
+      mm = {'Cargo': 70, 'Passenger': 60, 'Tanker': 80}
+
       const params = new URLSearchParams({
         latitude: last['latitude'],
         longitude: last['longitude'],
         sog: last['sog'],
         cog: last['cog'],
         heading: last['heading'],
-        vesseltype: r,
+        vesseltype: mm[r],
         steps: 1000,
       })
 
