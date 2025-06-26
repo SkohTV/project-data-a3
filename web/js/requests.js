@@ -308,7 +308,8 @@ function loadtab() {
     }, {});
 
     const val_array = Object.values(tr);
-    const c = val_array.map(x => Object.values(x));
+    const pre_c = val_array.map(x => Object.values(x));
+    const c = pre_c.map(x => [generate_popup_txt(x[0], x[1], x[2], x[3]), x[4], x[5]]);
 
     map_visu = generate_map('visu')
     add_lines(map_visu, c)

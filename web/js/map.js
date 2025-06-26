@@ -64,7 +64,7 @@ function add_lines(map, data) {
       });
 
       // Marker with popup
-      const popup = new maplibregl.Popup({offset: 25}).setText(popup_msg);
+      const popup = new maplibregl.Popup({offset: 25}).setHTML(popup_msg);
       new maplibregl.Marker()
         .setLngLat(coords[0])
         .setPopup(popup)
@@ -72,14 +72,14 @@ function add_lines(map, data) {
 
 
       // https://maplibre.org/maplibre-gl-js/docs/examples/popup-on-click/
-      map.on('click', `id_${i}`, (e) => {
-        new maplibregl.Popup()
-          .setLngLat(e.lngLat)
-          .setHTML(e.features[0].properties.description)
-          .addTo(map);
-      });
-      map.on('mouseenter', `id_${i}`, () => map.getCanvas().style.cursor = 'pointer' );
-      map.on('mouseleave', `id_${i}`, () => map.getCanvas().style.cursor = '' );
+      // map.on('click', `id_${i}`, (e) => {
+      //   new maplibregl.Popup()
+      //     .setLngLat(e.lngLat)
+      //     .setHTML(e.features[0].properties.description)
+      //     .addTo(map);
+      // });
+      // map.on('mouseenter', `id_${i}`, () => map.getCanvas().style.cursor = 'pointer' );
+      // map.on('mouseleave', `id_${i}`, () => map.getCanvas().style.cursor = '' );
 
     });
 
@@ -115,6 +115,15 @@ function predict_trajectoire_vesseltype(row) {
       add_lines(map_predict, c)
     })
   });
+}
+
+function generate_popup_txt(mmsi, name, length, width) {
+  return `<div>
+    <h1>${name}</h1>
+    <p>${mmsi}</p>
+    <br>
+    <p>${length}m X ${width}m</p>
+  </div>`
 }
 
 

@@ -184,7 +184,7 @@
       $countStatement->execute();
       $totalCount = $countStatement->fetch(PDO::FETCH_ASSOC)['total'];
 
-      $dataQuery = 'SELECT pd.id_point, pd.base_date_time, pd.mmsi, pd.latitude, pd.longitude, 
+      $dataQuery = 'SELECT v.vessel_name, pd.id_point, pd.base_date_time, pd.mmsi, pd.latitude, pd.longitude, 
               pd.speed_over_ground as sog, pd.cap_over_ground as cog, pd.heading, 
               pd.code_status as status_code, v.length, v.width, v.code_transceiver as transceiver, pd.draft, pd.id_cluster ' .
              $baseWhere . ' AND MOD(pd.id_point, :mod) = 0 LIMIT :limit';
