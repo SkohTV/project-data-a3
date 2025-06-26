@@ -195,7 +195,7 @@
         $dataStatement->bindValue($key, $value);
       }
       $dataStatement->bindValue(":mod", max($totalCount / 100000, 1), PDO::PARAM_INT);
-      $dataStatement->bindValue(":limit", 10000, PDO::PARAM_INT);
+      $dataStatement->bindValue(":limit", 50000, PDO::PARAM_INT);
 
       $dataStatement->execute();
       $data = $dataStatement->fetchAll(PDO::FETCH_ASSOC);

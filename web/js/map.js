@@ -46,7 +46,7 @@ function generate_line(popup_msg, coords) {
 // ]
 function add_lines(map, data) {
 
-  let all = {}
+  let all = new Map()
 
   for (let i in data) {
 
@@ -55,14 +55,21 @@ function add_lines(map, data) {
     let coords = data[i][2]
     let id = String(uuidv4())
 
-    all[id] = generate_line(popup_msg, coords)
-
+    all.set(id, generate_line(popup_msg, coords))
   }
 
   let id = String(uuidv4())
   let color = '#F00'
 
   map.on('load', () => {
+    console.log('hi')
+    console.log({
+      'type': 'geojson',
+      'data': {
+        'type': 'FeatureCollection',
+        'features': [...all.values()]
+      }
+    })
 
     // Add the line
     map.addSource(id, {
