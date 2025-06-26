@@ -17,7 +17,7 @@ document.getElementById("filter-mmsi").oninput = () => {
   }
 }
 
-document.getElementById("point-mmsi").onchange = () => {
+document.getElementById("point-mmsi").oninput = () => {
   const mmsi = document.getElementById("point-mmsi").value.trim();
   if (mmsi.length >= 3) {
     
@@ -26,7 +26,7 @@ document.getElementById("point-mmsi").onchange = () => {
         dataList.innerHTML = "";
         response.forEach((item) => {
             const option = document.createElement("option");
-            option.value = item;
+            option.value = item.mmsi;
             dataList.appendChild(option);
         });
         }
