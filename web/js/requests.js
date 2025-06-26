@@ -297,10 +297,10 @@ function loadtab() {
   // FOR MAP
   ajaxRequest('GET', `php/requests.php/all_points_donnee?${params}`, (r) => {
 
-    const tr = r.reduce((acc, { mmsi, latitude, longitude }) => {
+    const tr = r.reduce((acc, { mmsi, vessel_name, length, width, latitude, longitude }) => {
 
       if (!acc[mmsi])
-        acc[mmsi] = { mmsi, color: '#F00', vals: [] };
+        acc[mmsi] = { mmsi, vessel_name, length, width, color: '#F00', vals: [] };
 
       acc[mmsi].vals.push([longitude, latitude]);
       return acc;

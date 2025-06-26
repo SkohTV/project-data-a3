@@ -194,7 +194,7 @@
       foreach ($params as $key => $value) {
         $dataStatement->bindValue($key, $value);
       }
-      $dataStatement->bindValue(":mod", max($totalCount / 10000, 2), PDO::PARAM_INT);
+      $dataStatement->bindValue(":mod", max($totalCount / 100000, 2), PDO::PARAM_INT);
       $dataStatement->bindValue(":limit", 10000, PDO::PARAM_INT);
 
       $dataStatement->execute();
