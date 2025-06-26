@@ -6,29 +6,29 @@ let map_predict = null;
 
 // id either visu, clusters or predict
 function generate_map(id) {
-    if (id == 'visu')
-        container = 'vessels-map'
-    if (id == 'clusters')
-        container = 'clusters-map'
-    if (id == 'predict')
-        container = 'predict-map'
+  if (id == 'visu')
+    container = 'vessels-map'
+  if (id == 'clusters')
+    container = 'clusters-map'
+  if (id == 'predict')
+    container = 'predict-map'
 
-    return new maplibregl.Map({
-        container: container,
-        style: 'https://demotiles.maplibre.org/style.json',
-        center: [-88, 25],
-        zoom: 4
-    });
+  return new maplibregl.Map({
+    container: container,
+    style: 'https://demotiles.maplibre.org/style.json',
+    center: [-88, 25],
+    zoom: 4
+  });
 }
 
 
 
 function generate_line(popup_msg, coords) {
-    return {
-        'type': 'Feature',
-        'properties': { 'description': popup_msg },
-        'geometry': { 'type': 'LineString', 'coordinates': coords }
-    }
+  return {
+    'type': 'Feature',
+    'properties': { 'description': popup_msg },
+    'geometry': { 'type': 'LineString', 'coordinates': coords }
+  }
 }
 
 
@@ -40,88 +40,81 @@ function generate_line(popup_msg, coords) {
 // ]
 function add_lines(map, data) {
 
-    for (let i in data) {
+  for (let i in data) {
 
-        let popup_msg = data[i][0]
-        let color = data[i][1]
-        let coords = data[i][2]
+    let popup_msg = data[i][0]
+    let color = data[i][1]
+    let coords = data[i][2]
 
-        map.on('load', () => {
+    map.on('load', () => {
 
-            // Add the line
-            map.addSource(`id_${i}`, {
-                'type': 'geojson',
-                'data': generate_line(popup_msg, coords)
-            });
-            console.log(generate_line(popup_msg, coords))
+      // Add the line
+      map.addSource(`id_${i}`, {
+        'type': 'geojson',
+        'data': generate_line(popup_msg, coords)
+      });
 
-            // Style the line
-            map.addLayer({
-                'id': `id_${i}`,
-                'type': 'line',
-                'source': `id_${i}`,
-                'layout': { 'line-join': 'round', 'line-cap': 'round' },
-                'paint': { 'line-color': color, 'line-width': 2 }
-            });
+      // Style the line
+      map.addLayer({
+        'id': `id_${i}`,
+        'type': 'line',
+        'source': `id_${i}`,
+        'layout': { 'line-join': 'round', 'line-cap': 'round' },
+        'paint': { 'line-color': color, 'line-width': 1 }
+      });
 
-            // https://maplibre.org/maplibre-gl-js/docs/examples/popup-on-click/
-            map.on('click', `id_${i}`, (e) => {
-                new maplibregl.Popup()
-                    .setLngLat(e.lngLat)
-                    .setHTML(e.features[0].properties.description)
-                    .addTo(map);
-            });
-            map.on('mouseenter', `id_${i}`, () => map.getCanvas().style.cursor = 'pointer' );
-            map.on('mouseleave', `id_${i}`, () => map.getCanvas().style.cursor = '' );
+      // Marker with popup
+      const popup = new maplibregl.Popup({offset: 25}).setText(popup_msg);
+      new maplibregl.Marker()
+        .setLngLat(coords[0])
+        .setPopup(popup)
+        .addTo(map);
 
-        });
 
-    }
+      // https://maplibre.org/maplibre-gl-js/docs/examples/popup-on-click/
+      map.on('click', `id_${i}`, (e) => {
+        new maplibregl.Popup()
+          .setLngLat(e.lngLat)
+          .setHTML(e.features[0].properties.description)
+          .addTo(map);
+      });
+      map.on('mouseenter', `id_${i}`, () => map.getCanvas().style.cursor = 'pointer' );
+      map.on('mouseleave', `id_${i}`, () => map.getCanvas().style.cursor = '' );
+
+    });
+
+  }
 }
 
 
-
-
-
-c = [
-    ['hello1', '#F00', [[-100, 0], [-80, 20]]],
-    ['hello2', '#0F0', [[-40, 39], [-32, 10]]],
-    ['hello3', '#00F', [[-69, 9], [-12, 0]]],
-]
-
-// map_visu = generate_map('visu')
-// map_clusters = generate_map('clusters')
-// map_predict = generate_map('predict')
-// add_lines(map_visu, c)
-
 function predict_trajectoire_vesseltype(row) {
-    DEFAULT_PREDICT_VESSEL_TYPE = 80;
-    let mmsi = row[0]
-    let name = row[1]
+  DEFAULT_PREDICT_VESSEL_TYPE = 80;
+  let mmsi = row[0]
+  let name = row[1]
 
-    const params = new URLSearchParams({
-        latitude: row[2],
-        longitude: row[3],
-        sog: row[4],
-        cog: row[5],
-        heading: row[6],
-        vesseltype: DEFAULT_PREDICT_VESSEL_TYPE,
-        steps: 1000,
+  const params = new URLSearchParams({
+    latitude: row[2],
+    longitude: row[3],
+    sog: row[4],
+    cog: row[5],
+    heading: row[6],
+    vesseltype: DEFAULT_PREDICT_VESSEL_TYPE,
+    steps: 1000,
+  })
+
+  let predicted_trajectory = null;
+
+  ajaxRequest("GET", `php/requests.php/predict_boat_trajectory?${params}`, (r) => {
+    predicted_trajectory = r.map((x) => [JSON.parse(x).LON[0], JSON.parse(x).LAT[0]])
+
+
+    ajaxRequest("GET", `php/requests.php/fetch_boat_picture?mmsi=${mmsi}`, (r) => {
+      let popup_txt = `<div><h1>${name}</h1><image class='boat-pic' src=${r}></div>`
+      let c = [[popup_txt, '#F00', predicted_trajectory]]
+      map_predict = generate_map('predict')
+      add_lines(map_predict, c)
     })
-
-    let predicted_trajectory = null;
-
-    ajaxRequest("GET", `php/requests.php/predict_boat_trajectory?${params}`, (r) => {
-        predicted_trajectory = r.map((x) => [JSON.parse(x).LON[0], JSON.parse(x).LAT[0]])
-
-
-        ajaxRequest("GET", `php/requests.php/fetch_boat_picture?mmsi=${mmsi}`, (r) => {
-            let popup_txt = `<div><h1>${name}</h1><image class='boat-pic' src=${r}></div>`
-            let c = [[popup_txt, '#F00', predicted_trajectory]]
-            map_predict = generate_map('predict')
-            add_lines(map_predict, c)
-        })
-    });
+  });
 }
 
 

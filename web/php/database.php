@@ -176,16 +176,26 @@
         $params[':status_code'] = $status_code;
       }
 
+      $countQuery = 'SELECT COUNT(*) as total ' . $baseWhere;
+      $countStatement = $db->prepare($countQuery);
+      foreach ($params as $key => $value) {
+        $countStatement->bindValue($key, $value);
+      }
+      $countStatement->execute();
+      $totalCount = $countStatement->fetch(PDO::FETCH_ASSOC)['total'];
+
       $dataQuery = 'SELECT pd.id_point, pd.base_date_time, pd.mmsi, pd.latitude, pd.longitude, 
               pd.speed_over_ground as sog, pd.cap_over_ground as cog, pd.heading, 
               pd.code_status as status_code, v.length, v.width, v.code_transceiver as transceiver, pd.draft, pd.id_cluster ' .
-             $baseWhere . ' AND RAND() < 0.04 LIMIT 50000';
+             $baseWhere . ' AND MOD(pd.id_point, :mod) = 0 LIMIT :limit';
 
       $dataStatement = $db->prepare($dataQuery);
 
       foreach ($params as $key => $value) {
         $dataStatement->bindValue($key, $value);
       }
+      $dataStatement->bindValue(":mod", max($totalCount / 10000, 2), PDO::PARAM_INT);
+      $dataStatement->bindValue(":limit", 10000, PDO::PARAM_INT);
 
       $dataStatement->execute();
       $data = $dataStatement->fetchAll(PDO::FETCH_ASSOC);
