@@ -118,7 +118,7 @@ function add_lines(map, data) {
 
 
 function predict_trajectoire_vesseltype() {
-  DEFAULT_PREDICT_VESSEL_TYPE = 80;
+
   let mmsi = document.querySelector('#vessels-table input[type="radio"]:checked').dataset['mmsi']
 
   const params = new URLSearchParams({
@@ -132,11 +132,11 @@ function predict_trajectoire_vesseltype() {
   ajaxRequest('GET', `php/requests.php/all_points_donnee?${params}`, (r) => {
     let last = {}
 
-    const tr = r.reduce((acc, { mmsi, vessel_name, length, width, latitude, longitude, sog, cog, heading }) => {
+    const tr = r.reduce((acc, { mmsi, vessel_name, length, width, latitude, longitude, sog, cog, heading, draft, status_code, transceiver }) => {
       if (!acc[mmsi])
         acc[mmsi] = { mmsi, vessel_name, length, width, color: '#0A0', vals: [] };
       acc[mmsi].vals.push([longitude, latitude]);
-      last = {latitude: latitude, longitude: longitude, sog: sog, cog: cog, heading: heading, vessel_name: vessel_name, length: length, width: width}
+      last = {latitude: latitude, longitude: longitude, sog: sog, cog: cog, heading: heading, vessel_name: vessel_name, length: length, width: width, draft: draft, status: status_code, transceiver: transceiver}
       return acc;
     }, {});
 
@@ -146,29 +146,45 @@ function predict_trajectoire_vesseltype() {
     console.log(val_array)
 
     const params = new URLSearchParams({
-      latitude: last['latitude'],
-      longitude: last['longitude'],
       sog: last['sog'],
       cog: last['cog'],
       heading: last['heading'],
-      vesseltype: DEFAULT_PREDICT_VESSEL_TYPE,
-      steps: 1000,
+      length: last['length'],
+      width: last['width'],
+      draft: last['draft'],
+      status: last['status'],
+      transceiver: last['transceiver'] == 1 ? 'A' : 'B',
     })
 
-    let predicted_trajectory = null;
-    let vessel_name = last['vessel_name']
+    ajaxRequest("GET", `php/requests.php/predict_boat_type?${params}`, (r) => {
 
-    ajaxRequest("GET", `php/requests.php/predict_boat_trajectory?${params}`, (r) => {
-      predicted_trajectory = r.map((x) => [JSON.parse(x).LON[0], JSON.parse(x).LAT[0]])
-      // ajaxRequest("GET", `php/requests.php/fetch_boat_picture?mmsi=${mmsi}`, (r) => {
-      let popup_txt = generate_popup_txt(mmsi, vessel_name, last['length'], last['width'])
-      let c = [[popup_txt, '#C00', predicted_trajectory]]
+      const params = new URLSearchParams({
+        latitude: last['latitude'],
+        longitude: last['longitude'],
+        sog: last['sog'],
+        cog: last['cog'],
+        heading: last['heading'],
+        vesseltype: r,
+        steps: 1000,
+      })
 
-      map_predict = generate_map('predict')
-      add_lines(map_predict, c1)
-      add_lines(map_predict, c)
-      // })
-    });
+      document.getElementById('vessel-type-predicted').textContent = r
+      let predicted_trajectory = null;
+      let vessel_name = last['vessel_name']
+
+      ajaxRequest("GET", `php/requests.php/predict_boat_trajectory?${params}`, (r) => {
+        predicted_trajectory = r.map((x) => [JSON.parse(x).LON[0], JSON.parse(x).LAT[0]])
+        // ajaxRequest("GET", `php/requests.php/fetch_boat_picture?mmsi=${mmsi}`, (r) => {
+        let popup_txt = generate_popup_txt(mmsi, vessel_name, last['length'], last['width'])
+        let c = [[popup_txt, '#C00', predicted_trajectory]]
+
+        map_predict = generate_map('predict')
+        add_lines(map_predict, c1)
+        add_lines(map_predict, c)
+        // })
+      });
+
+    })
   })
 
 
