@@ -46,52 +46,51 @@ function generate_line(popup_msg, coords) {
 // ]
 function add_lines(map, data) {
 
+  let all = {}
+
   for (let i in data) {
 
     let popup_msg = data[i][0]
-    let color = data[i][1]
+    // let color = data[i][1]
     let coords = data[i][2]
+    let id = String(uuidv4())
 
-    map.on('load', () => {
-      let id = String(uuidv4())
-
-      // Add the line
-      map.addSource(id, {
-        'type': 'geojson',
-        'data': generate_line(popup_msg, coords)
-      });
-
-      // Style the line
-      map.addLayer({
-        'id': id,
-        'type': 'line',
-        'source': id,
-        'layout': { 'line-join': 'round', 'line-cap': 'round' },
-        'paint': { 'line-color': color, 'line-width': 1 }
-      });
-
-      // Marker with popup
-      const popup = new maplibregl.Popup({offset: 25}).setHTML(popup_msg);
-      new maplibregl.Marker()
-        .setOpacity(0.5)
-        .setLngLat(coords[0])
-        .setPopup(popup)
-        .addTo(map);
-
-
-      // https://maplibre.org/maplibre-gl-js/docs/examples/popup-on-click/
-      // map.on('click', `id_${i}`, (e) => {
-      //   new maplibregl.Popup()
-      //     .setLngLat(e.lngLat)
-      //     .setHTML(e.features[0].properties.description)
-      //     .addTo(map);
-      // });
-      // map.on('mouseenter', `id_${i}`, () => map.getCanvas().style.cursor = 'pointer' );
-      // map.on('mouseleave', `id_${i}`, () => map.getCanvas().style.cursor = '' );
-
-    });
+    all[id] = generate_line(popup_msg, coords)
 
   }
+
+  let id = String(uuidv4())
+  let color = '#F00'
+
+  map.on('load', () => {
+
+    // Add the line
+    map.addSource(id, {
+      'type': 'geojson',
+      'data': {
+        'type': 'FeatureCollection',
+        'features': all.values()
+      }
+    });
+
+    // Style the line
+    map.addLayer({
+      'id': id,
+      'type': 'line',
+      'source': id,
+      'layout': { 'line-join': 'round', 'line-cap': 'round' },
+      'paint': { 'line-color': color, 'line-width': 1 }
+    });
+
+    // Marker with popup
+    // const popup = new maplibregl.Popup({offset: 25}).setHTML(popup_msg);
+    // new maplibregl.Marker()
+    //   .setOpacity(0.5)
+    //   .setLngLat(coords[0])
+    //   .setPopup(popup)
+    //   .addTo(map);
+
+  });
 }
 
 
@@ -235,3 +234,17 @@ function predict_clusters() {
     add_lines(map_clusters, c)
   })
 }
+
+
+
+
+
+      // https://maplibre.org/maplibre-gl-js/docs/examples/popup-on-click/
+      // map.on('click', `id_${i}`, (e) => {
+      //   new maplibregl.Popup()
+      //     .setLngLat(e.lngLat)
+      //     .setHTML(e.features[0].properties.description)
+      //     .addTo(map);
+      // });
+      // map.on('mouseenter', `id_${i}`, () => map.getCanvas().style.cursor = 'pointer' );
+      // map.on('mouseleave', `id_${i}`, () => map.getCanvas().style.cursor = '' );
