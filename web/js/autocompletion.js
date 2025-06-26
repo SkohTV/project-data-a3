@@ -1,5 +1,5 @@
 
-document.getElementById("filter-mmsi").oninput = () => {
+document.getElementById("filter-mmsi").onchange = () => {
   const mmsi = document.getElementById("filter-mmsi").value.trim();
   if (mmsi.length >= 3) {
     
