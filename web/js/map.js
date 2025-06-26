@@ -136,13 +136,14 @@ function predict_trajectoire_vesseltype() {
       if (!acc[mmsi])
         acc[mmsi] = { mmsi, vessel_name, length, width, color: '#0A0', vals: [] };
       acc[mmsi].vals.push([longitude, latitude]);
-      last = {latitude: latitude, longitude: longitude, sog: sog, cog: cog, heading: heading, vessel_name: vessel_name}
+      last = {latitude: latitude, longitude: longitude, sog: sog, cog: cog, heading: heading, vessel_name: vessel_name, length: length, width: width}
       return acc;
     }, {});
 
     const val_array = Object.values(tr);
     const pre_c = val_array.map(x => Object.values(x));
-    const c1 = pre_c.map(x => [generate_popup_txt(x[0], x[1], x[2], x[3]), x[4], x[5]]);
+    const c1 = pre_c.map(x => [generate_popup_txt(x[0], x[1], last['length'], last['width']), x[4], x[5]]);
+    console.log(val_array)
 
     const params = new URLSearchParams({
       latitude: last['latitude'],
