@@ -164,37 +164,12 @@ body {
   }
 }
 
+
 .earth-container {
   position: relative;
   width: 1000px;
   height: 1000px;
   transition: transform 0.1s ease-out;
-}
-
-.astronaut {
-  position: fixed;
-  width: 100px;
-  height: 100px;
-  background-image: url("images/Sujet.png");
-  background-size: contain;
-  background-repeat: no-repeat;
-  z-index: 10;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%) rotate(0deg) translateX(400px) rotate(0deg);
-  animation: orbit 20s linear infinite;
-  pointer-events: none;
-}
-
-@keyframes orbit {
-  from {
-    transform: translate(-50%, -50%) rotate(0deg) translateX(400px) rotate(0deg)
-      rotateZ(0deg);
-  }
-  to {
-    transform: translate(-50%, -50%) rotate(360deg) translateX(400px)
-      rotate(-360deg) rotateZ(720deg);
-  }
 }
 
 .earth-glow {

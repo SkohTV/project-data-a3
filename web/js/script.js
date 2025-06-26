@@ -84,13 +84,6 @@ function setupGlobe() {
   globe = new THREE.Mesh(geometry, material);
   globeScene.add(globe);
 
-  // Ajouter l'astronaute
-  const earthContainer = document.querySelector(".earth-container");
-  if (earthContainer) {
-    const astronaut = document.createElement("div");
-    astronaut.className = "astronaut";
-    earthContainer.appendChild(astronaut);
-  }
 
   const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
   globeScene.add(ambientLight);
@@ -164,6 +157,13 @@ function navigateToPage(pageId) {
       }
     });
   }
+
+  if (pageId !== "home" && animationId) {
+    cancelAnimationFrame(animationId);
+    animationId = null;
+  } else if (pageId === "home" && !animationId) {
+    animateGlobe();
+  }
 }
 
 function setupParallaxEffect() {
@@ -227,4 +227,3 @@ function setupParallaxEffect() {
   window.addEventListener("scroll", requestParallaxUpdate, { passive: true });
   updateParallax();
 }
-
