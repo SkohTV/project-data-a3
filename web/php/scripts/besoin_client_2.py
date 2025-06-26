@@ -390,8 +390,10 @@ class VesselTypePredictor:
         X_test_clean = np.nan_to_num(X_test_array, nan=0.0, posinf=0.0, neginf=0.0)
         
         if not np.isfinite(X_train_clean).all():
+            ...
             # print("   -> IL Y A DES VALEURS NON-FINIES DANS X_train")
         if not np.isfinite(X_test_clean).all():
+            ...
             # print("   -> IL Y A DES VALEURS NON-FINIES DANS X_test")
         
         try:
@@ -595,6 +597,7 @@ class VesselTypePredictor:
                 "TransceiverClass - 'A' ou 'B'"
             ]
             for i, desc in enumerate(feature_descriptions):
+                ...
                 # print(f"  {i+1}. {desc}")
             
             # print(f"\n-> EXEMPLE DE COMMANDE:")
@@ -773,10 +776,13 @@ def main():
     if any(data_required_cases) and not args.data:
         # print("-> ERREUR: --data est requis pour cette opération")
         if args.train or args.evaluate:
+            ...
             # print("   L'entraînement/évaluation nécessite un fichier de données")
         elif args.predict and args.mmsi:
+            ...
             # print("   La prédiction par MMSI nécessite un fichier de données pour chercher le navire")
         elif args.info:
+            ...
             # print("   --info nécessite --data si le modèle n'existe pas encore")
         sys.exit(1)
     
@@ -869,12 +875,13 @@ def main():
             sys.exit(1)
         
         if result:
+            ...
             # print(f"\n-> PRÉDICTION TERMINÉE AVEC SUCCÈS")
             # print(f"-> CONFIANCE: {result['confidence']:.4f}")
     
     else:
         # print("-> VEUILLEZ SPÉCIFIER --train, --evaluate, --predict ou --info")
-        parser.# print_help()
+        # print_help()
 
 
 if __name__ == "__main__":
