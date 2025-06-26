@@ -3,6 +3,11 @@ let map_visu = null;
 let map_clusters = null;
 let map_predict = null;
 
+function uuidv4() {
+  return "10000000-1000-4000-8000-100000000000".replace(/[018]/g, c =>
+    (+c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> +c / 4).toString(16)
+  );
+}
 
 // id either visu, clusters or predict
 function generate_map(id) {
@@ -47,18 +52,19 @@ function add_lines(map, data) {
     let coords = data[i][2]
 
     map.on('load', () => {
+      let id = String(uuidv4())
 
       // Add the line
-      map.addSource(`id_${i}`, {
+      map.addSource(id, {
         'type': 'geojson',
         'data': generate_line(popup_msg, coords)
       });
 
       // Style the line
       map.addLayer({
-        'id': `id_${i}`,
+        'id': id,
         'type': 'line',
-        'source': `id_${i}`,
+        'source': id,
         'layout': { 'line-join': 'round', 'line-cap': 'round' },
         'paint': { 'line-color': color, 'line-width': 1 }
       });
@@ -107,7 +113,7 @@ function predict_trajectoire_vesseltype() {
       if (!acc[mmsi])
         acc[mmsi] = { mmsi, vessel_name, length, width, color: '#F00', vals: [] };
       acc[mmsi].vals.push([longitude, latitude]);
-      last = {latitude: latitude, longitude: longitude, sog: sog, cog: cog, heading: heading}
+      last = {latitude: latitude, longitude: longitude, sog: sog, cog: cog, heading: heading, vessel_name: vessel_name}
       return acc;
     }, {});
 
@@ -126,6 +132,7 @@ function predict_trajectoire_vesseltype() {
     })
 
     let predicted_trajectory = null;
+    let vessel_name = last['vessel_name']
 
     ajaxRequest("GET", `php/requests.php/predict_boat_trajectory?${params}`, (r) => {
       predicted_trajectory = r.map((x) => [JSON.parse(x).LON[0], JSON.parse(x).LAT[0]])
