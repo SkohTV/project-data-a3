@@ -17,9 +17,11 @@ document.getElementById("filter-mmsi").oninput = () => {
   }
 }
 
-document.getElementById("point-mmsi").oninput = () => {
+document.getElementById("point-mmsi").onchange = () => {
   const mmsi = document.getElementById("point-mmsi").value.trim();
   if (mmsi.length >= 3) {
+    
+    
     ajaxRequest('GET', `php/requests.php/all_mmsi?mmsi=${mmsi}`, (response) => {
         const dataList = document.getElementById("point-mmsi-list");
         dataList.innerHTML = "";
@@ -30,6 +32,9 @@ document.getElementById("point-mmsi").oninput = () => {
         });
         }
     );
+
+
+
   }
 }
 
