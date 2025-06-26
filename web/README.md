@@ -14,12 +14,12 @@ Tâches :
 - [x] Structure globale (Corentin)
 - [x] Map (start) -> Noé
 - [x] Page 1 -> Accueil (Corentin)
-- [ ] Page 2 -> Formulaire (...)
-- [ ] Page 3 -> Visualisation sur carte -> affichage direct carte (Lequipe)
-- [ ] Page 4 -> Prédiction clustering -> Sélection d'une série de bateaux + visu carte (...)
-- [ ] Page 5 -> Prédiction VesselType/Trajectory -> Sélection d'un bateau + prédictions tableau/carte (...)
-- [ ] Complétion automatique (Robin)
-- [ ] Filtrage (Noé)
+- [x] Page 2 -> Formulaire (Robin)
+- [x] Page 3 -> Visualisation sur carte -> affichage direct carte (Lequipe)
+- [x] Page 4 -> Prédiction clustering -> Sélection d'une série de bateaux + visu carte (Noé - Corentin)
+- [x] Page 5 -> Prédiction VesselType/Trajectory -> Sélection d'un bateau + prédictions tableau/carte (Noé)
+- [x] Complétion automatique (Robin)
+- [x] Filtrage (Noé - Corentin)
 
 ## BACK-END
 -> Représentant : Robin
@@ -28,7 +28,7 @@ Tâches :
 - [x] MCD (Robin)
 - [x] Interface client-serveur (Lequipe)
 - [x] Structure globale (Robin)
-- [ ] Interaction BDD (Robin)
+- [x] Interaction BDD (Robin)
 - [x] Photo de bateaux  dans la visu (Noé)
 ## DevOps
 -> Représentant : Noé
