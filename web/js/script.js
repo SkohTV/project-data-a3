@@ -158,11 +158,19 @@ function navigateToPage(pageId) {
     });
   }
 
+
   if (pageId !== "home" && animationId) {
     cancelAnimationFrame(animationId);
     animationId = null;
   } else if (pageId === "home" && !animationId) {
     animateGlobe();
+  }
+
+  if (pageId == 'predict') {
+      predict_trajectoire_vesseltype()
+  }
+  if (pageId == 'clusters') {
+      predict_clusters()
   }
 }
 

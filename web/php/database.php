@@ -134,37 +134,80 @@
   // \param transceiver_class The transceiver class of the vessel to request.
   // \param status_code The status code of the point_donnee to request.
 
-  function dbRequestAllPoints_donnee($db, $mmsi, $longueur_max, $largeur_max, $longueur_min, $largeur_min, $temps_min, $temps_max, $transceiver_class, $status_code) {
-    try
-    {
-      $request = 'SELECT * FROM point_donnee WHERE mmsi = :mmsi AND latitude BETWEEN :latitude_min AND :latitude_max AND longitude BETWEEN :longitude_min AND :longitude_max AND base_date_time BETWEEN :temps_min AND :temps_max';
-      if ($transceiver_class !== null) {
-        $request .= ' AND transceiver_class = :transceiver_class';
+  function dbRequestAllPoints_donnee($db, $longueur_max, $longueur_min, $largeur_max, $largeur_min, $temps_max, $temps_min, $transceiver_class, $status_code, $mmsi) {
+    try {
+      $baseWhere = 'FROM point_donnee pd 
+        JOIN vessel v ON pd.mmsi = v.mmsi 
+        JOIN status_code sc ON sc.code_status = pd.code_status
+        WHERE v.length >= :longueur_min AND v.length <= :longueur_max
+        AND v.width >= :largeur_min AND v.width <= :largeur_max';
+
+      $params = [
+        ':longueur_min' => $longueur_min,
+        ':longueur_max' => $longueur_max,
+        ':largeur_min' => $largeur_min,
+        ':largeur_max' => $largeur_max
+      ];
+
+      if ($transceiver_class !== null && $transceiver_class !== '') {
+        $baseWhere .= ' AND v.code_transceiver = :transceiver_class';
+        $params[':transceiver_class'] = $transceiver_class;
       }
-      if ($status_code !== null) {
-        $request .= ' AND status_code = :status_code';
+
+      if ($mmsi !== null && $mmsi !== '') {
+        $baseWhere .= ' AND pd.mmsi = :mmsi';
+        $params[':mmsi'] = $mmsi;
       }
-      $statement = $db->prepare($request);
-      $statement->bindParam(':mmsi', $mmsi);
-      $statement->bindParam(':latitude_min', $largeur_min);
-      $statement->bindParam(':latitude_max', $largeur_max);
-      $statement->bindParam(':longitude_min', $longueur_min);
-      $statement->bindParam(':longitude_max', $longueur_max);
-      $statement->bindParam(':temps_min', $temps_min);
-      $statement->bindParam(':temps_max', $temps_max);
-      if ($transceiver_class !== null) {
-        $statement->bindParam(':transceiver_class', $transceiver_class);
+
+      if ($temps_min !== null && $temps_min !== '' && $temps_max !== null && $temps_max !== '') {
+        $baseWhere .= ' AND pd.base_date_time >= :temps_min AND pd.base_date_time <= :temps_max';
+        $params[':temps_min'] = $temps_min;
+        $params[':temps_max'] = $temps_max;
+      } elseif ($temps_min !== null && $temps_min !== '') {
+        $baseWhere .= ' AND pd.base_date_time >= :temps_min';
+        $params[':temps_min'] = $temps_min;
+      } elseif ($temps_max !== null && $temps_max !== '') {
+        $baseWhere .= ' AND pd.base_date_time <= :temps_max';
+        $params[':temps_max'] = $temps_max;
       }
-      if ($status_code !== null) {
-        $statement->bindParam(':status_code', $status_code);
+
+      if ($status_code !== null && $status_code !== '') {
+        $baseWhere .= ' AND sc.description = :status_code';
+        $params[':status_code'] = $status_code;
       }
-      $statement->execute();
-      return $statement->fetchAll(PDO::FETCH_ASSOC);
-    }
-    catch (PDOException $exception)
-    {
-      error_log('Request error: '.$exception->getMessage());
-      return false;
+
+      $countQuery = 'SELECT COUNT(*) as total ' . $baseWhere;
+      $countStatement = $db->prepare($countQuery);
+      foreach ($params as $key => $value) {
+        $countStatement->bindValue($key, $value);
+      }
+      $countStatement->execute();
+      $totalCount = $countStatement->fetch(PDO::FETCH_ASSOC)['total'];
+
+      $dataQuery = 'SELECT v.vessel_name, pd.id_point, pd.base_date_time, pd.mmsi, pd.latitude, pd.longitude, 
+              pd.speed_over_ground as sog, pd.cap_over_ground as cog, pd.heading, 
+              pd.code_status as status_code, v.length, v.width, v.code_transceiver as transceiver, pd.draft, pd.id_cluster ' .
+             $baseWhere . ' AND MOD(pd.id_point, :mod) = 0 LIMIT :limit';
+
+      $dataStatement = $db->prepare($dataQuery);
+
+      foreach ($params as $key => $value) {
+        $dataStatement->bindValue($key, $value);
+      }
+      $dataStatement->bindValue(":mod", max($totalCount / 100000, 1), PDO::PARAM_INT);
+      $dataStatement->bindValue(":limit", 10000, PDO::PARAM_INT);
+
+      $dataStatement->execute();
+      $data = $dataStatement->fetchAll(PDO::FETCH_ASSOC);
+
+      return $data;
+
+    } catch (PDOException $exception) {
+      error_log('Erreur de requête : ' . $exception->getMessage());
+      return [
+        'status' => 'error',
+        'message' => 'Erreur lors de l\'exécution de la requête : ' . $exception->getMessage(),
+      ];
     }
   }
 
@@ -193,7 +236,9 @@
       $heading = (float)$heading;
       $draft = (float)$draft;
       $status_code = (int)$status_code;
-      $id_cluster = (int)$id_cluster;
+      $id_cluster = (int)$id_cluster + 1;
+        
+      $base_date_time = urldecode($base_date_time);
       $base_date_time = date('Y-m-d H:i:s', strtotime($base_date_time));
 
       $request = 'INSERT INTO point_donnee (base_date_time, mmsi, latitude, longitude, speed_over_ground, cap_over_ground, heading, draft, code_status, id_cluster) VALUES (:base_date_time, :mmsi, :latitude, :longitude, :sog, :cog, :heading, :draft, :status_code, :id_cluster)';

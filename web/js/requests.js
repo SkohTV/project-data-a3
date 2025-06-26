@@ -233,6 +233,7 @@ function showLoader() {
 }
 
 function loadtab() {
+  // FOR TAB
   showLoader();
   const mmsi = document.getElementById("filter-mmsi").value.trim();
 
@@ -292,6 +293,27 @@ function loadtab() {
       updatePagination(response.length);
     }
   });
+
+  // FOR MAP
+  ajaxRequest('GET', `php/requests.php/all_points_donnee?${params}`, (r) => {
+
+    const tr = r.reduce((acc, { mmsi, vessel_name, length, width, latitude, longitude }) => {
+
+      if (!acc[mmsi])
+        acc[mmsi] = { mmsi, vessel_name, length, width, color: '#F00', vals: [] };
+
+      acc[mmsi].vals.push([longitude, latitude]);
+      return acc;
+
+    }, {});
+
+    const val_array = Object.values(tr);
+    const pre_c = val_array.map(x => Object.values(x));
+    const c = pre_c.map(x => [generate_popup_txt(x[0], x[1], x[2], x[3]), x[4], x[5]]);
+
+    map_visu = generate_map('visu')
+    add_lines(map_visu, c)
+  })
 }
 
 function displayData(data) {

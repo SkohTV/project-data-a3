@@ -55,7 +55,7 @@
         exit;
       }
 
-      $result = dbAddPoint_donnee($db, $base_date_time, $_POST['mmsi'], $_POST['latitude'], $_POST['longitude'], $_POST['sog'], $_POST['cog'], $_POST['heading'], $_POST['status_code'], $_POST['draft'], $_POST['id_cluster']);
+      $result = dbAddPoint_donnee($db, $_POST['base_date_time'], $_POST['mmsi'], $_POST['latitude'], $_POST['longitude'], $_POST['sog'], $_POST['cog'], $_POST['heading'], $_POST['status_code'], $_POST['draft'], $_POST['id_cluster']);
       if ($result === false) {
         header('HTTP/1.1 500 Internal Server Error');
         exit;
@@ -160,11 +160,23 @@
       $mmsi = $_GET['mmsi'] ?? null;
 
       // Validate parameters.
-      if (!is_numeric($longueur_max) || !is_numeric($longueur_min) || !is_numeric($largeur_max) || !is_numeric($largeur_min) ||
-          !is_numeric($temps_max) || !is_numeric($temps_min) || !is_numeric($transceiver_class) || !is_numeric($status_code) || !is_numeric($mmsi)) {
-        header('HTTP/1.1 400 Bad Request');
-        exit;
-      } 
+      // if (!is_numeric($longueur_max) || !is_numeric($longueur_min) || !is_numeric($largeur_max) || !is_numeric($largeur_min) ||
+      //     !is_numeric($temps_max) || !is_numeric($temps_min) || !is_numeric($transceiver_class) || !is_numeric($status_code) || !is_numeric($mmsi)) {
+      //   header('HTTP/1.1 400 Bad Request');
+      //   exit;
+      // } 
+
+      if ($temps_max !== null && $temps_min !== null) {
+        if (is_numeric($temps_max) && is_numeric($temps_min)) {
+          $temps_max = date('Y-m-d H:i:s', (int)$temps_max);
+          $temps_min = date('Y-m-d H:i:s', (int)$temps_min);
+        } else {
+          header('HTTP/1.1 400 Bad Request');
+          exit;
+        }
+      }
+
+
       $result = dbRequestAllPoints_donnee($db, $longueur_max, $longueur_min, $largeur_max, $largeur_min, $temps_max, $temps_min, $transceiver_class, $status_code, $mmsi);
       if ($result === false) {
         header('HTTP/1.1 500 Internal Server Error');
@@ -365,6 +377,39 @@ if ($requestRessource == 'predict_boat_trajectory') {
         "VesselType" => intval($vesseltype),
     ];
     $cmd = "cd scripts && python3.10 -O besoin_client_3.py --json '" . json_encode($json) . "' --steps " . escapeshellarg($steps) . " 2>&1";
+    exec($cmd, $result, $return_var);
+
+    if ($return_var !== 0) {
+      error_log("python script error: " . implode("\n", $result));
+      header('http/1.1 500 internal server error');
+      echo json_encode(['error' => 'internal server error', 'details' => $result]);
+      exit;
+    }
+
+    echo json_encode($result);
+    exit;
+  } else {
+    header('http/1.1 405 method not allowed');
+    exit;
+  }
+}
+
+
+// -> get php/requests.php/predict_boat_type?mmsi=XXX -> 'type'
+// http://etu0623.projets.isen-ouest.info/php/requests.php/predict_boat_type?mmsi=XXX
+if ($requestRessource == 'predict_boat_type') {
+  if ($requestMethod == 'GET') {
+    $mmsi = $_GET['mmsi'] ?? null;
+
+    
+    if (!is_numeric($mmsi)) {
+      header('http/1.1 400 bad request');
+      exit;
+    }
+
+    $result = [];
+    $return_var = 0;
+    $cmd = "cd scripts && ./numpy_hell/bin/python3 besoin_client_2.py --!TODO" . " 2>&1";
     exec($cmd, $result, $return_var);
 
     if ($return_var !== 0) {

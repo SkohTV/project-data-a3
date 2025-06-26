@@ -19,6 +19,7 @@
     <link rel="stylesheet" href="css/astronaute.css" />
 
     <script src="js/ajax.js"></script>
+    <script src="js/map.js"></script>
     <script src="js/requests.js"></script>
 
     <link rel="icon" type="image/png" href="images/crabe.png" />
@@ -56,16 +57,10 @@
               <a href="#" class="nav-link active" data-page="home">Accueil</a>
             </li>
             <li>
-              <a href="#" class="nav-link" data-page="add">Ajouter Navire</a>
+              <a href="#" class="nav-link" data-page="add">Ajout de données AIS</a>
             </li>
             <li>
               <a href="#" class="nav-link" data-page="visualize">Visualiser</a>
-            </li>
-            <li>
-              <a href="#" class="nav-link" data-page="clusters">Clusters</a>
-            </li>
-            <li>
-              <a href="#" class="nav-link" data-page="predict">Prédictions</a>
             </li>
           </ul>
         </nav>
@@ -104,23 +99,23 @@
 
             <div class="features-grid">
               <div class="feature-card" data-page="add">
-                <h3>Ajouter Navire</h3>
+                <h3>Ajout de données AIS</h3>
                 <p>
-                  Enregistrez de nouveaux points de données AIS dans la base
+                  Enregistrez de nouveaux points de données AIS et navires dans la base
                 </p>
               </div>
               <div class="feature-card" data-page="visualize">
                 <h3>Visualiser</h3>
                 <p>Consultez les navires en tableau et sur carte interactive</p>
               </div>
-              <div class="feature-card" data-page="clusters">
-                <h3>Clusters</h3>
-                <p>Analyse des comportements de navigation similaires</p>
-              </div>
-              <div class="feature-card" data-page="predict">
-                <h3>Prédictions IA</h3>
-                <p>Prédiction du type et de la trajectoire des navires</p>
-              </div>
+              <!-- <div class="feature-card" data-page="clusters"> -->
+              <!--   <h3>Clusters</h3> -->
+              <!--   <p>Analyse des comportements de navigation similaires</p> -->
+              <!-- </div> -->
+              <!-- <div class="feature-card" data-page="predict"> -->
+              <!--   <h3>Prédictions IA</h3> -->
+              <!--   <p>Prédiction du type et de la trajectoire des navires</p> -->
+              <!-- </div> -->
             </div>
 
             <div class="cta-section">
@@ -151,10 +146,10 @@
       <div class="page-container">
         <div class="mode-selector">
           <button id="vessel-mode-btn" class="mode-btn active" data-mode="vessel">
-            Ajouter un Navire
+            Navire
           </button>
           <button id="point-mode-btn" class="mode-btn" data-mode="point">
-            Ajouter un Point de Données
+            Point de données
           </button>
         </div>
 
@@ -493,15 +488,8 @@
           <button class="btn-secondary" onclick="refreshVisualization()">
             Actualiser
           </button>
-          <button class="btn-primary" onclick="predictClusters()">
-            Prédire les clusters
-          </button>
-          <button class="btn-primary" onclick="predictSelected('type')">
-            Prédire le type
-          </button>
-          <button class="btn-primary" onclick="predictSelected('trajectory')">
-            Prédire la trajectoire
-          </button>
+          <a href="#" class="nav-link" data-page="clusters">Prédire les clusters</a>
+          <a href="#" class="nav-link active" data-page="predict">Prédire trajectoire/type</a>
           <button class="btn-secondary" onclick="exportData()">
             Exporter données
           </button>
@@ -536,6 +524,5 @@
     </footer>
 
     <script src="js/script.js"></script>
-    <script src="./js/map.js"></script>
   </body>
 </html>
