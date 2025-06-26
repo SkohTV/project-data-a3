@@ -80,7 +80,7 @@ function add_lines(map, data) {
         'type': 'line',
         'source': id,
         'layout': { 'line-join': 'round', 'line-cap': 'round' },
-        'paint': { 'line-color': a, 'line-width': 1 }
+        'paint': { 'line-color': a, 'line-width': 2 }
       });
 
       // https://maplibre.org/maplibre-gl-js/docs/examples/popup-on-hover/
@@ -161,7 +161,7 @@ function predict_trajectoire_vesseltype() {
     ajaxRequest("GET", `php/requests.php/predict_boat_trajectory?${params}`, (r) => {
       predicted_trajectory = r.map((x) => [JSON.parse(x).LON[0], JSON.parse(x).LAT[0]])
       // ajaxRequest("GET", `php/requests.php/fetch_boat_picture?mmsi=${mmsi}`, (r) => {
-      let popup_txt = generate_popup_txt(mmsi, vessel_name, length, width)
+      let popup_txt = generate_popup_txt(mmsi, vessel_name, last['length'], last['width'])
       let c = [[popup_txt, '#C00', predicted_trajectory]]
 
       map_predict = generate_map('predict')
