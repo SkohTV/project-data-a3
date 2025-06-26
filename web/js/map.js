@@ -62,21 +62,13 @@ function add_lines(map, data) {
   let color = '#F00'
 
   map.on('load', () => {
-    console.log('hi')
-    console.log({
-      'type': 'geojson',
-      'data': {
-        'type': 'FeatureCollection',
-        'features': [...all.values()]
-      }
-    })
 
     // Add the line
     map.addSource(id, {
       'type': 'geojson',
       'data': {
         'type': 'FeatureCollection',
-        'features': all.values()
+        'features': [...all.values()]
       }
     });
 
