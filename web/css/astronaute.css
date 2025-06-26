@@ -14,23 +14,10 @@
 }
 
 @keyframes orbitAndSpin {
-  0% {
-    transform: translate(-50%, -50%) rotate(0deg) translateX(450px) rotate(0deg);
-  }
-  25% {
-    transform: translate(-50%, -50%) rotate(90deg) translateX(450px)
-      rotate(450deg);
-  }
-  50% {
-    transform: translate(-50%, -50%) rotate(180deg) translateX(450px)
-      rotate(900deg);
-  }
-  75% {
-    transform: translate(-50%, -50%) rotate(270deg) translateX(450px)
-      rotate(1350deg);
-  }
-  100% {
-    transform: translate(-50%, -50%) rotate(360deg) translateX(450px)
-      rotate(1800deg);
-  }
+    0% {
+        transform: translate(-50%, -50%) rotate(0deg) translateX(200px) rotate(0deg);
+    }
+    100% {
+        transform: translate(-50%, -50%) rotate(360deg) translateX(200px) rotate(-360deg);
+    }
 }
