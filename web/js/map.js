@@ -93,37 +93,54 @@ function predict_trajectoire_vesseltype() {
   let mmsi = document.querySelector('#vessels-table input[type="radio"]:checked').dataset['mmsi']
 
   const params = new URLSearchParams({
+    longueur_min: document.getElementById("filter-longueur-min").value,
+    longueur_max: document.getElementById("filter-longueur-max").value,
+    largeur_min: document.getElementById("filter-largeur-min").value,
+    largeur_max: document.getElementById("filter-largeur-max").value,
     mmsi: mmsi
   });
 
   ajaxRequest('GET', `php/requests.php/all_points_donnee?${params}`, (r) => {
-    console.log('mmsi') 
-    console.log(r)
+    let last = {}
+
+    const tr = r.reduce((acc, { mmsi, vessel_name, length, width, latitude, longitude, sog, cog, heading }) => {
+      if (!acc[mmsi])
+        acc[mmsi] = { mmsi, vessel_name, length, width, color: '#F00', vals: [] };
+      acc[mmsi].vals.push([longitude, latitude]);
+      last = {latitude: latitude, longitude: longitude, sog: sog, cog: cog, heading: heading}
+      return acc;
+    }, {});
+
+    const val_array = Object.values(tr);
+    const pre_c = val_array.map(x => Object.values(x));
+    const c1 = pre_c.map(x => [generate_popup_txt(x[0], x[1], x[2], x[3]), x[4], x[5]]);
+
+    const params = new URLSearchParams({
+      latitude: last['latitude'],
+      longitude: last['longitude'],
+      sog: last['sog'],
+      cog: last['cog'],
+      heading: last['heading'],
+      vesseltype: DEFAULT_PREDICT_VESSEL_TYPE,
+      steps: 1000,
+    })
+
+    let predicted_trajectory = null;
+
+    ajaxRequest("GET", `php/requests.php/predict_boat_trajectory?${params}`, (r) => {
+      predicted_trajectory = r.map((x) => [JSON.parse(x).LON[0], JSON.parse(x).LAT[0]])
+      // ajaxRequest("GET", `php/requests.php/fetch_boat_picture?mmsi=${mmsi}`, (r) => {
+      let popup_txt = generate_popup_txt(mmsi, vessel_name, length, width)
+      let c = [[popup_txt, '#0F0', predicted_trajectory]]
+
+      map_predict = generate_map('predict')
+      add_lines(map_predict, c1)
+      add_lines(map_predict, c)
+      // })
+    });
   })
 
-  // const params = new URLSearchParams({
-  //   latitude: row[2],
-  //   longitude: row[3],
-  //   sog: row[4],
-  //   cog: row[5],
-  //   heading: row[6],
-  //   vesseltype: DEFAULT_PREDICT_VESSEL_TYPE,
-  //   steps: 1000,
-  // })
 
-  // let predicted_trajectory = null;
-  //
-  // ajaxRequest("GET", `php/requests.php/predict_boat_trajectory?${params}`, (r) => {
-  //   predicted_trajectory = r.map((x) => [JSON.parse(x).LON[0], JSON.parse(x).LAT[0]])
-  //
-  //
-  //   ajaxRequest("GET", `php/requests.php/fetch_boat_picture?mmsi=${mmsi}`, (r) => {
-  //     let popup_txt = `<div><h1>${name}</h1><image class='boat-pic' src=${r}></div>`
-  //     let c = [[popup_txt, '#F00', predicted_trajectory]]
-  //     map_predict = generate_map('predict')
-  //     add_lines(map_predict, c)
-  //   })
-  // });
 }
 
 function generate_popup_txt(mmsi, name, length, width) {
