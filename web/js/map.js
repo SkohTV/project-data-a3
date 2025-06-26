@@ -22,6 +22,7 @@ function generate_map(id) {
   return new maplibregl.Map({
     container: container,
     style: 'https://demotiles.maplibre.org/style.json',
+    style: 'http://etu0623.projets.isen-ouest.info//style.json',
     center: [-88, 25],
     zoom: 4
   });
