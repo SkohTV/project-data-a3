@@ -164,6 +164,10 @@ function navigateToPage(pageId) {
       }
     });
   }
+
+  if (pageId == 'predict') {
+      console.log('hii')
+  }
 }
 
 function setupParallaxEffect() {

@@ -90,8 +90,8 @@ function add_lines(map, data) {
 
 function predict_trajectoire_vesseltype(row) {
   DEFAULT_PREDICT_VESSEL_TYPE = 80;
-  let mmsi = row[0]
-  let name = row[1]
+  let mmsi = document.querySelector('#vessels-table input[type="radio"]:checked').dataset['mmsi']
+  let name = 'unnamed'
 
   const params = new URLSearchParams({
     latitude: row[2],
@@ -126,7 +126,3 @@ function generate_popup_txt(mmsi, name, length, width) {
     <p>${length}m X ${width}m</p>
   </div>`
 }
-
-
-DEFAULT_PREDICT = [209016000, 'TORRENT', 24.522600, -83.732800, 12.2, 113.1, 115];
-// predict_trajectoire_vesseltype(DEFAULT_PREDICT)
