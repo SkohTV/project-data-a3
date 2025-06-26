@@ -302,7 +302,7 @@ function loadtab() {
       if (!acc[mmsi])
         acc[mmsi] = { mmsi, color: '#F00', vals: [] };
 
-      acc[mmsi].vals.push([latitude, longitude]);
+      acc[mmsi].vals.push([longitude, latitude]);
       return acc;
 
     }, {});
