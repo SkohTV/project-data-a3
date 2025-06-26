@@ -6,7 +6,7 @@
   background-size: contain;
   background-repeat: no-repeat;
   z-index: 20;
-  left: 50%;
+  left: 53%;
   top: 50%;
   animation: orbitAndSpin 30s linear infinite;
   pointer-events: none;
