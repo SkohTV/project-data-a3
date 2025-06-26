@@ -46,87 +46,75 @@ function generate_line(popup_msg, coords) {
 // ]
 function add_lines(map, data) {
 
-  let all = new Map()
+  let all = {}
 
   for (let i in data) {
 
     let popup_msg = data[i][0]
-    // let color = data[i][1]
+    let color = data[i][1]
     let coords = data[i][2]
     let id = String(uuidv4())
 
-    all.set(id, generate_line(popup_msg, coords))
+    all[color][id] = generate_line(popup_msg, coords)
+    console.log(all)
   }
 
   let id = String(uuidv4())
   let color = '#F00'
 
-  map.on('load', () => {
+  for (let a in all) {
 
-    // Add the line
-    map.addSource(id, {
-      'type': 'geojson',
-      'data': {
-        'type': 'FeatureCollection',
-        'features': [...all.values()]
-      }
-    });
+    map.on('load', () => {
 
-    // Style the line
-    map.addLayer({
-      'id': id,
-      'type': 'line',
-      'source': id,
-      'layout': { 'line-join': 'round', 'line-cap': 'round' },
-      'paint': { 'line-color': color, 'line-width': 1 }
-    });
-
-    // Marker with popup
-    // const popup = new maplibregl.Popup({offset: 25}).setHTML(popup_msg);
-    // new maplibregl.Marker()
-    //   .setOpacity(0.5)
-    //   .setLngLat(coords[0])
-    //   .setPopup(popup)
-    //   .addTo(map);
-
-    // https://maplibre.org/maplibre-gl-js/docs/examples/popup-on-click/
-    // map.on('click', id, (e) => {
-    //   new maplibregl.Popup()
-    //     .setLngLat(e.lngLat)
-    //     .setHTML(e.features[0].properties.description)
-    //     .addTo(map);
-    // });
-    // map.on('mouseenter', id, () => map.getCanvas().style.cursor = 'pointer' );
-    // map.on('mouseleave', id, () => map.getCanvas().style.cursor = '' );
-
-    // https://maplibre.org/maplibre-gl-js/docs/examples/popup-on-hover/
-    let currentFeatureCoordinates = undefined;
-    map.on('mousemove', 'places', (e) => {
-        const featureCoordinates = e.features[0].geometry.coordinates.toString();
-        if (currentFeatureCoordinates !== featureCoordinates) {
-            currentFeatureCoordinates = featureCoordinates;
-
-            map.getCanvas().style.cursor = 'pointer';
-
-            const coordinates = e.features[0].geometry.coordinates.slice();
-            const description = e.features[0].properties.description;
-
-            while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
-                coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
-            }
-
-            popup.setLngLat(coordinates).setHTML(description).addTo(map);
+      // Add the line
+      map.addSource(id, {
+        'type': 'geojson',
+        'data': {
+          'type': 'FeatureCollection',
+          'features': Object.values(all[a])
         }
+      });
+
+      // Style the line
+      map.addLayer({
+        'id': id,
+        'type': 'line',
+        'source': id,
+        'layout': { 'line-join': 'round', 'line-cap': 'round' },
+        'paint': { 'line-color': a, 'line-width': 1 }
+      });
+
+      // https://maplibre.org/maplibre-gl-js/docs/examples/popup-on-hover/
+      const popup = new maplibregl.Popup({
+        closeButton: false,
+        closeOnClick: false
+      });
+
+      let currentFeatureCoordinates = undefined;
+      map.on('mousemove', 'places', (e) => {
+          const featureCoordinates = e.features[0].geometry.coordinates.toString();
+          if (currentFeatureCoordinates !== featureCoordinates) {
+              currentFeatureCoordinates = featureCoordinates;
+
+              map.getCanvas().style.cursor = 'pointer';
+              const description = e.features[0].properties.description;
+
+              popup
+                .setLngLat(e.lngLat)
+                .setHTML(description)
+                .addTo(map);
+          }
+      });
+
+      map.on('mouseleave', 'places', () => {
+          currentFeatureCoordinates = undefined;
+          map.getCanvas().style.cursor = '';
+          popup.remove();
+      });
+
     });
 
-    map.on('mouseleave', 'places', () => {
-        currentFeatureCoordinates = undefined;
-        map.getCanvas().style.cursor = '';
-        popup.remove();
-    });
-
-
-  });
+  }
 }
 
 
