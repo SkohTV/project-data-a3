@@ -55,14 +55,13 @@ function add_lines(map, data) {
     let coords = data[i][2]
     let id = String(uuidv4())
 
+    if (! (color in all)) all[color] = {}
     all[color][id] = generate_line(popup_msg, coords)
-    console.log(all)
   }
 
-  let id = String(uuidv4())
-  let color = '#F00'
 
   for (let a in all) {
+    let id = String(uuidv4())
 
     map.on('load', () => {
 
@@ -91,7 +90,7 @@ function add_lines(map, data) {
       });
 
       let currentFeatureCoordinates = undefined;
-      map.on('mousemove', 'places', (e) => {
+      map.on('mousemove', id, (e) => {
           const featureCoordinates = e.features[0].geometry.coordinates.toString();
           if (currentFeatureCoordinates !== featureCoordinates) {
               currentFeatureCoordinates = featureCoordinates;
@@ -106,7 +105,7 @@ function add_lines(map, data) {
           }
       });
 
-      map.on('mouseleave', 'places', () => {
+      map.on('mouseleave', id, () => {
           currentFeatureCoordinates = undefined;
           map.getCanvas().style.cursor = '';
           popup.remove();
