@@ -400,14 +400,14 @@ function setupEventListeners() {
     loadtab();
   };
 
-  let timeout;
-  document.getElementById("filter-mmsi").oninput = () => {
-    clearTimeout(timeout);
-    timeout = setTimeout(() => {
-      currentPagination = 1;
-      loadtab();
-    }, 500);
-  };
+//   let timeout;
+//   document.getElementById("filter-mmsi").oninput = () => {
+//     clearTimeout(timeout);
+//     timeout = setTimeout(() => {
+//       currentPagination = 1;
+//       loadtab();
+//     }, 500);
+//   };
 }
 
 function resetFilters() {
