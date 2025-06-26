@@ -29,71 +29,11 @@ function generate_map(id) {
 
 
 
-function generate_point(popup_msg, coords) {
-  return {
-    'type': 'Feature',
-    'properties': { 'description': popup_msg },
-    'geometry': { 'type': 'Point', 'coordinates': coords }
-  }
-}
-
 function generate_line(popup_msg, coords) {
   return {
     'type': 'Feature',
     'properties': { 'description': popup_msg },
     'geometry': { 'type': 'LineString', 'coordinates': coords }
-  }
-}
-
-// Data format:
-// [
-//   [popup_msg, color, [[LAT1, LON1], [LAT2, LON2], ...]],
-//   [popup_msg, color, [[LAT1, LON1], [LAT2, LON2], ...]],
-//   [popup_msg, color, [[LAT1, LON1], [LAT2, LON2], ...]],
-// ]
-function add_points(map, data) {
-
-  for (let i in data) {
-
-    let popup_msg = data[i][0]
-    let coords = data[i][2]
-    let colors = data[i][1]
-
-    for (let j in coords) {
-
-      map.on('load', () => {
-        let id = String(uuidv4())
-
-        // Add the line
-        map.addSource(id, {
-          'type': 'geojson',
-          'data': generate_point(popup_msg, coords[j])
-        });
-
-        // Style the line
-        map.addLayer({
-          'id': id,
-          'type': 'circle',
-          'source': id,
-          'paint': {
-            'circle-radius': 2,
-            'circle-color': colors[j]
-          }
-        });
-
-        https://maplibre.org/maplibre-gl-js/docs/examples/popup-on-click/
-        map.on('click', id, (e) => {
-          new maplibregl.Popup()
-            .setLngLat(e.lngLat)
-            .setHTML(e.features[0].properties.description)
-            .addTo(map);
-        });
-        map.on('mouseenter', id_, () => map.getCanvas().style.cursor = 'pointer' );
-        map.on('mouseleave', id_, () => map.getCanvas().style.cursor = '' );
-
-      });
-
-    }
   }
 }
 
@@ -137,6 +77,17 @@ function add_lines(map, data) {
         .setLngLat(coords[0])
         .setPopup(popup)
         .addTo(map);
+
+
+      // https://maplibre.org/maplibre-gl-js/docs/examples/popup-on-click/
+      // map.on('click', `id_${i}`, (e) => {
+      //   new maplibregl.Popup()
+      //     .setLngLat(e.lngLat)
+      //     .setHTML(e.features[0].properties.description)
+      //     .addTo(map);
+      // });
+      // map.on('mouseenter', `id_${i}`, () => map.getCanvas().style.cursor = 'pointer' );
+      // map.on('mouseleave', `id_${i}`, () => map.getCanvas().style.cursor = '' );
 
     });
 
@@ -266,13 +217,12 @@ function predict_clusters() {
 
   ajaxRequest('GET', `php/requests.php/all_points_donnee?${params}`, (r) => {
 
-    const tr = r.reduce((acc, { mmsi, vessel_name, length, width, latitude, longitude, id_cluster }) => {
+    const tr = r.reduce((acc, { mmsi, vessel_name, length, width, latitude, longitude, cluster }) => {
 
       if (!acc[mmsi])
-        acc[mmsi] = { mmsi, vessel_name, length, width, colors: [], vals: [] };
+        acc[mmsi] = { mmsi, vessel_name, length, width, color: colors[cluster], vals: [] };
 
       acc[mmsi].vals.push([longitude, latitude]);
-      acc[mmsi].colors.push(colors[Number(id_cluster)+1]);
       return acc;
 
     }, {});
@@ -282,6 +232,6 @@ function predict_clusters() {
     const c = pre_c.map(x => [generate_popup_txt(x[0], x[1], x[2], x[3]), x[4], x[5]]);
 
     map_clusters = generate_map('clusters')
-    add_points(map_clusters, c)
+    add_lines(map_clusters, c)
   })
 }
