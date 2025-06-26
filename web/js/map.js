@@ -3,6 +3,7 @@ let map_visu = null;
 let map_clusters = null;
 let map_predict = null;
 
+// https://stackoverflow.com/a/2117523
 function uuidv4() {
   return "10000000-1000-4000-8000-100000000000".replace(/[018]/g, c =>
     (+c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> +c / 4).toString(16)
@@ -111,7 +112,7 @@ function predict_trajectoire_vesseltype() {
 
     const tr = r.reduce((acc, { mmsi, vessel_name, length, width, latitude, longitude, sog, cog, heading }) => {
       if (!acc[mmsi])
-        acc[mmsi] = { mmsi, vessel_name, length, width, color: '#F00', vals: [] };
+        acc[mmsi] = { mmsi, vessel_name, length, width, color: '#0A0', vals: [] };
       acc[mmsi].vals.push([longitude, latitude]);
       last = {latitude: latitude, longitude: longitude, sog: sog, cog: cog, heading: heading, vessel_name: vessel_name}
       return acc;
@@ -138,7 +139,7 @@ function predict_trajectoire_vesseltype() {
       predicted_trajectory = r.map((x) => [JSON.parse(x).LON[0], JSON.parse(x).LAT[0]])
       // ajaxRequest("GET", `php/requests.php/fetch_boat_picture?mmsi=${mmsi}`, (r) => {
       let popup_txt = generate_popup_txt(mmsi, vessel_name, length, width)
-      let c = [[popup_txt, '#0F0', predicted_trajectory]]
+      let c = [[popup_txt, '#C00', predicted_trajectory]]
 
       map_predict = generate_map('predict')
       add_lines(map_predict, c1)
