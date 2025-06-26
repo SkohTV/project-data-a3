@@ -111,7 +111,11 @@
 
   if ($requestRessource == 'all_mmsi') {
     if ($requestMethod == 'GET') {
-      $result = dbRequestAllMMSI($db);
+
+      $mmsi = $_GET['mmsi'] ?? null;
+
+
+      $result = dbRequestAllMMSI($db, $mmsi);
       if ($result === false) {
         header('HTTP/1.1 500 Internal Server Error');
         exit;

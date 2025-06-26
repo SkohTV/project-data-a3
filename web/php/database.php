@@ -313,12 +313,21 @@
   //----------------------------------------------------------------------------
   // Request the list of all MMSI from the database.
   // \param db The connected database.
-  function dbRequestAllMMSI($db)
+  function dbRequestAllMMSI($db, $mmsi)
   {
     try
     {
-      $request = 'SELECT mmsi FROM vessel ORDER BY mmsi';
-      $statement = $db->prepare($request);
+
+      if ($mmsi !== null && $mmsi !== '') {
+        $request = 'SELECT mmsi FROM vessel WHERE mmsi LIKE :mmsi ORDER BY mmsi LIMIT 10';
+        $statement = $db->prepare($request);
+        $statement->bindValue(':mmsi', '%'.$mmsi.'%');
+      } else {
+        
+        $request = 'SELECT mmsi FROM vessel ORDER BY mmsi';
+        $statement = $db->prepare($request);
+      }
+
       $statement->execute();
       $result = $statement->fetchAll(PDO::FETCH_ASSOC);
     }
