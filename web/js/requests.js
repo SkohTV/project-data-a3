@@ -134,9 +134,9 @@ document.addEventListener("DOMContentLoaded", function () {
       pointSection.classList.add("active");
     }
 
-    vesselFormMessage.style.display = "none";
+    // vesselFormMessage.style.display = "none";
     pointFormMessage.style.display = "none";
-    vesselFormMessage.className = "form-message";
+    // vesselFormMessage.className = "form-message";
     pointFormMessage.className = "form-message";
   }
 
