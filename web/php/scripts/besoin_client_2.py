@@ -12,6 +12,8 @@ import warnings
 import argparse
 import sys
 import pickle
+import os
+from datetime import datetime
 
 warnings.filterwarnings('ignore')
 
@@ -19,7 +21,13 @@ warnings.filterwarnings('ignore')
 TUTOS POUR LA PRÉDICTION DU TYPE DE NAVIRE :
 -> python vessel_prediction.py --train --evaluate --data ton_fichier.csv
 -> python vessel_prediction.py --predict --mmsi 123456789 --data ton_fichier.csv
--> python vessel_prediction.py --predict --features "12.34,56.78,90.12,34.56,78.90" --data ton_fichier.csv
+-> python vessel_prediction.py --predict --features "12.5,45.2,180,50,15,3.5,5,A" --data ton_fichier.csv
+
+Format des features brutes pour --predict --features :
+SOG,COG,Heading,Length,Width,Draft,Status,TransceiverClass
+Exemple: "12.5,45.2,180,50,15,3.5,5,A"
+Status: entier entre 0 et 15
+TransceiverClass: 'A' ou 'B'
 """
 
 RANDOM_STATE = 42
@@ -30,6 +38,9 @@ class VesselTypePredictor:
         self.label_encoders = {} 
         self.models = {}
         self.best_models = {}
+        self.feature_names = []
+        self.feature_info = {}
+        self.raw_feature_names = ['SOG', 'COG', 'Heading', 'Length', 'Width', 'Draft', 'Status', 'TransceiverClass']
         
     def load_and_prepare_data(self, file_path):
         """
@@ -37,6 +48,9 @@ class VesselTypePredictor:
         file_path: CHEMIN VERS LE FICHIER CSV DONT LES DONNÉES SERONT CHARGÉES
         """
         print("-> CHARGEMENT DES DONNÉES...")
+        
+        if not os.path.exists(file_path):
+            raise FileNotFoundError(f"Le fichier {file_path} n'existe pas")
         
         df = pd.read_csv(file_path)
         
@@ -56,6 +70,131 @@ class VesselTypePredictor:
         
         return df
     
+    def validate_raw_features(self, raw_features):
+        """
+        VALIDER LES FEATURES BRUTES SELON LES NOUVEAUX CRITÈRES
+        """
+        if len(raw_features) != 8:
+            raise ValueError(f"Attendu 8 features, reçu {len(raw_features)}")
+        
+        sog, cog, heading, length, width, draft, status, transceiver_class = raw_features
+        
+        # Validation du Status (doit être un entier entre 0 et 15)
+        try:
+            status_int = int(status)
+            if not (0 <= status_int <= 15):
+                raise ValueError(f"Status doit être un entier entre 0 et 15, reçu: {status}")
+        except ValueError as e:
+            if "invalid literal" in str(e):
+                raise ValueError(f"Status doit être un entier, reçu: {status}")
+            else:
+                raise e
+        
+        # Validation du TransceiverClass (doit être 'A' ou 'B')
+        if str(transceiver_class).upper() not in ['A', 'B']:
+            raise ValueError(f"TransceiverClass doit être 'A' ou 'B', reçu: {transceiver_class}")
+        
+        # Validation des features numériques
+        numeric_features = [sog, cog, heading, length, width, draft]
+        for i, feature in enumerate(numeric_features):
+            try:
+                float(feature)
+            except ValueError:
+                feature_names = ['SOG', 'COG', 'Heading', 'Length', 'Width', 'Draft']
+                raise ValueError(f"{feature_names[i]} doit être un nombre, reçu: {feature}")
+        
+        return True
+    
+    def process_raw_features_to_engineered(self, raw_features):
+        """
+        CONVERTIR DES FEATURES BRUTES EN FEATURES ENGINEERÉES
+        raw_features: liste des valeurs brutes [SOG, COG, Heading, Length, Width, Draft, Status, TransceiverClass]
+        """
+        print("-> CONVERSION DES FEATURES BRUTES EN FEATURES ENGINEERÉES...")
+        
+        # Validation des features
+        self.validate_raw_features(raw_features)
+        
+        # Mapping des features brutes
+        sog, cog, heading, length, width, draft, status, transceiver_class = raw_features
+        
+        # Créer un dictionnaire pour les features
+        engineered = {}
+        
+        # Features numériques directes
+        engineered['SOG'] = float(sog) if sog != '' else 0.0
+        engineered['COG'] = float(cog) if cog != '' else 0.0
+        engineered['Heading'] = float(heading) if heading != '' else 0.0
+        engineered['Length'] = float(length) if length != '' else 0.0
+        engineered['Width'] = float(width) if width != '' else 0.0
+        engineered['Draft'] = float(draft) if draft != '' else 0.0
+        
+        # Features temporelles (valeurs par défaut car on n'a pas de BaseDateTime)
+        engineered['Hour'] = 12  # Midi par défaut
+        engineered['DayOfWeek'] = 1  # Lundi par défaut  
+        engineered['Month'] = 6  # Juin par défaut
+        
+        # Zones géographiques (valeurs par défaut car on n'a pas LAT/LON)
+        engineered['LAT_Zone'] = 5  # Zone centrale
+        engineered['LON_Zone'] = 5  # Zone centrale
+        
+        # Ratio longueur/largeur
+        if engineered['Width'] > 0 and engineered['Length'] > 0:
+            engineered['Length_Width_Ratio'] = engineered['Length'] / engineered['Width']
+        else:
+            engineered['Length_Width_Ratio'] = 0.0
+        
+        # Catégorie de vitesse
+        speed_category = 'Unknown'
+        if engineered['SOG'] == 0:
+            speed_category = 'Stationary'
+        elif 0 < engineered['SOG'] <= 5:
+            speed_category = 'Slow'
+        elif 5 < engineered['SOG'] <= 15:
+            speed_category = 'Medium'
+        elif engineered['SOG'] > 15:
+            speed_category = 'Fast'
+        
+        # Catégorie de taille
+        size_category = 'Unknown'
+        if 0 < engineered['Length'] <= 50:
+            size_category = 'Small'
+        elif 50 < engineered['Length'] <= 100:
+            size_category = 'Medium'
+        elif 100 < engineered['Length'] <= 200:
+            size_category = 'Large'
+        elif engineered['Length'] > 200:
+            size_category = 'Very_Large'
+        
+        # Normalisation des valeurs d'entrée
+        status_int = int(status)  # Déjà validé dans validate_raw_features
+        transceiver_normalized = str(transceiver_class).upper()  # 'A' ou 'B'
+        
+        # Encodage des features catégorielles
+        categorical_features = {
+            'Speed_Category': speed_category,
+            'Size_Category': size_category,
+            'Status': str(status_int),  # Convertir en string pour l'encodage
+            'TransceiverClass': transceiver_normalized
+        }
+        
+        for feature, value in categorical_features.items():
+            if feature in self.label_encoders:
+                try:
+                    # Essayer d'encoder avec les classes connues
+                    encoded_value = self.label_encoders[feature].transform([value])[0]
+                except ValueError:
+                    # Si la valeur n'est pas connue, utiliser la classe la plus fréquente (0)
+                    print(f"-> WARNING: Valeur '{value}' inconnue pour {feature}, utilisation de la valeur par défaut")
+                    encoded_value = 0
+            else:
+                # Si l'encodeur n'existe pas, utiliser 0
+                encoded_value = 0
+            
+            engineered[feature + '_encoded'] = encoded_value
+        
+        return engineered
+    
     def feature_engineering(self, df):
         """
         CRÉER DES FEATURES À PARTIR DU DATAFRAME
@@ -65,11 +204,17 @@ class VesselTypePredictor:
         
         df_processed = df.copy()
 
-        df_processed['BaseDateTime'] = pd.to_datetime(df_processed['BaseDateTime'])
-        
-        df_processed['Hour'] = df_processed['BaseDateTime'].dt.hour
-        df_processed['DayOfWeek'] = df_processed['BaseDateTime'].dt.dayofweek
-        df_processed['Month'] = df_processed['BaseDateTime'].dt.month
+        # Traitement des dates
+        if 'BaseDateTime' in df_processed.columns:
+            df_processed['BaseDateTime'] = pd.to_datetime(df_processed['BaseDateTime'], errors='coerce')
+            df_processed['Hour'] = df_processed['BaseDateTime'].dt.hour
+            df_processed['DayOfWeek'] = df_processed['BaseDateTime'].dt.dayofweek
+            df_processed['Month'] = df_processed['BaseDateTime'].dt.month
+        else:
+            print("WARNING: Colonne 'BaseDateTime' manquante")
+            df_processed['Hour'] = 12
+            df_processed['DayOfWeek'] = 1
+            df_processed['Month'] = 6
         
         numeric_base_features = ['SOG', 'COG', 'Heading', 'Length', 'Width', 'Draft']
         
@@ -78,32 +223,62 @@ class VesselTypePredictor:
                 df_processed[col] = pd.to_numeric(df_processed[col], errors='coerce')
                 print(f"Colonne {col}: {df_processed[col].dtype}, NaN: {df_processed[col].isna().sum()}")
         
-        if 'SOG' in df_processed.columns and df_processed['SOG'].dtype in ['float64', 'int64']:
-            df_processed['Speed_Category'] = pd.cut(df_processed['SOG'], bins=[-1, 0, 5, 15, float('inf')], labels=['Stationary', 'Slow', 'Medium', 'Fast'])
+        # Catégories de vitesse
+        if 'SOG' in df_processed.columns:
+            df_processed['Speed_Category'] = pd.cut(df_processed['SOG'], 
+                                                  bins=[-1, 0, 5, 15, float('inf')], 
+                                                  labels=['Stationary', 'Slow', 'Medium', 'Fast'])
         else:
             df_processed['Speed_Category'] = 'Unknown'
         
+        # Zones géographiques
         if 'LAT' in df_processed.columns and 'LON' in df_processed.columns:
             df_processed['LAT'] = pd.to_numeric(df_processed['LAT'], errors='coerce')
             df_processed['LON'] = pd.to_numeric(df_processed['LON'], errors='coerce')
             df_processed['LAT_Zone'] = pd.cut(df_processed['LAT'], bins=10, labels=False)
             df_processed['LON_Zone'] = pd.cut(df_processed['LON'], bins=10, labels=False)
         else:
-            df_processed['LAT_Zone'] = 0
-            df_processed['LON_Zone'] = 0
+            df_processed['LAT_Zone'] = 5
+            df_processed['LON_Zone'] = 5
         
-        if 'Length' in df_processed.columns and df_processed['Length'].dtype in ['float64', 'int64']:
-            df_processed['Size_Category'] = pd.cut(df_processed['Length'], bins=[0, 50, 100, 200, float('inf')], labels=['Small', 'Medium', 'Large', 'Very_Large'])
+        # Catégories de taille
+        if 'Length' in df_processed.columns:
+            df_processed['Size_Category'] = pd.cut(df_processed['Length'], 
+                                                 bins=[0, 50, 100, 200, float('inf')], 
+                                                 labels=['Small', 'Medium', 'Large', 'Very_Large'])
         else:
             df_processed['Size_Category'] = 'Unknown'
         
-        if ('Length' in df_processed.columns and 'Width' in df_processed.columns and
-            df_processed['Length'].dtype in ['float64', 'int64'] and 
-            df_processed['Width'].dtype in ['float64', 'int64']):
-            df_processed['Length_Width_Ratio'] = np.where((df_processed['Width'] > 0) & (df_processed['Length'].notna()) & (df_processed['Width'].notna()), df_processed['Length'] / df_processed['Width'], 0)
+        # Ratio longueur/largeur
+        if ('Length' in df_processed.columns and 'Width' in df_processed.columns):
+            df_processed['Length_Width_Ratio'] = np.where(
+                (df_processed['Width'] > 0) & (df_processed['Length'].notna()) & (df_processed['Width'].notna()), 
+                df_processed['Length'] / df_processed['Width'], 
+                0
+            )
         else:
             df_processed['Length_Width_Ratio'] = 0
         
+        # Normalisation des données catégorielles pour l'entraînement
+        if 'Status' in df_processed.columns:
+            # Conversion du Status en entier si possible, sinon utiliser une valeur par défaut
+            df_processed['Status'] = pd.to_numeric(df_processed['Status'], errors='coerce')
+            df_processed['Status'] = df_processed['Status'].fillna(0).astype(int)
+            # Clipper les valeurs entre 0 et 15
+            df_processed['Status'] = np.clip(df_processed['Status'], 0, 15)
+            df_processed['Status'] = df_processed['Status'].astype(str)  # Convertir en string pour l'encodage
+        
+        if 'TransceiverClass' in df_processed.columns:
+            # Normaliser TransceiverClass en 'A' ou 'B'
+            df_processed['TransceiverClass'] = df_processed['TransceiverClass'].astype(str)
+            df_processed['TransceiverClass'] = df_processed['TransceiverClass'].str.upper()
+            # Remplacer les valeurs non-valides par 'A' par défaut
+            valid_classes = ['A', 'B']
+            df_processed['TransceiverClass'] = df_processed['TransceiverClass'].apply(
+                lambda x: x if x in valid_classes else 'A'
+            )
+        
+        # Encodage des features catégorielles
         categorical_features = ['Speed_Category', 'Size_Category', 'Status', 'TransceiverClass']
         
         for feature in categorical_features:
@@ -113,12 +288,15 @@ class VesselTypePredictor:
                 if feature not in self.label_encoders:
                     self.label_encoders[feature] = LabelEncoder()
                 
-                df_processed[feature + '_encoded'] = self.label_encoders[feature].fit_transform(df_processed[feature])
+                try:
+                    df_processed[feature + '_encoded'] = self.label_encoders[feature].fit_transform(df_processed[feature])
+                except Exception as e:
+                    print(f"Erreur lors de l'encodage de {feature}: {e}")
+                    df_processed[feature + '_encoded'] = 0
             else:
                 df_processed[feature + '_encoded'] = 0
         
-        excluded_columns = ["id", "MMSI", "BaseDateTime", "LAT", "LON", "VesselName", "IMO", "CallSign", "Cargo"]
-        
+        # Sélection des features finales
         available_numeric_features = []
         for feature in numeric_base_features:
             if (feature in df_processed.columns and 
@@ -126,17 +304,16 @@ class VesselTypePredictor:
                 available_numeric_features.append(feature)
         
         categorical_encoded_features = [f + '_encoded' for f in categorical_features]
-        
         engineered_features = ['Hour', 'DayOfWeek', 'Month', 'LAT_Zone', 'LON_Zone', 'Length_Width_Ratio']
         
         feature_columns = available_numeric_features + categorical_encoded_features + engineered_features
-                
+        
+        # Nettoyage des données
         df_processed = df_processed.dropna(subset=['VesselCategory'])
         
         for col in feature_columns:
             if col in df_processed.columns:
                 df_processed[col] = pd.to_numeric(df_processed[col], errors='coerce')
-                
                 df_processed[col] = df_processed[col].replace([np.inf, -np.inf], np.nan)
                 
                 if df_processed[col].isna().any():
@@ -152,14 +329,24 @@ class VesselTypePredictor:
             else:
                 df_processed[col] = 0
 
-        print(f"\n-> VÉRIFICATION DES FEATURES CRÉÉES...")
+        # Sauvegarde des infos features
+        self.feature_names = feature_columns
+        self.feature_info = {}
         for col in feature_columns:
-            if col in df_processed.columns:
-                print(f"  {col}: {df_processed[col].dtype}, NaN: {df_processed[col].isna().sum()}")
-                
-                # Vérifier s'il y a des valeurs non-numériques
-                if df_processed[col].dtype == 'object':
-                    print(f"    -> WARNING: {col} EST DE TYPE 'object' AVEC {df_processed[col].nunique()} VALEURS UNIQUES")
+            if col in df_processed.columns and len(df_processed[col]) > 0:
+                self.feature_info[col] = {
+                    'dtype': str(df_processed[col].dtype),
+                    'min': float(df_processed[col].min()),
+                    'max': float(df_processed[col].max()),
+                    'mean': float(df_processed[col].mean())
+                }
+            else:
+                self.feature_info[col] = {
+                    'dtype': 'float64',
+                    'min': 0.0,
+                    'max': 0.0,
+                    'mean': 0.0
+                }
         
         return df_processed, feature_columns
     
@@ -330,13 +517,19 @@ class VesselTypePredictor:
         return best_model_name
     
     def save_model(self, best_model_name, file_path='./models/best_vessel_model.pkl'):
-        """SAUVEGARDER LE MEILLEUR MODÈLE"""
+        """SAUVEGARDER LE MEILLEUR MODÈLE AVEC TOUTES LES INFORMATIONS NÉCESSAIRES"""
+        
+        # Créer le dossier models s'il n'existe pas
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
 
         model_data = {
             'model': self.best_models[best_model_name],
             'scaler': self.scaler,
             'label_encoders': self.label_encoders,
-            'model_name': best_model_name
+            'model_name': best_model_name,
+            'feature_names': self.feature_names,
+            'feature_info': self.feature_info,
+            'raw_feature_names': self.raw_feature_names
         }
         
         with open(file_path, 'wb') as f:
@@ -344,33 +537,83 @@ class VesselTypePredictor:
         
         print(f"\n-> MODÈLE SAUVEGARDÉ SOUS {file_path}")
         print(f"-> MEILLEUR MODÈLE: {best_model_name}")
+        print(f"-> FEATURES SAUVEGARDÉES: {len(self.feature_names)}")
+
+    def show_feature_info_from_model(self, model_path):
+        """AFFICHER LES INFORMATIONS SUR LES FEATURES À PARTIR DU MODÈLE SAUVEGARDÉ"""
+        print("-> ANALYSE DES FEATURES À PARTIR DU MODÈLE SAUVEGARDÉ...")
+        
+        if not self.load_model(model_path):
+            print("-> IMPOSSIBLE DE CHARGER LE MODÈLE!")
+            return None
+        
+        print(f"\n-> FORMAT DES FEATURES BRUTES POUR LA PRÉDICTION:")
+        print("Les features doivent être fournies dans l'ordre suivant:")
+        feature_descriptions = [
+            "SOG (Speed Over Ground) - nombre décimal",
+            "COG (Course Over Ground) - nombre décimal", 
+            "Heading - nombre décimal",
+            "Length - nombre décimal",
+            "Width - nombre décimal", 
+            "Draft - nombre décimal",
+            "Status - entier entre 0 et 15",
+            "TransceiverClass - 'A' ou 'B'"
+        ]
+        for i, desc in enumerate(feature_descriptions):
+            print(f"  {i+1}. {desc}")
+        
+        print(f"\n-> EXEMPLE DE COMMANDE:")
+        print("python vessel_prediction.py --predict --features \"12.5,45.2,180,50,15,3.5,5,A\"")
+        
+        print(f"\n-> FEATURES ENGINEERÉES UTILISÉES DANS LE MODÈLE ({len(self.feature_names)} features):")
+        for i, feature in enumerate(self.feature_names):
+            info = self.feature_info.get(feature, {'min': 0, 'max': 0, 'mean': 0})
+            print(f"  {i+1:2d}. {feature:25s} - Min: {info['min']:.2f}, Max: {info['max']:.2f}, Moyenne: {info['mean']:.2f}")
+        
+        return self.feature_names
 
     def show_feature_info(self, file_path):
         """AFFICHER LES INFORMATIONS SUR LES FEATURES UTILISÉES"""
         print("-> ANALYSE DES FEATURES UTILISÉES...")
         
-        df = self.load_and_prepare_data(file_path)
-        df_processed, features = self.feature_engineering(df)
-        
-        print(f"\n-> LISTE DES FEATURES ATTENDUES ({len(features)} features):")
-        for i, feature in enumerate(features):
-            if feature in df_processed.columns:
-                col_data = df_processed[feature]
-                print(f"  {i+1:2d}. {feature:20s} - Type: {col_data.dtype}, Min: {col_data.min():.2f}, Max: {col_data.max():.2f}, Moyenne: {col_data.mean():.2f}")
-            else:
-                print(f"  {i+1:2d}. {feature:20s} - FEATURE MANQUANTE (sera mise à 0)")
-        
-        print(f"\n-> EXEMPLE DE VALEURS POUR LA PRÉDICTION:")
-        sample_row = df_processed[features].iloc[0]
-        feature_values = ",".join([str(round(val, 2)) for val in sample_row.values])
-        print(f"python vessel_prediction.py --predict --features \"{feature_values}\" --data {file_path}")
+        try:
+            df = self.load_and_prepare_data(file_path)
+            df_processed, features = self.feature_engineering(df)
+            
+            print(f"\n-> FORMAT DES FEATURES BRUTES POUR LA PRÉDICTION:")
+            print("Les features doivent être fournies dans l'ordre suivant:")
+            feature_descriptions = [
+                "SOG (Speed Over Ground) - nombre décimal",
+                "COG (Course Over Ground) - nombre décimal", 
+                "Heading - nombre décimal",
+                "Length - nombre décimal",
+                "Width - nombre décimal", 
+                "Draft - nombre décimal",
+                "Status - entier entre 0 et 15",
+                "TransceiverClass - 'A' ou 'B'"
+            ]
+            for i, desc in enumerate(feature_descriptions):
+                print(f"  {i+1}. {desc}")
+            
+            print(f"\n-> EXEMPLE DE COMMANDE:")
+            print("python vessel_prediction.py --predict --features \"12.5,45.2,180,50,15,3.5,5,A\"")
+            
+            print(f"\n-> FEATURES ENGINEERÉES UTILISÉES ({len(features)} features):")
+            for i, feature in enumerate(features):
+                if feature in df_processed.columns:
+                    col_data = df_processed[feature]
+                    print(f"  {i+1:2d}. {feature:25s} - Min: {col_data.min():.2f}, Max: {col_data.max():.2f}, Moyenne: {col_data.mean():.2f}")
+                else:
+                    print(f"  {i+1:2d}. {feature:25s} - Feature non trouvée")
+                    
+        except Exception as e:
+            print(f"-> ERREUR LORS DE L'ANALYSE DES FEATURES: {e}")
+            return None
         
         return features
 
-    def load_model(self, model_path):
-        """CHARGER UN MODÈLE PRÉ-ENTRAÎNÉ"""
-        print(f"-> CHARGEMENT DU MODÈLE: {model_path}")
-        
+    def load_model(self, model_path='./models/best_vessel_model.pkl'):
+        """CHARGER UN MODÈLE SAUVEGARDÉ"""
         try:
             with open(model_path, 'rb') as f:
                 model_data = pickle.load(f)
@@ -378,125 +621,259 @@ class VesselTypePredictor:
             self.best_models = {'loaded_model': model_data['model']}
             self.scaler = model_data['scaler']
             self.label_encoders = model_data['label_encoders']
+            self.feature_names = model_data['feature_names']
+            self.feature_info = model_data['feature_info']
             
-            print(f"-> MODÈLE CHARGÉ: {model_data['model_name']}")
+            if 'raw_feature_names' in model_data:
+                self.raw_feature_names = model_data['raw_feature_names']
+            
+            print(f"-> MODÈLE CHARGÉ AVEC SUCCÈS: {model_data['model_name']}")
             return True
             
         except Exception as e:
-            print(f"-> ERREUR LORS DU CHARGEMENT: {e}")
+            print(f"-> ERREUR LORS DU CHARGEMENT DU MODÈLE: {e}")
             return False
 
-    def predict_from_features(self, feature_values, feature_names):
-        """PRÉDIRE À PARTIR D'UNE LISTE DE FEATURES"""
-        print("-> PRÉDICTION À PARTIR DES FEATURES...")
+    def predict_single(self, features, model_path='models/best_vessel_model.pkl'):
+        """PRÉDIRE LE TYPE DE NAVIRE POUR UN SEUL ÉCHANTILLON"""
+        print("-> PRÉDICTION POUR UN ÉCHANTILLON...")
         
-        if not self.best_models:
-            print("-> ERREUR: AUCUN MODÈLE CHARGÉ!")
+        if not self.load_model(model_path):
             return None
         
-        X = np.array([feature_values]).reshape(1, -1)
-        
         try:
-            X_scaled = self.scaler.transform(X)
-        except Exception as e:
-            print(f"-> ERREUR LORS DE LA NORMALISATION: {e}")
-            return None
-        
-        model = list(self.best_models.values())[0]
-        prediction = model.predict(X_scaled)[0]
-        
-        try:
-            probabilities = model.predict_proba(X_scaled)[0]
-            classes = model.classes_
+            # Conversion des features brutes en features engineerées
+            engineered_features = self.process_raw_features_to_engineered(features)
             
-            print(f"-> PRÉDICTION: {prediction}")
-            print("-> PROBABILITÉS:")
-            for cls, prob in zip(classes, probabilities):
-                print(f"   {cls}: {prob:.3f}")
-                
-        except:
-            print(f"-> PRÉDICTION: {prediction}")
+            # Créer le vecteur de features dans le bon ordre
+            feature_vector = []
+            for feature_name in self.feature_names:
+                if feature_name in engineered_features:
+                    feature_vector.append(engineered_features[feature_name])
+                else:
+                    # Utiliser la valeur par défaut si la feature n'est pas disponible
+                    default_value = self.feature_info.get(feature_name, {}).get('mean', 0.0)
+                    feature_vector.append(default_value)
+                    print(f"-> WARNING: Feature '{feature_name}' manquante, utilisation de la valeur par défaut: {default_value}")
+            
+            # Normalisation
+            feature_vector = np.array(feature_vector).reshape(1, -1)
+            feature_vector_scaled = self.scaler.transform(feature_vector)
+            
+            # Prédiction
+            model = self.best_models['loaded_model']
+            prediction = model.predict(feature_vector_scaled)[0]
+            prediction_proba = model.predict_proba(feature_vector_scaled)[0]
+            
+            # Affichage des résultats
+            print(f"\n-> RÉSULTAT DE LA PRÉDICTION:")
+            print(f"   TYPE DE NAVIRE PRÉDIT: {prediction}")
+            
+            print(f"\n-> PROBABILITÉS PAR CLASSE:")
+            for i, class_name in enumerate(model.classes_):
+                print(f"   {class_name}: {prediction_proba[i]:.4f} ({prediction_proba[i]*100:.2f}%)")
+            
+            return {
+                'prediction': prediction,
+                'probabilities': dict(zip(model.classes_, prediction_proba)),
+                'confidence': max(prediction_proba)
+            }
+            
+        except Exception as e:
+            print(f"-> ERREUR LORS DE LA PRÉDICTION: {e}")
+            return None
+
+    def predict_by_mmsi(self, mmsi, data_file):
+        """PRÉDIRE LE TYPE DE NAVIRE EN UTILISANT LES DONNÉES D'UN MMSI SPÉCIFIQUE"""
+        print(f"-> PRÉDICTION POUR LE NAVIRE MMSI: {mmsi}")
         
-        return prediction
+        try:
+            df = pd.read_csv(data_file)
+            vessel_data = df[df['MMSI'] == mmsi]
+            
+            if vessel_data.empty:
+                print(f"-> AUCUNE DONNÉE TROUVÉE POUR LE MMSI: {mmsi}")
+                return None
+            
+            # Prendre la première ligne de données pour ce navire
+            sample = vessel_data.iloc[0]
+            
+            # Extraire les features brutes
+            raw_features = []
+            for feature_name in self.raw_feature_names:
+                if feature_name in sample:
+                    raw_features.append(sample[feature_name])
+                else:
+                    print(f"-> WARNING: Feature '{feature_name}' manquante pour MMSI {mmsi}")
+                    # Valeurs par défaut
+                    if feature_name == 'Status':
+                        raw_features.append(0)
+                    elif feature_name == 'TransceiverClass':
+                        raw_features.append('A')
+                    else:
+                        raw_features.append(0.0)
+            
+            print(f"-> FEATURES EXTRAITES: {raw_features}")
+            
+            # Vérifier si on a le vrai type de navire pour comparaison
+            if 'VesselType' in sample:
+                true_vessel_type = sample['VesselType']
+                print(f"-> VRAI TYPE DE NAVIRE (VesselType): {true_vessel_type}")
+                
+                # Catégoriser le vrai type
+                if 60 <= true_vessel_type <= 69:
+                    true_category = 'Passenger'
+                elif 70 <= true_vessel_type <= 79:
+                    true_category = 'Cargo'
+                elif 80 <= true_vessel_type <= 89:
+                    true_category = 'Tanker'
+                else:
+                    true_category = 'Unknown'
+                
+                print(f"-> VRAIE CATÉGORIE: {true_category}")
+            
+            # Faire la prédiction
+            return self.predict_single(raw_features)
+            
+        except Exception as e:
+            print(f"-> ERREUR LORS DE LA PRÉDICTION PAR MMSI: {e}")
+            return None
+
 
 def main():
-    parser = argparse.ArgumentParser(description="Pipeline Machine Learning pour la Prédiction du Type de Navire")
-    parser.add_argument('--train', action='store_true', help='Entraîner le modèle')
-    parser.add_argument('--evaluate', action='store_true', help='Évaluer le modèle')
-    parser.add_argument('--predict', action='store_true', help='Prédire le type de navire')
-    parser.add_argument('--show-features', action='store_true', help='Afficher la liste des features attendues')
-    parser.add_argument('--mmsi', type=int, help='MMSI du navire à prédire')
-    parser.add_argument('--features', type=str, help='Liste des features séparées par des virgules')
-    parser.add_argument('--data', type=str, default='../../../ia/data/large.csv', help='Chemin vers le fichier CSV de données')
+    """FONCTION PRINCIPALE POUR GÉRER LES ARGUMENTS DE LIGNE DE COMMANDE"""
+    parser = argparse.ArgumentParser(description='Prédiction du type de navire')
+    
+    parser.add_argument('--train', action='store_true', help='Entraîner les modèles')
+    parser.add_argument('--evaluate', action='store_true', help='Évaluer les modèles')
+    parser.add_argument('--predict', action='store_true', help='Faire une prédiction')
+    parser.add_argument('--data', type=str, help='Chemin vers le fichier de données CSV')
     parser.add_argument('--model', type=str, default='./models/best_vessel_model.pkl', help='Chemin vers le modèle sauvegardé')
-
+    parser.add_argument('--mmsi', type=int, help='MMSI du navire pour la prédiction')
+    parser.add_argument('--features', type=str, help='Features brutes séparées par des virgules')
+    parser.add_argument('--info', action='store_true', help='Afficher les informations sur les features')
+    
     args = parser.parse_args()
+    
+    # Vérifier que --data est fourni quand c'est nécessaire
+    data_required_cases = [
+        args.train,
+        args.evaluate, 
+        (args.predict and args.mmsi),  # Prédiction par MMSI nécessite les données
+        (args.info and not os.path.exists(args.model))  # Info sans modèle nécessite les données
+    ]
+    
+    if any(data_required_cases) and not args.data:
+        print("-> ERREUR: --data est requis pour cette opération")
+        if args.train or args.evaluate:
+            print("   L'entraînement/évaluation nécessite un fichier de données")
+        elif args.predict and args.mmsi:
+            print("   La prédiction par MMSI nécessite un fichier de données pour chercher le navire")
+        elif args.info:
+            print("   --info nécessite --data si le modèle n'existe pas encore")
+        sys.exit(1)
+    
     predictor = VesselTypePredictor()
-
-    if args.show_features:
-        try:
-            predictor.show_feature_info(args.data)
-        except Exception as e:
-            print(f"ERREUR: {e}")
-        return
-
-    if args.train or args.evaluate:
-        df = predictor.load_and_prepare_data(args.data)
-        df_processed, features = predictor.feature_engineering(df)
-        X_train, X_test, y_train, y_test = predictor.split_data_by_vessel(df_processed, features)
-        X_train_scaled, X_test_scaled = predictor.scale_features(X_train, X_test)
-        
-        if args.train:
-            predictor.train_models(X_train_scaled, y_train)
-            best_model_name = list(predictor.best_models.keys())[0]
-            predictor.save_model(best_model_name, args.model)
-            
-        if args.evaluate:
-            results = predictor.evaluate_models(X_test_scaled, y_test)
-            best_model_name = predictor.plot_results(y_test, results)
-            predictor.save_model(best_model_name, args.model)
-
-    elif args.predict:
-        if not predictor.load_model(args.model):
-            print("-> IMPOSSIBLE DE CHARGER LE MODÈLE. ENTRAÎNEZ D'ABORD UN MODÈLE AVEC --train")
-            return
-        
-        if args.features:
-            try:
-                feature_values = list(map(float, args.features.split(',')))
-                
-                df = predictor.load_and_prepare_data(args.data)
-                df_processed, feature_names = predictor.feature_engineering(df)
-                
-                if len(feature_values) != len(feature_names):
-                    print(f"-> ERREUR: {len(feature_values)} features fournies, {len(feature_names)} attendues")
-                    print("-> Utilisez --show-features pour voir la liste complète")
-                    return
-                
-                prediction = predictor.predict_from_features(feature_values, feature_names)
-                
-            except Exception as e:
-                print(f"-> ERREUR LORS DE LA PRÉDICTION: {e}")
-                
-        elif args.mmsi:
-            df = predictor.load_and_prepare_data(args.data)
-            df_processed, features = predictor.feature_engineering(df)
-            df_mmsi = df_processed[df_processed['MMSI'] == args.mmsi]
-            
-            if df_mmsi.empty:
-                print(f"-> AUCUN NAVIRE TROUVÉ AVEC MMSI {args.mmsi}")
-                return
-                
-            X = df_mmsi[features].iloc[0].values
-            prediction = predictor.predict_from_features(X, features)
-            
+    
+    if args.info:
+        if os.path.exists(args.model):
+            predictor.show_feature_info_from_model(args.model)
         else:
-            print("-> VEUILLEZ SPÉCIFIER UN MMSI OU DES FEATURES POUR LA PRÉDICTION.")
-            return
-
+            predictor.show_feature_info(args.data)
+        return
+    
+    if args.train or args.evaluate:
+        print("=" * 60)
+        print("ENTRAÎNEMENT ET ÉVALUATION DES MODÈLES DE PRÉDICTION")
+        print("=" * 60)
+        
+        try:
+            # Chargement et préparation des données
+            df = predictor.load_and_prepare_data(args.data)
+            print(f"-> DONNÉES CHARGÉES: {len(df)} lignes")
+            print(f"-> DISTRIBUTION DES CATÉGORIES:")
+            print(df['VesselCategory'].value_counts())
+            
+            # Feature engineering
+            df_processed, feature_columns = predictor.feature_engineering(df)
+            print(f"-> FEATURES CRÉÉES: {len(feature_columns)}")
+            
+            # Séparation des données
+            X_train, X_test, y_train, y_test = predictor.split_data_by_vessel(df_processed, feature_columns)
+            
+            # Normalisation
+            X_train_scaled, X_test_scaled = predictor.scale_features(X_train, X_test)
+            
+            if args.train:
+                # Entraînement
+                predictor.train_models(X_train_scaled, y_train)
+            
+            if args.evaluate:
+                # Évaluation
+                results = predictor.evaluate_models(X_test_scaled, y_test)
+                
+                if results:
+                    best_model = predictor.plot_results(y_test, results)
+                    
+                    # Sauvegarde du meilleur modèle
+                    predictor.save_model(best_model, args.model)
+                
+        except Exception as e:
+            print(f"-> ERREUR LORS DE L'ENTRAÎNEMENT/ÉVALUATION: {e}")
+            sys.exit(1)
+    
+    elif args.predict:
+        print("=" * 60)
+        print("PRÉDICTION DU TYPE DE NAVIRE")
+        print("=" * 60)
+        
+        if not os.path.exists(args.model):
+            print(f"-> MODÈLE NON TROUVÉ: {args.model}")
+            print("-> VEUILLEZ D'ABORD ENTRAÎNER UN MODÈLE AVEC --train --evaluate")
+            sys.exit(1)
+        
+        if args.mmsi:
+            # Prédiction par MMSI
+            result = predictor.predict_by_mmsi(args.mmsi, args.data)
+            
+        elif args.features:
+            # Prédiction par features
+            try:
+                features = args.features.split(',')
+                if len(features) != 8:
+                    print(f"-> ERREUR: Attendu 8 features, reçu {len(features)}")
+                    print("-> FORMAT ATTENDU: SOG,COG,Heading,Length,Width,Draft,Status,TransceiverClass")
+                    print("-> EXEMPLE: \"12.5,45.2,180,50,15,3.5,5,A\"")
+                    sys.exit(1)
+                
+                # Convertir les features (tout sauf les deux dernières)
+                parsed_features = []
+                for i, feature in enumerate(features):
+                    if i < 6:  # Les 6 premières sont numériques
+                        parsed_features.append(float(feature.strip()))
+                    else:  # Status et TransceiverClass
+                        parsed_features.append(feature.strip())
+                
+                result = predictor.predict_single(parsed_features, args.model)
+                
+            except ValueError as e:
+                print(f"-> ERREUR DE FORMAT DES FEATURES: {e}")
+                print("-> FORMAT ATTENDU: SOG,COG,Heading,Length,Width,Draft,Status,TransceiverClass")
+                print("-> EXEMPLE: \"12.5,45.2,180,50,15,3.5,5,A\"")
+                sys.exit(1)
+        
+        else:
+            print("-> ERREUR: Veuillez spécifier --mmsi ou --features pour la prédiction")
+            sys.exit(1)
+        
+        if result:
+            print(f"\n-> PRÉDICTION TERMINÉE AVEC SUCCÈS")
+            print(f"-> CONFIANCE: {result['confidence']:.4f}")
+    
     else:
-        print("-> AUCUNE ACTION SPÉCIFIÉE. UTILISEZ --train, --evaluate, --predict OU --show-features")
+        print("-> VEUILLEZ SPÉCIFIER --train, --evaluate, --predict ou --info")
         parser.print_help()
+
 
 if __name__ == "__main__":
     main()
