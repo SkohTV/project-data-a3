@@ -395,6 +395,39 @@ if ($requestRessource == 'predict_boat_trajectory') {
 }
 
 
+// -> get php/requests.php/predict_boat_type?mmsi=XXX -> 'type'
+// http://etu0623.projets.isen-ouest.info/php/requests.php/predict_boat_type?mmsi=XXX
+if ($requestRessource == 'predict_boat_type') {
+  if ($requestMethod == 'GET') {
+    $mmsi = $_GET['mmsi'] ?? null;
+
+    
+    if (!is_numeric($mmsi)) {
+      header('http/1.1 400 bad request');
+      exit;
+    }
+
+    $result = [];
+    $return_var = 0;
+    $cmd = "cd scripts && ./numpy_hell/bin/python3 besoin_client_2.py --!TODO" . " 2>&1";
+    exec($cmd, $result, $return_var);
+
+    if ($return_var !== 0) {
+      error_log("python script error: " . implode("\n", $result));
+      header('http/1.1 500 internal server error');
+      echo json_encode(['error' => 'internal server error', 'details' => $result]);
+      exit;
+    }
+
+    echo json_encode($result);
+    exit;
+  } else {
+    header('http/1.1 405 method not allowed');
+    exit;
+  }
+}
+
+
 // -> get php/requests.php/fetch_boat_picture?mmsi=XXX output -> https://....
 //
 if ($requestRessource == 'fetch_boat_picture') {

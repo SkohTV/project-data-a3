@@ -168,6 +168,9 @@ function navigateToPage(pageId) {
   if (pageId == 'predict') {
       predict_trajectoire_vesseltype()
   }
+  if (pageId == 'clusters') {
+      predict_clusters()
+  }
 }
 
 function setupParallaxEffect() {

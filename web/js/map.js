@@ -159,3 +159,79 @@ function generate_popup_txt(mmsi, name, length, width) {
     <p>${length}m X ${width}m</p>
   </div>`
 }
+
+
+function predict_clusters() {
+  colors = ['#F00', '#0F0', '#00F', '#FF0', '#F0F', '#0FF', '#FFF']
+
+
+  const mmsi = document.getElementById("filter-mmsi").value.trim();
+
+  const params = new URLSearchParams({
+    limits: itemsPerPage,
+    page: currentPagination,
+    longueur_min: document.getElementById("filter-longueur-min").value,
+    longueur_max: document.getElementById("filter-longueur-max").value,
+    largeur_min: document.getElementById("filter-largeur-min").value,
+    largeur_max: document.getElementById("filter-largeur-max").value,
+  });
+
+  if (filterData.temps) {
+    const minSliderValue = document.getElementById("filter-temps-min").value;
+    const maxSliderValue = document.getElementById("filter-temps-max").value;
+
+    const minDate = new Date(filterData.temps[1]);
+    const maxDate = new Date(filterData.temps[0]);
+    const range = maxDate.getTime() - minDate.getTime();
+
+    const oneDay = 24 * 60 * 60 * 1000;
+
+    const selectedMinDate = new Date(
+      minDate.getTime() + (range * minSliderValue) / 100 - oneDay
+    );
+    const selectedMaxDate = new Date(
+      minDate.getTime() + (range * maxSliderValue) / 100 + oneDay
+    );
+
+    params.append("temps_min", Math.floor(selectedMinDate.getTime() / 1000));
+    params.append("temps_max", Math.floor(selectedMaxDate.getTime() / 1000));
+  }
+
+  if (mmsi) {
+    params.append("mmsi", mmsi);
+  }
+
+  const transceiver = document.getElementById("filter-transceiver").value;
+  const status = document.getElementById("filter-status").value;
+
+  if (transceiver) {
+    const transceiverCode =
+      transceiver === "A" ? "1" : transceiver === "B" ? "2" : transceiver;
+    params.append("transceiver_class", transceiverCode);
+  }
+
+  if (status) {
+    params.append("status_code", status);
+  }
+
+
+  ajaxRequest('GET', `php/requests.php/all_points_donnee?${params}`, (r) => {
+
+    const tr = r.reduce((acc, { mmsi, vessel_name, length, width, latitude, longitude, cluster }) => {
+
+      if (!acc[mmsi])
+        acc[mmsi] = { mmsi, vessel_name, length, width, color: colors[cluster], vals: [] };
+
+      acc[mmsi].vals.push([longitude, latitude]);
+      return acc;
+
+    }, {});
+
+    const val_array = Object.values(tr);
+    const pre_c = val_array.map(x => Object.values(x));
+    const c = pre_c.map(x => [generate_popup_txt(x[0], x[1], x[2], x[3]), x[4], x[5]]);
+
+    map_clusters = generate_map('clusters')
+    add_lines(map_clusters, c)
+  })
+}
