@@ -89,6 +89,43 @@ function add_lines(map, data) {
     //   .setPopup(popup)
     //   .addTo(map);
 
+    // https://maplibre.org/maplibre-gl-js/docs/examples/popup-on-click/
+    // map.on('click', id, (e) => {
+    //   new maplibregl.Popup()
+    //     .setLngLat(e.lngLat)
+    //     .setHTML(e.features[0].properties.description)
+    //     .addTo(map);
+    // });
+    // map.on('mouseenter', id, () => map.getCanvas().style.cursor = 'pointer' );
+    // map.on('mouseleave', id, () => map.getCanvas().style.cursor = '' );
+
+    // https://maplibre.org/maplibre-gl-js/docs/examples/popup-on-hover/
+    let currentFeatureCoordinates = undefined;
+    map.on('mousemove', 'places', (e) => {
+        const featureCoordinates = e.features[0].geometry.coordinates.toString();
+        if (currentFeatureCoordinates !== featureCoordinates) {
+            currentFeatureCoordinates = featureCoordinates;
+
+            map.getCanvas().style.cursor = 'pointer';
+
+            const coordinates = e.features[0].geometry.coordinates.slice();
+            const description = e.features[0].properties.description;
+
+            while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+                coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+            }
+
+            popup.setLngLat(coordinates).setHTML(description).addTo(map);
+        }
+    });
+
+    map.on('mouseleave', 'places', () => {
+        currentFeatureCoordinates = undefined;
+        map.getCanvas().style.cursor = '';
+        popup.remove();
+    });
+
+
   });
 }
 
