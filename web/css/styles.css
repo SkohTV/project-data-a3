@@ -1084,3 +1084,10 @@ body {
 .boat-pic {
     max-width: 100px;
 }
+.red { color: red; }
+.blue { color: blue; }
+.green { color: green; }
+.purple { color: purple; }
+.cyan { color: cyan; }
+.yellow { color: yellow; }
+.white { color: white; }
