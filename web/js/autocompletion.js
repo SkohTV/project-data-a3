@@ -1,4 +1,6 @@
 
+
+// autocompletion for the mmsi input in filter on the visualization section
 document.getElementById("filter-mmsi").oninput = () => {
   const mmsi = document.getElementById("filter-mmsi").value.trim();
   if (mmsi.length >= 3) {
@@ -17,6 +19,8 @@ document.getElementById("filter-mmsi").oninput = () => {
   }
 }
 
+
+// autocompletion for the mmsi input in point on add point section
 document.getElementById("point-mmsi").oninput = () => {
   const mmsi = document.getElementById("point-mmsi").value.trim();
   if (mmsi.length >= 3) {

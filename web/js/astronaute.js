@@ -1,4 +1,11 @@
 
+
+
+
+// file for the animation of the astronaut image
+// the princip is to zoom in on the image when clicked or touched
+
+
 document.addEventListener('DOMContentLoaded', function() {
     const astronaut = document.getElementById('astronaut');
     const astronautImg = astronaut.querySelector('img');
@@ -56,12 +63,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
     
-    astronaut.addEventListener('click', zoomAstronaute); // au clique de l'astronaute
+    astronaut.addEventListener('click', zoomAstronaute); // on click event
     
     
 
 
-    // tactile il faut tester car je ne suis pas sur que ca marche
+    // touch event for mobile devices
     astronaut.addEventListener('touchstart', function(e) {
         e.preventDefault();
         zoomAstronaute(e);

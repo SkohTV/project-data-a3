@@ -4,11 +4,18 @@ let itemsPerPage = 10;
 let totalPages = 1;
 let totalCount = 0;
 
+
+
+// on the load of the dom, load filter, tab and activate addevent listeners for the buttons
 document.addEventListener("DOMContentLoaded", function () {
   loadFilterValues();
   loadtab();
   setupEventListeners();
 });
+
+
+
+
 
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("add-vessel-form");
@@ -150,6 +157,11 @@ function loadFilterValues() {
     initializeFilters();
   });
 }
+
+
+
+// init filters (values and sliders)
+
 
 function initializeFilters() {
   setupSlider("longueur", filterData.longueur[1], filterData.longueur[0]);
@@ -440,16 +452,4 @@ function applyFilters() {
 function refreshVisualization() {
   loadtab();
 }
-function predictClusters() {
-  alert("Je fais ca demain la team");
-}
-function predictSelected(type) {
-  alert("Je fais ca demain la team, ou ce soir si j'ai le temps ");
-}
-function exportData() {
-  alert("Je fais ca demain la team");
-}
-
-
-
 

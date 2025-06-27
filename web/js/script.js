@@ -10,11 +10,11 @@ let animationId = null;
 
 
 
-document.addEventListener("DOMContentLoaded", function () { // au load du DOM
+document.addEventListener("DOMContentLoaded", function () { // au load du DOM on veur setupe la navigation entre les pages (ajouter des envent listener)
   setupNavigation();
-  setupGlobe();
+  setupGlobe(); // affichage du globe
 
-  setupParallaxEffect();
+  setupParallaxEffect(); // effet de zoom au scroll sur la page d'accueil
 });
 
 
