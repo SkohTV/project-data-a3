@@ -3,6 +3,7 @@ Noé LORRET-DESPRET - Corentin MARIE - Robin DELAUNAY
 
 ### [Website](http://etu0623.projets.isen-ouest.info)
 ### [Rendu intermédiaire](./docs/)
+### [Livrable](./)
 
 ---
 
@@ -37,32 +38,4 @@ Tâches:
 - [x] Import des données (Noé)
 - [x] Gestion GIT (Noé)
 - [x] Rendu intermédiaire (Lequipe)
-
-___ 
-
-# SCRUM 
-
--> Demi-journée 1:
-Écriture de documents, mise en place des pipelines, début du frontend
-
--> Demi-journée 2:
-Avancement du frontend, début du backend, import des données
-
--> Demi-journée 3:
-Lien avec la BDD, écriture et débug des interfaces utilisateurs
-
--> Demi-journée 4:
-... (Mercredi matin)
-
--> Demi-journée 5:
-... (Mercredi soir)
-
--> Demi-journée 6:
-... (Jeudi matin)
-
--> Demi-journée 7:
-... (Vendredi matin)
-
--> Demi-journée 8:
-Passage à l'oral
 
