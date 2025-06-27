@@ -188,6 +188,15 @@ function navigateToPage(pageId) {
   }
 
   if (pageId == 'predict') {
+
+      // check si il y a une ligne de selectionné
+      const selectedRow = document.querySelector('#vessels-table input[type="radio"]:checked');
+      if (!selectedRow) {
+        document.getElementById("errors").innerHTML = '<strong>Veuillez sélectionner un navire pour prédire sa trajectoire.</strong>';
+        document.getElementById("errors").style.display = "block";
+        return;
+      }
+      
       predict_trajectoire_vesseltype()
   }
   if (pageId == 'clusters') {
