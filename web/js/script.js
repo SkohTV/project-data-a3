@@ -158,9 +158,26 @@ function setupNavigation() { // navigation entre les pages avec le data-page des
 
 // active or deactivate the page
 function navigateToPage(pageId) {
+
   if (pageId === "home") {
     window.scrollTo(0, 0);
   }
+
+
+
+
+  // check si il y a une ligne de selectionné
+  const selectedRow = document.querySelector('#vessels-table input[type="radio"]:checked');
+  if (pageId === "predict" && !selectedRow) {
+    document.getElementById("errors").innerHTML = '<strong>Veuillez sélectionner un navire pour prédire sa trajectoire.</strong>';
+    document.getElementById("errors").style.display = "block";
+    return;
+  } else {
+    document.getElementById("errors").style.display = "none";
+  }
+
+
+
 
   document.querySelectorAll(".content-page").forEach((page) => {
     page.classList.remove("active");
@@ -189,16 +206,8 @@ function navigateToPage(pageId) {
 
   if (pageId == 'predict') {
 
-      // check si il y a une ligne de selectionné
-      const selectedRow = document.querySelector('#vessels-table input[type="radio"]:checked');
-      if (!selectedRow) {
-        document.getElementById("errors").innerHTML = '<strong>Veuillez sélectionner un navire pour prédire sa trajectoire.</strong>';
-        document.getElementById("errors").style.display = "block";
-        return;
-      } else {
-        document.getElementById("errors").style.display = "none";
-        predict_trajectoire_vesseltype()
-      }
+      
+      predict_trajectoire_vesseltype();
       
       
   }
