@@ -10,7 +10,7 @@ let animationId = null;
 
 
 
-document.addEventListener("DOMContentLoaded", function () { // au load du DOM on veur setupe la navigation entre les pages (ajouter des envent listener)
+document.addEventListener("DOMContentLoaded", function () { // au load du DOM on veut setup la navigation entre les pages (ajouter des envent listener)
   setupNavigation();
   setupGlobe(); // affichage du globe
 
