@@ -196,6 +196,7 @@ function navigateToPage(pageId) {
         document.getElementById("errors").style.display = "block";
         return;
       } else {
+        document.getElementById("errors").style.display = "none";
         predict_trajectoire_vesseltype()
       }
       
