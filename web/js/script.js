@@ -5,13 +5,23 @@ let globeScene = null;
 let globeCamera = null;
 let animationId = null;
 
-document.addEventListener("DOMContentLoaded", function () {
+
+
+
+
+
+document.addEventListener("DOMContentLoaded", function () { // au load du DOM
   setupNavigation();
   setupGlobe();
+
   setupParallaxEffect();
 });
 
-function setupGlobe() {
+
+
+
+
+function setupGlobe() { // setup du globe avec le module TREE.js
   const canvas = document.getElementById("globe-canvas");
   if (!canvas) return;
 
@@ -94,10 +104,10 @@ function setupGlobe() {
 
   globeCamera.position.z = 3.2;
 
-  animateGlobe();
+  animateGlobe(); // l'animation c'est la rotation du globe sur lui meme
 }
 
-function animateGlobe() {
+function animateGlobe() { // rotation du globe
   if (!globe || !globeRenderer || !globeScene || !globeCamera) return;
 
   animationId = requestAnimationFrame(animateGlobe);
@@ -105,7 +115,15 @@ function animateGlobe() {
   globeRenderer.render(globeScene, globeCamera);
 }
 
-function setupNavigation() {
+
+
+
+
+
+
+
+
+function setupNavigation() { // navigation entre les pages avec le data-page des balises <a>
   const navLinks = document.querySelectorAll(".nav-link");
   const ctaButton = document.querySelector(".cta-button");
   const featureCards = document.querySelectorAll(".feature-card");
@@ -136,6 +154,9 @@ function setupNavigation() {
   });
 }
 
+
+
+// active or deactivate the page
 function navigateToPage(pageId) {
   if (pageId === "home") {
     window.scrollTo(0, 0);
@@ -174,7 +195,9 @@ function navigateToPage(pageId) {
   }
 }
 
-function setupParallaxEffect() {
+
+
+function setupParallaxEffect() { //setup de l'effet zoom au scroll
   if (currentPage !== "home") return;
 
   const earthContainer = document.querySelector(".earth-container");
