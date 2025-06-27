@@ -195,9 +195,11 @@ function navigateToPage(pageId) {
         document.getElementById("errors").innerHTML = '<strong>Veuillez sélectionner un navire pour prédire sa trajectoire.</strong>';
         document.getElementById("errors").style.display = "block";
         return;
+      } else {
+        predict_trajectoire_vesseltype()
       }
       
-      predict_trajectoire_vesseltype()
+      
   }
   if (pageId == 'clusters') {
       predict_clusters()
